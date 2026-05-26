@@ -1,0 +1,8 @@
+.container-main {
+  display: grid;
+  grid-template-rows: auto auto auto;
+  gap: 20px;
+  width: 100%;
+  min-height: 100%;
+  padding: var(--padding-padrao);
+}

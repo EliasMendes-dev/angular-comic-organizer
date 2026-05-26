@@ -1,0 +1,10 @@
+@media (min-width: 1001px) {
+  .container-rename-settings {
+    height: 100%;
+  }
+
+  .rename-settings {
+    justify-content: flex-start;
+    padding: 20px 10px;
+  }
+}

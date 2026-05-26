@@ -1,1 +1,111 @@
-/* You can add global styles to this file, and also import other style files */
+/* ========================================
+   Design Tokens
+======================================== */
+:root {
+  /* Surface */
+  --fundo-primario: #f7f9f8;
+  --fundo-secundario: #d0d0d06a;
+  --fundo-hover: #e4eae7;
+  --fundo-input: #ffffff;
+  --fundo-header: #81dba7;
+
+  /* Borders */
+  --cor-borda: #d6e0da;
+
+  /* Text */
+  --texto-primario: #1c2b24;
+  --texto-secundario: #5d5d5d;
+  --texto-mudo: #7a9387;
+
+  /* Font families */
+  --familia-fonte-padrao: 'Geist', 'Geist Fallback';
+  --familia-fonte-mono-padrao: 'Geist Mono', 'Geist Mono Fallback';
+
+  /* Semantic colors */
+  --verde-primario: #81dba7;
+  --verde-hover: #245638;
+  --verde-escuro: #3cae6b;
+
+  --vermelho-primario: #520800;
+  --vermelho-hover: #e05757;
+
+  --padding-padrao: 0.5rem 0.4rem;
+  --padding-padrao-responsivo: 0.5rem 1.5rem;
+}
+
+.dark-mode {
+  --fundo-primario: #0b0d10;
+  --fundo-secundario: #0f1216;
+  --fundo-hover: #1b2229;
+  --fundo-input: #ffffff;
+  --fundo-header: #0b0d10;
+
+
+  --cor-borda: #1f262d;
+
+  --texto-primario: #e8f1ec;
+  --texto-secundario: #a7b7ae;
+  --texto-mudo: #6e8076;
+
+  --verde-primario: #2dd48a;
+  --verde-hover: #19784d;
+  --verde-escuro: #1c8c57;
+
+  --vermelho-primario: #520800;
+  --vermelho-hover: #e05757;
+
+  --fundo-input: #10151a;
+  --borda-input: #25303a;
+
+  --sombra-elevada: 0 20px 45px rgba(0, 0, 0, 0.45);
+}
+
+/* ========================================
+   Base
+======================================== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: var(--familia-fonte-padrao);
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--cor-borda) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: var(--cor-borda);
+  border-radius: 999px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+body {
+  background-color: var(--fundo-primario);
+  color: var(--texto-primario);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.svg-icon {
+  color: var(--texto-secundario);
+}
+
+.delete {
+  color: var(--vermelho-primario);
+}
+
+.delete:hover {
+  color: var(--vermelho-hover);
+}
+

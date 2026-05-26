@@ -1,0 +1,22 @@
+<div class="container-header">
+  <div class="container-header-logo">
+    <svg lucideBookOpen [size]="32"></svg>
+    <h1>Comic Organizer</h1>
+  </div>
+
+  <div class="container-header-settings">
+    <button class="format-selector">
+      <svg lucidePlus></svg>
+
+      <svg lucideChevronDown></svg>
+    </button>
+
+    <button class="change-theme" (click)="changeTheme()">
+      @if (!isDarkMode) {
+        <svg lucideMoon></svg>
+      } @else {
+        <svg lucideSun></svg>
+      }
+    </button>
+  </div>
+</div>

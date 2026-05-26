@@ -1,0 +1,6 @@
+@media (min-width: 600px) {
+  .container-header {
+    padding: var(--padding-padrao-responsivo);
+  }
+}
+
