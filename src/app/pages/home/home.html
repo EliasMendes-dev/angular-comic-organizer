@@ -1,13 +1,22 @@
 <div class="container-main">
+  @if (isDesktop) {
+    <as-split direction="horizontal" unit="percent" [gutterSize]="5" [restrictMove]="true" [useTransition]="true" >
+      <as-split-area [size]="25" [minSize]="20">
+        <app-file-explorer />
+      </as-split-area>
 
-      <app-file-explorer></app-file-explorer>
+      <as-split-area [size]="50" [minSize]="35">
+        <app-comic-preview />
+      </as-split-area>
 
+      <as-split-area [size]="25" [minSize]="25">
+        <app-rename-settings />
+      </as-split-area>
+    </as-split>
 
-
-      <app-comic-preview></app-comic-preview>
-
-
-
+  } @else {
+    <app-file-explorer></app-file-explorer>
+    <app-comic-preview></app-comic-preview>
     <app-rename-settings></app-rename-settings>
-
+  }
 </div>

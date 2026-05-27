@@ -8,7 +8,6 @@
   .container-main {
     display: grid;
     grid-template-rows: auto;
-    grid-template-columns: 1fr 1fr 1fr;
     gap: 20px;
     width: 100%;
     min-height: 100%;

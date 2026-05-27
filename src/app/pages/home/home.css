@@ -1,8 +1,45 @@
 .container-main {
   display: grid;
   grid-template-rows: auto auto auto;
+
   gap: 20px;
   width: 100%;
   min-height: 100%;
   padding: var(--padding-padrao);
 }
+
+as-split {
+  height: 100%;
+  width: 100%;
+  --as-gutter-background-color: transparent;
+}
+
+/* área interna */
+as-split-area {
+  overflow: hidden;
+}
+
+.as-split-gutter {
+  position: relative;
+}
+
+/* área invisível maior */
+.as-split-gutter::before {
+  content: "";
+  position: absolute;
+
+  top: 0;
+  bottom: 0;
+
+  left: -6px;
+  right: -6px;
+
+  cursor: col-resize;
+}
+
+/*Quando a barra receber foco, o -as-gutter-background-color tem que mudar para cor-primaria*/
+
+as-split:has(.as-split-gutter:hover) {
+  --as-gutter-background-color: var(--cor-borda);
+}
+
