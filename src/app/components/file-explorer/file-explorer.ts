@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import {LucideFolder, LucideTrash2, LucideSquareCheckBig, LucideSquare } from '@lucide/angular';
+import { LucideFolder, LucideTrash2, LucideSquareCheckBig, LucideSquare } from '@lucide/angular';
 
 @Component({
   selector: 'app-file-explorer',
@@ -9,6 +9,8 @@ import {LucideFolder, LucideTrash2, LucideSquareCheckBig, LucideSquare } from '@
   styleUrls: ['./file-explorer.css', './file-explorer-responsive.css'],
 })
 export class FileExplorer implements OnInit {
-  ngOnInit(): void {
-  }
+  isHovering = false;
+  isActive = false;
+
+  ngOnInit(): void {}
 }

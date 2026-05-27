@@ -23,8 +23,10 @@ import {
 
 export class MenuBar implements OnInit {
 
-  // Observa tema atual para alternar o ícone do botão de tema
-  isDarkMode: boolean = true;
+
+  isActive = false;   // Controla a visibilidade do menu de opções de formato
+
+  isDarkMode: boolean = true;   // Observa tema atual para alternar o ícone do botão de tema
 
   constructor() {}
 

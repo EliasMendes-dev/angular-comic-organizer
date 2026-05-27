@@ -5,11 +5,19 @@
   </div>
 
   <div class="container-header-settings">
-    <button class="format-selector">
-      <svg lucidePlus></svg>
+    <!-- Ao clicar exibe um menu com duas opçoes, "Converter para CBZ, Converter para CBR"-->
+     <div class="format-selector-container">
+        <button class="format-selector" (click)="isActive = !isActive">
+          <svg lucidePlus></svg>
 
-      <svg lucideChevronDown></svg>
-    </button>
+          <svg lucideChevronDown></svg>
+        </button>
+
+        <div class="format-options" [class.active]="isActive">
+          <button class="format-option">CBR para CBZ</button>
+          <button class="format-option">CBZ para CBR</button>
+        </div>
+     </div>
 
     <button class="change-theme" (click)="changeTheme()">
       @if (!isDarkMode) {

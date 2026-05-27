@@ -3,61 +3,61 @@
 ======================================== */
 :root {
   /* Surface */
-  --fundo-primario: #f7f9f8;
-  --fundo-secundario: #d0d0d06a;
-  --fundo-hover: #e4eae7;
-  --fundo-input: #ffffff;
-  --fundo-header: #81dba7;
+  --fundo-primario: #f5f7f6;
+  --fundo-secundario: #edf1ef;
+
+  --fundo-hover: #e3e9e5;
+  --fundo-input: #fbfcfb;
 
   /* Borders */
-  --cor-borda: #d6e0da;
+  --cor-borda: #d3dbd6;
 
   /* Text */
-  --texto-primario: #1c2b24;
-  --texto-secundario: #5d5d5d;
-  --texto-mudo: #7a9387;
-
-  /* Font families */
-  --familia-fonte-padrao: 'Geist', 'Geist Fallback';
-  --familia-fonte-mono-padrao: 'Geist Mono', 'Geist Mono Fallback';
+  --texto-primario: #223028;
+  --texto-secundario: #5e6b63;
 
   /* Semantic colors */
-  --verde-primario: #81dba7;
-  --verde-hover: #245638;
-  --verde-escuro: #3cae6b;
+  --verde-primario: #498661;
+  --verde-hover: #4b9168;
 
-  --vermelho-primario: #520800;
-  --vermelho-hover: #e05757;
+  --vermelho-primario: #b84e4e;
+  --vermelho-hover: #9e3f3f;
+
+  /* Extras */
+  --borda-input: #cfd8d3;
+
+  /* Font families and Padding - no .dark-mode needed*/
+  --familia-fonte-padrao: 'Geist', 'Geist Fallback';
+  --familia-fonte-mono-padrao: 'Geist Mono', 'Geist Mono Fallback';
 
   --padding-padrao: 0.5rem 0.4rem;
   --padding-padrao-responsivo: 0.5rem 1.5rem;
 }
 
 .dark-mode {
+  /* Surface */
   --fundo-primario: #0b0d10;
   --fundo-secundario: #0f1216;
-  --fundo-hover: #1b2229;
-  --fundo-input: #ffffff;
-  --fundo-header: #0b0d10;
 
+  --fundo-hover: #131920;
+  --fundo-input: #10151a;
 
+  /* Borders */
   --cor-borda: #1f262d;
 
+  /* Text */
   --texto-primario: #e8f1ec;
   --texto-secundario: #a7b7ae;
-  --texto-mudo: #6e8076;
 
+  /* Semantic colors */
   --verde-primario: #2dd48a;
   --verde-hover: #19784d;
-  --verde-escuro: #1c8c57;
 
   --vermelho-primario: #520800;
   --vermelho-hover: #e05757;
 
-  --fundo-input: #10151a;
+  /* Extras */
   --borda-input: #25303a;
-
-  --sombra-elevada: 0 20px 45px rgba(0, 0, 0, 0.45);
 }
 
 /* ========================================
@@ -108,4 +108,3 @@ body {
 .delete:hover {
   color: var(--vermelho-hover);
 }
-

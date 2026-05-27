@@ -49,6 +49,11 @@ svg {
   background-color: transparent;
 }
 
+.action-button.active svg {
+
+  color: var(--verde-primario);
+}
+
 .title-file-explorer h2 {
   margin-left: 10px;
   font-size: 0.8rem;
@@ -59,3 +64,5 @@ svg {
   color: var(--texto-secundario);
   background-color: var(--fundo-secundario);
 }
+
+
