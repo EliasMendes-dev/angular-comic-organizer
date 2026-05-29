@@ -9,22 +9,91 @@
       <button
         class="action-button chooseall"
         [class.active]="isActive"
+        [disabled]="fileEditions.length < 2"
         (mouseenter)="isHovering = true"
         (mouseleave)="isHovering = false"
-        (click)="isActive = !isActive"
+        (click)="toggleChooseAll()"
       >
-        @if (isHovering || isActive) {
+        @if (fileEditions.length < 2) {
+          <svg lucideSquareX class="svg-icon disabled"></svg>
+        } @else if (isHovering || isActive) {
           <svg lucideSquareCheckBig class="svg-icon"></svg>
         } @else {
           <svg lucideSquare class="svg-icon"></svg>
         }
       </button>
 
-      <button class="action-button delete">
+      <button class="action-button delete" (click)="deleteAll()">
         <svg lucideTrash2 class="delete"></svg>
       </button>
     </div>
   </div>
 
-  <div class="content-file-explorer"></div>
+  <div class="file-explorer" cdkDropList (cdkDropListDropped)="drop($event)">
+    @for (edition of fileEditions; track edition.id) {
+      <div class="file-edition" cdkDrag [cdkDragDisabled]="fileEditions.length < 2">
+        <ng-template cdkDragPreview>
+          <div class="drag-preview">
+            <svg lucideGrip class="svg-icon"></svg>
+            <span>{{ edition.title }}</span>
+          </div>
+        </ng-template>
+
+        <div
+          class="file-header"
+          (click)="toggleFileEdition(edition.id)"
+          [class.active]="isEditionSelected(edition.id)"
+        >
+          <div class="file-title">
+            <button
+              class="file-grip"
+              [class.disabled]="fileEditions.length < 2"
+              cdkDragHandle
+              [attr.aria-disabled]="fileEditions.length < 2 ? 'true' : null"
+              (click)="$event.stopPropagation()"
+            >
+              <svg lucideGrip class="svg-icon"></svg>
+            </button>
+            @if (isEditionOpen(edition.id)) {
+              <svg lucideChevronUp class="svg-icon"></svg>
+            } @else {
+              <svg lucideChevronDown class="svg-icon"></svg>
+            }
+            <h3>{{ edition.title }}</h3>
+          </div>
+          <div class="file-actions">
+            <button
+              (mouseenter)="hoveredEditionId = edition.id"
+              (mouseleave)="hoveredEditionId = null"
+              (click)="toggleEditionSelection(edition.id); $event.stopPropagation()"
+            >
+              @if (hoveredEditionId === edition.id || isEditionSelected(edition.id)) {
+                <svg lucideSquareCheckBig class="svg-icon"></svg>
+              } @else {
+                <svg lucideSquare class="svg-icon"></svg>
+              }
+            </button>
+
+            <button (click)="deleteEdition(edition.id); $event.stopPropagation()">
+              <svg lucideTrash2 class="delete"></svg>
+            </button>
+          </div>
+        </div>
+
+        @if (isEditionOpen(edition.id)) {
+          <div class="file-pages" id="filePages">
+            @for (page of edition.pages; track page) {
+              <div
+                class="file-page"
+                [class.active]="isPageSelected(edition.id, page)"
+                (click)="togglePageSelection(edition.id, page); $event.stopPropagation()"
+              >
+                {{ page }}
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+  </div>
 </div>
