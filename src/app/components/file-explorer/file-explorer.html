@@ -9,12 +9,12 @@
       <button
         class="action-button chooseall"
         [class.active]="isActive"
-        [disabled]="fileEditions.length < 2"
+        [disabled]="fileManagerService.fileEditions.length < 2"
         (mouseenter)="isHovering = true"
         (mouseleave)="isHovering = false"
         (click)="toggleChooseAll()"
       >
-        @if (fileEditions.length < 2) {
+        @if (fileManagerService.fileEditions.length < 2) {
           <svg lucideSquareX class="svg-icon disabled"></svg>
         } @else if (isHovering || isActive) {
           <svg lucideSquareCheckBig class="svg-icon"></svg>
@@ -30,8 +30,12 @@
   </div>
 
   <div class="file-explorer" cdkDropList (cdkDropListDropped)="drop($event)">
-    @for (edition of fileEditions; track edition.id) {
-      <div class="file-edition" cdkDrag [cdkDragDisabled]="fileEditions.length < 2">
+    @for (edition of fileManagerService.fileEditions; track edition.id) {
+      <div
+        class="file-edition"
+        cdkDrag
+        [cdkDragDisabled]="fileManagerService.fileEditions.length < 2"
+      >
         <ng-template cdkDragPreview>
           <div class="drag-preview">
             <svg lucideGrip class="svg-icon"></svg>
@@ -47,20 +51,25 @@
           <div class="file-title">
             <button
               class="file-grip"
-              [class.disabled]="fileEditions.length < 2"
+              [class.disabled]="fileManagerService.fileEditions.length < 2"
               cdkDragHandle
-              [attr.aria-disabled]="fileEditions.length < 2 ? 'true' : null"
+              [attr.aria-disabled]="
+                fileManagerService.fileEditions.length < 2 ? 'true' : null
+              "
               (click)="$event.stopPropagation()"
             >
               <svg lucideGrip class="svg-icon"></svg>
             </button>
+
             @if (isEditionOpen(edition.id)) {
               <svg lucideChevronUp class="svg-icon"></svg>
             } @else {
               <svg lucideChevronDown class="svg-icon"></svg>
             }
+
             <h3>{{ edition.title }}</h3>
           </div>
+
           <div class="file-actions">
             <button
               (mouseenter)="hoveredEditionId = edition.id"
@@ -81,7 +90,7 @@
         </div>
 
         @if (isEditionOpen(edition.id)) {
-          <div class="file-pages" id="filePages">
+          <div class="file-pages">
             @for (page of edition.pages; track page) {
               <div
                 class="file-page"

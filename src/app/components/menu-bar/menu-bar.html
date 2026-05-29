@@ -6,18 +6,33 @@
 
   <div class="container-header-settings">
     <!-- Ao clicar exibe um menu com duas opçoes, "Converter para CBZ, Converter para CBR"-->
-     <div class="format-selector-container">
-        <button class="format-selector" (click)="isActive = !isActive">
-          <svg lucidePlus></svg>
+    <div class="format-selector-container">
+      <button class="format-selector" (click)="isActive = !isActive">
+        <svg lucidePlus></svg>
 
-          <svg lucideChevronDown></svg>
+        <svg lucideChevronDown></svg>
+      </button>
+
+      <div class="format-options" [class.active]="isActive">
+        <button
+          class="format-option"
+          [class.inactive]="selectedConversion && selectedConversion !== 'cbr-to-cbz'"
+          [disabled]="selectedConversion && selectedConversion !== 'cbr-to-cbz'"
+          (click)="selectConversion('cbr-to-cbz')"
+        >
+          CBR para CBZ
         </button>
 
-        <div class="format-options" [class.active]="isActive">
-          <button class="format-option">CBR para CBZ</button>
-          <button class="format-option">CBZ para CBR</button>
-        </div>
-     </div>
+        <button
+          class="format-option"
+          [class.inactive]="selectedConversion && selectedConversion !== 'cbz-to-cbr'"
+          [disabled]="selectedConversion && selectedConversion !== 'cbz-to-cbr'"
+          (click)="selectConversion('cbz-to-cbr')"
+        >
+          CBZ para CBR
+        </button>
+      </div>
+    </div>
 
     <button class="change-theme" (click)="changeTheme()">
       @if (!isDarkMode) {

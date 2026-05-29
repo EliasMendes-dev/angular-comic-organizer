@@ -3,10 +3,7 @@
   grid-template-rows: auto 1fr;
   width: 100%;
   height: 100%;
-  height: 400px;
   border: 1px solid var(--cor-borda);
-  overflow: hidden;
-  overflow-y: auto;
 }
 
 svg {
@@ -24,6 +21,7 @@ svg {
   width: 100%;
   padding: var(--padding-padrao);
   background-color: var(--fundo-primario);
+  z-index: 1;
 }
 
 .title-rename-settings {
@@ -62,7 +60,6 @@ svg {
   align-items: center;
   justify-content: center;
   background-color: var(--fundo-secundario);
-  padding: var(--padding-padrao);
 }
 
 /* Inputs */
@@ -75,6 +72,7 @@ svg {
   width: 100%;
   max-width: 500px;
   font-family: var(--familia-fonte-mono-padrao);
+  padding: var(--padding-padrao);
 }
 
 .input-container .input:first-child {
@@ -103,6 +101,28 @@ svg {
   color: var(--texto-primario);
 }
 
+.input-error input {
+  border: 1.5px solid var(--vermelho-primario, #e53935) !important;
+}
+
+.input-error label {
+  color: var(--vermelho-primario, #e53935) !important;
+}
+
+.errors {
+  padding: var(--padding-padrao);
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+ align-items: flex-start;
+}
+
+.error-message {
+  color: var(--vermelho-hover);
+  font-size: 12px;
+  margin-top: 4px;
+}
+
 .input input:focus {
   outline: none;
   border-color: var(--verde-primario);
@@ -127,6 +147,7 @@ svg {
 
   width: 100%;
   max-width: 500px;
+  padding: var(--padding-padrao);
 }
 
 .buttons button {
@@ -141,19 +162,31 @@ svg {
   border-radius: 4px;
 }
 
+.buttons button:disabled {
+  opacity: 0.5;
+
+}
+.buttons button:disabled:hover {
+  color: color-mix(in srgb, var(--vermelho-hover), transparent 20%);
+}
+
+butto
+
 .buttons button svg {
   width: 16px;
   height: 16px;
 }
 
-.rename-preview, .onlyrename, .omnibus {
+.rename-preview,
+.onlyrename,
+.omnibus {
   background-color: var(--fundo-primario);
   color: var(--texto-primario);
 }
 
-
-
-.rename-preview:hover, .onlyrename:hover, .omnibus:hover {
+.rename-preview:hover,
+.onlyrename:hover,
+.omnibus:hover {
   background-color: var(--fundo-hover);
 }
 
@@ -163,4 +196,137 @@ svg {
 
 .convert-to:hover {
   background-color: var(--verde-hover);
+}
+
+/* Preview */
+.preview-rename {
+  display: flex;
+  position: sticky;
+  top: 0;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  height: 440px;
+  background-color: var(--fundo-primario);
+  overflow-y: auto;
+}
+
+.preview-rename-header {
+  display: flex;
+  position: sticky;
+  top: 0;
+  flex-direction: row;
+  align-items: center;
+  width: 100%;
+  padding: var(--padding-padrao);
+  background-color: var(--fundo-primario);
+  z-index: 1;
+}
+
+.preview-rename-header h2 {
+  margin-left: 10px;
+  font-size: 0.8rem;
+  color: var(--texto-secundario);
+}
+
+.preview-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+/* BLOCO DA EDIÇÃO */
+.edition-block {
+  border: 1px solid #1d2d2d;
+  background: #06090d;
+
+  overflow: hidden;
+}
+
+/* HEADER */
+.edition-header {
+  padding: 10px 16px;
+
+  background: #0d2b21;
+
+  color: var(--verde-primario);
+  font-weight: 700;
+  font-size: 15px;
+
+  border-bottom: 1px solid #163b35;
+}
+
+/* LISTA */
+.pages-list {
+  display: flex;
+  flex-direction: column;
+}
+
+/* LINHA */
+.page-row {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+
+  align-items: center;
+
+  gap: 20px;
+
+  padding: 6px 16px;
+
+  border-bottom: 1px solid #101820;
+}
+
+.page-row:last-child {
+  border-bottom: none;
+}
+
+/* NOME ANTIGO */
+.page-old-name {
+  color: var(--texto-secundario);
+
+  font-size: 0.8rem;
+  text-decoration: line-through;
+
+  word-break: break-word;
+}
+
+/* SETA */
+.page-arrow {
+  color: var(--verde-primario);
+
+  font-size: 18px;
+  font-weight: bold;
+}
+
+/* NOVO NOME */
+.page-new-name {
+  color: var(--verde-primario);
+
+  font-size: 0.8rem;
+  font-weight: 600;
+
+  word-break: break-word;
+}
+
+/*Preview empty*/
+.preview-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  gap: 12px;
+
+  min-height: 250px;
+
+  color: #7b7b7b;
+
+  text-align: center;
+}
+
+.preview-empty-icon {
+  width: 42px;
+  height: 42px;
+
+  opacity: 0.5;
 }

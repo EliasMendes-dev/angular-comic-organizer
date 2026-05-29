@@ -4,31 +4,38 @@ import {
   LucidePlus,
   LucideChevronDown,
   LucideMoon,
-  LucideSun
+  LucideSun,
 } from '@lucide/angular';
+import { ConversionStateService } from '../../services/conversion-state';
+import { ConversionType } from '../../models/conversion-type';
 
 @Component({
   selector: 'app-menu-bar',
   standalone: true,
-  imports: [
-    LucideBookOpen,
-    LucidePlus,
-    LucideChevronDown,
-    LucideMoon,
-    LucideSun
-  ],
+  imports: [LucideBookOpen, LucidePlus, LucideChevronDown, LucideMoon, LucideSun],
   templateUrl: './menu-bar.html',
   styleUrls: ['./menu-bar.css', './menu-bar-responsive.css'],
 })
-
 export class MenuBar implements OnInit {
+  isActive = false; // Controla a visibilidade do menu de opções de formato
 
+  isDarkMode: boolean = true; // Observa tema atual para alternar o ícone do botão de tema
 
-  isActive = false;   // Controla a visibilidade do menu de opções de formato
+  constructor(private conversionStateService: ConversionStateService) {}
 
-  isDarkMode: boolean = true;   // Observa tema atual para alternar o ícone do botão de tema
+  selectConversion(type: ConversionType): void {
+    if (this.conversionStateService.getConversion()) {
+      return;
+    }
 
-  constructor() {}
+    this.conversionStateService.setConversion(type);
+
+    console.log('Conversão escolhida:', type);
+  }
+
+  get selectedConversion(): ConversionType | null {
+    return this.conversionStateService.getConversion();
+  }
 
   // Adiciona a classe 'dark-mode' ao corpo para aplicar o tema escuro por padrão
   ngOnInit(): void {
@@ -40,5 +47,4 @@ export class MenuBar implements OnInit {
     document.body.classList.toggle('dark-mode');
     this.isDarkMode = !this.isDarkMode;
   }
-
 }
