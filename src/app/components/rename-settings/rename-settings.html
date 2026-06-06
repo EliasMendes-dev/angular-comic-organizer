@@ -1,122 +1,39 @@
 <div class="container-rename-settings">
-  <div class="header-rename-settings">
-    <div class="title-rename-settings">
-      <svg lucideSettings class="svg-icon"></svg>
-      <h2>Configuração de Renomeação</h2>
-    </div>
-    <div class="actions-rename-settings">
-      <button class="action-button delete" (click)="clearInputs()">
-        <svg lucideTrash2 class="delete"></svg>
-      </button>
-    </div>
-  </div>
-  <div class="rename-settings">
-    <div class="input-container">
-      <div class="input" [class.input-error]="titleError">
-        <label>Titulo</label>
-        <input
-          type="text"
-          placeholder="Nome do quadrinho"
-          [(ngModel)]="title"
-          [disabled]="!hasSelectedEditions()"
-          (input)="validateRealtime()"
-        />
-      </div>
+  <app-rename-settings-header (onClear)="clearInputs()"></app-rename-settings-header>
 
-      <div class="input" [class.input-error]="yearError">
-        <label>Ano</label>
-        <input
-          type="text"
-          placeholder="Ex: 2024"
-          [(ngModel)]="year"
-          [disabled]="!hasSelectedEditions()"
-          (input)="validateRealtime()"
-        />
-      </div>
+  <div class="content-rename-settings">
+    <div class="rename-settings">
+      <app-rename-settings-form
+        [title]="title"
+        [year]="year"
+        [edition]="edition"
+        [isDisabled]="!hasSelectedEditions()"
+        [titleError]="titleError"
+        [yearError]="yearError"
+        [editionError]="editionError"
+        [hasMultipleSelectedEditions]="hasMultipleSelectedEditions()"
+        (titleChange)="title = $event"
+        (yearChange)="year = $event"
+        (editionChange)="edition = $event"
+        (inputChanged)="validateRealtime()"
+      ></app-rename-settings-form>
 
-      <div class="input" [class.input-error]="editionError">
-        <label>Edição</label>
-        <input
-          type="text"
-          [(ngModel)]="edition"
-          [placeholder]="hasMultipleSelectedEditions() ? 'Edição inicial' : 'Ex: 001'"
-          [disabled]="!hasSelectedEditions()"
-          (input)="validateRealtime()"
-        />
-      </div>
-    </div>
-    <div class="buttons">
-      <button class="rename-preview" (click)="onPreviewClick()" [disabled]="!hasSelectedEditions()">
-        <svg lucideEye></svg> Visualizar
-      </button>
-      <button class="onlyrename" [disabled]="!hasSelectedEditions()">
-        <svg lucidePenLine></svg> Renomear
-      </button>
-      <button class="convert-to" [disabled]="!hasSelectedEditions()">
-        <svg lucideFileArchive></svg>Converter para
-      </button>
-      <button class="omnibus" [disabled]="!hasSelectedEditions()">
-        <svg lucideLayers></svg> Omnibus
-      </button>
-    </div>
-    <div class="errors">
-      @if (titleError) {
-        <span class="error-message">
-          {{ titleError }}
-        </span>
-      }
-      @if (yearError) {
-        <span class="error-message">
-          {{ yearError }}
-        </span>
-      }
-      @if (editionError) {
-        <span class="error-message">
-          {{ editionError }}
-        </span>
-      }
-    </div>
-    <div class="preview-rename">
-      <div class="preview-rename-header">
-        <svg lucideSettings class="svg-icon"></svg>
-        <h2>Preview de Renomeação</h2>
-      </div>
+      <app-rename-settings-actions
+        [isPreviewDisabled]="!canUsePreviewAndRename"
+        [isRenameDisabled]="!canUsePreviewAndRename"
+        [isConvertToDisabled]="!canUseConvertTo"
+        [isOmnibusDisabled]="!canUseOmnibus"
+        (onPreview)="onPreviewClick()"
+        (onRename)="onRename()"
+        (onConvertTo)="onConvertTo()"
+        (onOmnibus)="onOmnibus()"
+      ></app-rename-settings-actions>
 
-      @if (showPreview && hasSelectedEditions()) {
-        <div class="preview-container">
-          @for (preview of renamePreview; track preview.oldNameEdition) {
-            <div class="edition-block">
-              <div class="edition-header">
-                {{ preview.oldNameEdition }}
-              </div>
-
-              <div class="pages-list">
-                @for (page of preview.pages; track page.oldNamePage) {
-                  <div class="page-row">
-                    <div class="page-old-name">
-                      {{ page.oldNamePage }}
-                    </div>
-
-                    <div class="page-arrow">→</div>
-
-                    <div class="page-new-name">
-                      {{ page.newNamePage }}
-                    </div>
-                  </div>
-                }
-              </div>
-            </div>
-          }
-        </div>
-      } @else {
-        <div class="preview-empty-state">
-          <svg lucideEye class="preview-empty-icon"></svg>
-
-          <span>
-            {{ previewMessage }}
-          </span>
-        </div>
-      }
+      <app-rename-settings-preview
+        [showPreview]="showPreview"
+        [renamePreview]="renamePreview"
+        [previewMessage]="previewMessage"
+      ></app-rename-settings-preview>
     </div>
   </div>
 </div>

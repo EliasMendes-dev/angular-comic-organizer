@@ -1,0 +1,29 @@
+<div class="header-file-explorer">
+  <div class="title-file-explorer">
+    <svg lucideFolder class="svg-icon"></svg>
+    <h2>Explorador de Arquivos</h2>
+  </div>
+
+  <div class="actions-file-explorer">
+    <button
+      class="action-button chooseall"
+      [class.active]="isActive"
+      [disabled]="!hasItems"
+      (mouseenter)="isHovering = true"
+      (mouseleave)="isHovering = false"
+      (click)="handleChooseAll()"
+    >
+      @if (!hasItems) {
+        <svg lucideSquareX class="svg-icon disabled"></svg>
+      } @else if (isHovering || isActive) {
+        <svg lucideSquareCheckBig class="svg-icon"></svg>
+      } @else {
+        <svg lucideSquare class="svg-icon"></svg>
+      }
+    </button>
+
+    <button class="action-button delete" (click)="handleDeleteAll()">
+      <svg lucideTrash2 class="delete"></svg>
+    </button>
+  </div>
+</div>

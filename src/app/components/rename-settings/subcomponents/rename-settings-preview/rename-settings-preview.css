@@ -1,0 +1,135 @@
+/* Preview */
+.preview-rename {
+  display: flex;
+  position: sticky;
+  top: 0;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 500px;
+  height: 440px;
+  background-color: var(--fundo-primario);
+  box-sizing: border-box;
+  overflow: hidden;
+  overflow-y: auto;
+}
+
+.preview-rename-header {
+  display: flex;
+  position: sticky;
+  top: 0;
+  flex-direction: row;
+  align-items: center;
+  width: 100%;
+  padding: var(--padding-padrao);
+  background-color: var(--fundo-primario);
+  z-index: 1;
+}
+
+.preview-rename-header h2 {
+  margin-left: 10px;
+  font-size: 0.8rem;
+  color: var(--texto-secundario);
+}
+
+.preview-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+/* BLOCO DA EDIÇÃO */
+.edition-block {
+  border: 1px solid #1d2d2d;
+  background: #06090d;
+
+  overflow: hidden;
+}
+
+/* HEADER */
+.edition-header {
+  padding: 10px 16px;
+
+  background: #0d2b21;
+
+  color: var(--verde-primario);
+  font-weight: 700;
+  font-size: 15px;
+
+  border-bottom: 1px solid #163b35;
+}
+
+/* LISTA */
+.pages-list {
+  display: flex;
+  flex-direction: column;
+}
+
+/* LINHA */
+.page-row {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+
+  align-items: center;
+
+  gap: 20px;
+
+  padding: 6px 16px;
+
+  border-bottom: 1px solid #101820;
+}
+
+.page-row:last-child {
+  border-bottom: none;
+}
+
+/* NOME ANTIGO */
+.page-old-name {
+  color: var(--texto-secundario);
+
+  font-size: 0.8rem;
+  text-decoration: line-through;
+
+  word-break: break-word;
+}
+
+/* SETA */
+.page-arrow {
+  color: var(--verde-primario);
+
+  font-size: 18px;
+  font-weight: bold;
+}
+
+/* NOVO NOME */
+.page-new-name {
+  color: var(--verde-primario);
+
+  font-size: 0.8rem;
+  font-weight: 600;
+
+  word-break: break-word;
+}
+
+/*Preview empty*/
+.preview-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  gap: 12px;
+
+  min-height: 250px;
+
+  color: #7b7b7b;
+
+  text-align: center;
+}
+
+.preview-empty-icon {
+  width: 42px;
+  height: 42px;
+
+  opacity: 0.5;
+}

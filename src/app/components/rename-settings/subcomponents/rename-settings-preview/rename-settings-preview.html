@@ -1,0 +1,42 @@
+<div class="preview-rename">
+  <div class="preview-rename-header">
+    <svg lucideSettings class="svg-icon"></svg>
+    <h2>Preview de Renomeação</h2>
+  </div>
+
+  @if (showPreview && renamePreview.length > 0) {
+    <div class="preview-container">
+      @for (preview of renamePreview; track preview.oldNameEdition) {
+        <div class="edition-block">
+          <div class="edition-header">
+            {{ preview.oldNameEdition }}
+          </div>
+
+          <div class="pages-list">
+            @for (page of preview.pages; track page.oldNamePage) {
+              <div class="page-row">
+                <div class="page-old-name">
+                  {{ page.oldNamePage }}
+                </div>
+
+                <div class="page-arrow">→</div>
+
+                <div class="page-new-name">
+                  {{ page.newNamePage }}
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  } @else {
+    <div class="preview-empty-state">
+      <svg lucideEye class="preview-empty-icon"></svg>
+
+      <span>
+        {{ previewMessage }}
+      </span>
+    </div>
+  }
+</div>

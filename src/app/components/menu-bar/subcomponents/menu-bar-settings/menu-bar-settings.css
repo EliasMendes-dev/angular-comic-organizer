@@ -1,0 +1,164 @@
+.container-header-settings {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* FORMAT SELECTOR */
+
+.format-selector-container {
+  position: relative;
+  display: inline-block;
+}
+
+/* MAIN BUTTON */
+
+.format-selector {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+
+  padding: 0.3rem 0.5rem;
+
+  border: none;
+  border-radius: 4px;
+
+  background: var(--verde-primario);
+
+  transition:
+    background 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.format-selector:hover {
+  background: var(--verde-hover);
+}
+
+.format-selector svg {
+  width: 20px;
+  height: 20px;
+}
+
+
+/* DROPDOWN */
+
+
+.format-options {
+  position: absolute;
+
+  top: 100%;
+  right: 0;
+
+  margin-top: 0.2rem;
+
+  display: flex;
+  flex-direction: column;
+
+  min-width: 200px;
+
+  overflow: hidden;
+
+  border: 1px solid var(--cor-borda);
+  border-radius: 6px;
+
+  background: var(--fundo-primario);
+
+  z-index: 100;
+
+  /* animação */
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-8px);
+
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease,
+    visibility 0.2s ease;
+}
+
+.format-options.active {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+
+/* OPTIONS */
+
+
+.format-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  width: 100%;
+
+  padding: 0.65rem 0.75rem;
+
+  border: none;
+
+  background: var(--fundo-primario);
+  color: var(--texto-primario);
+
+  font-size: 0.9rem;
+  text-align: left;
+
+  transition:
+    background 0.2s ease,
+    opacity 0.2s ease,
+    filter 0.2s ease;
+}
+
+.format-option:hover {
+  background: var(--fundo-hover);
+}
+
+
+/* INACTIVE OPTION */
+
+
+.format-option.inactive {
+  opacity: 0.45;
+  filter: grayscale(0.35);
+
+  cursor: not-allowed;
+}
+
+.format-option.inactive:hover {
+  background: var(--fundo-primario);
+}
+
+/*DISABLED OPTION*/
+
+.format-option:disabled {
+  pointer-events: none;
+}
+
+/*CHANGE THEME*/
+
+.change-theme {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: none;
+
+  background: transparent;
+
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+}
+
+.change-theme svg {
+  width: 22px;
+  height: 22px;
+
+  color: var(--texto-primario);
+
+  transition: color 0.2s ease;
+}
+
+.change-theme:hover svg {
+  color: var(--verde-primario);
+}

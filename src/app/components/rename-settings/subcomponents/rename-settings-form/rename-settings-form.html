@@ -1,0 +1,52 @@
+<div class="input-container">
+  <div class="input" [class.input-error]="titleError">
+    <label>Titulo</label>
+    <input
+      type="text"
+      placeholder="Nome do quadrinho"
+      [value]="title"
+      (input)="onTitleChange($event.target.value)"
+      [disabled]="isDisabled"
+    />
+  </div>
+
+  <div class="input" [class.input-error]="yearError">
+    <label>Ano</label>
+    <input
+      type="text"
+      placeholder="Ex: 2024"
+      [value]="year"
+      (input)="onYearChange($event.target.value)"
+      [disabled]="isDisabled"
+    />
+  </div>
+
+  <div class="input" [class.input-error]="editionError">
+    <label>Edição</label>
+    <input
+      type="text"
+      [value]="edition"
+      [placeholder]="hasMultipleSelectedEditions ? 'Edição inicial' : 'Ex: 001'"
+      (input)="onEditionChange($event.target.value)"
+      [disabled]="isDisabled"
+    />
+  </div>
+</div>
+
+<div class="errors">
+  @if (titleError) {
+    <span class="error-message">
+      {{ titleError }}
+    </span>
+  }
+  @if (yearError) {
+    <span class="error-message">
+      {{ yearError }}
+    </span>
+  }
+  @if (editionError) {
+    <span class="error-message">
+      {{ editionError }}
+    </span>
+  }
+</div>

@@ -1,0 +1,58 @@
+/* Botões */
+
+.buttons {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.3rem;
+
+  width: 100%;
+  max-width: 500px;
+  padding: var(--padding-padrao);
+  box-sizing: border-box;
+}
+
+.buttons button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  box-sizing: border-box;
+  border: none;
+  padding: 0.5rem;
+  gap: 0.5rem;
+  border-radius: 4px;
+}
+
+.buttons button:disabled {
+  opacity: 0.5;
+}
+
+.buttons button:disabled:hover {
+  color: color-mix(in srgb, var(--vermelho-hover), transparent 20%);
+}
+
+.buttons button svg {
+  width: 16px;
+  height: 16px;
+}
+
+.rename-preview,
+.onlyrename,
+.omnibus {
+  background-color: var(--fundo-primario);
+  color: var(--texto-primario);
+}
+
+.rename-preview:hover,
+.onlyrename:hover,
+.omnibus:hover {
+  background-color: var(--fundo-hover);
+}
+
+.convert-to {
+  background-color: var(--verde-primario);
+}
+
+.convert-to:hover {
+  background-color: var(--verde-hover);
+}

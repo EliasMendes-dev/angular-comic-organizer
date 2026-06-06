@@ -1,0 +1,62 @@
+<div class="file-edition" cdkDrag [cdkDragDisabled]="!canDrag">
+  <ng-template cdkDragPreview>
+    <div class="drag-preview">
+      <svg lucideGrip class="svg-icon"></svg>
+      <span>{{ edition.title }}</span>
+    </div>
+  </ng-template>
+
+  <div class="file-header" (click)="handleOpenRequested()" [class.active]="isSelected">
+    <div class="file-title">
+      <button
+        class="file-grip"
+        [class.disabled]="!canDrag"
+        cdkDragHandle
+        [attr.aria-disabled]="!canDrag ? 'true' : null"
+        (click)="$event.stopPropagation()"
+      >
+        <svg lucideGrip class="svg-icon"></svg>
+      </button>
+
+      @if (isOpen) {
+        <svg lucideChevronUp class="svg-icon"></svg>
+      } @else {
+        <svg lucideChevronDown class="svg-icon"></svg>
+      }
+
+      <h3>{{ edition.title }}</h3>
+    </div>
+
+    <div class="file-actions">
+      <button
+        (mouseenter)="isHoveringSelection = true"
+        (mouseleave)="isHoveringSelection = false"
+        (click)="handleSelectionRequested(); $event.stopPropagation()"
+      >
+        @if (isHoveringSelection || isSelected) {
+          <svg lucideSquareCheckBig class="svg-icon"></svg>
+        } @else {
+          <svg lucideSquare class="svg-icon"></svg>
+        }
+      </button>
+
+      <button (click)="handleDeleteRequested(); $event.stopPropagation()">
+        <svg lucideTrash2 class="delete"></svg>
+      </button>
+    </div>
+  </div>
+
+  @if (isOpen) {
+    <div class="file-pages">
+      @for (page of edition.pages; track page) {
+        <div
+          class="file-page"
+          [class.active]="isPageSelected(page)"
+          (click)="handlePageRequested(page); $event.stopPropagation()"
+        >
+          {{ page }}
+        </div>
+      }
+    </div>
+  }
+</div>

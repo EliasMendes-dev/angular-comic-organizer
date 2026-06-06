@@ -1,45 +1,4 @@
 <div class="container-header">
-  <div class="container-header-logo">
-    <svg lucideBookOpen [size]="32"></svg>
-    <h1>Comic Organizer</h1>
-  </div>
-
-  <div class="container-header-settings">
-    <!-- Ao clicar exibe um menu com duas opçoes, "Converter para CBZ, Converter para CBR"-->
-    <div class="format-selector-container">
-      <button class="format-selector" (click)="isActive = !isActive">
-        <svg lucidePlus></svg>
-
-        <svg lucideChevronDown></svg>
-      </button>
-
-      <div class="format-options" [class.active]="isActive">
-        <button
-          class="format-option"
-          [class.inactive]="selectedConversion && selectedConversion !== 'cbr-to-cbz'"
-          [disabled]="selectedConversion && selectedConversion !== 'cbr-to-cbz'"
-          (click)="selectConversion('cbr-to-cbz')"
-        >
-          CBR para CBZ
-        </button>
-
-        <button
-          class="format-option"
-          [class.inactive]="selectedConversion && selectedConversion !== 'cbz-to-cbr'"
-          [disabled]="selectedConversion && selectedConversion !== 'cbz-to-cbr'"
-          (click)="selectConversion('cbz-to-cbr')"
-        >
-          CBZ para CBR
-        </button>
-      </div>
-    </div>
-
-    <button class="change-theme" (click)="changeTheme()">
-      @if (!isDarkMode) {
-        <svg lucideMoon></svg>
-      } @else {
-        <svg lucideSun></svg>
-      }
-    </button>
-  </div>
+  <app-menu-bar-logo></app-menu-bar-logo>
+  <app-menu-bar-settings></app-menu-bar-settings>
 </div>

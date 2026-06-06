@@ -1,0 +1,156 @@
+:host {
+  display: block;
+}
+
+svg,
+.svg-icon {
+  width: 20px;
+  height: 20px;
+}
+
+.file-edition {
+  display: flex;
+  flex-direction: column;
+  border-radius: 4px;
+}
+
+.file-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--padding-padrao);
+  background-color: var(--cor-pasta);
+}
+
+.file-header:hover {
+  background-color: var(--cor-pasta-hover);
+}
+
+.file-title {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  padding: var(--padding-padrao);
+  font-size: 0.8rem;
+  gap: 10px;
+}
+
+.file-title h3 {
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.file-title > svg {
+  width: 18px;
+  height: 18px;
+}
+
+.file-grip {
+  display: flex;
+  padding: 0;
+  background: transparent;
+  border: none;
+  color: inherit;
+  cursor: grab;
+}
+
+.file-grip.disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.file-grip.disabled > svg {
+  color: var(--vermelho-primario);
+}
+
+.file-grip.disabled > svg:hover {
+  color: var(--vermelho-hover);
+}
+
+.file-grip > svg {
+  width: 18px;
+  height: 18px;
+}
+
+.file-grip > svg:hover {
+  color: var(--verde-primario);
+}
+
+.file-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.file-actions button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: none;
+  border-radius: 4px;
+  background-color: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.file-page {
+  background-color: var(--cor-arquivo);
+  padding: 5px 8px;
+  font-size: 0.8rem;
+}
+
+.file-page:hover {
+  background-color: var(--cor-arquivo-hover);
+}
+
+.file-page.active {
+  color: var(--verde-primario);
+}
+
+.drag-preview {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: max-content;
+  padding: 10px 12px;
+  border: 1px solid var(--verde-primario);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--fundo-secundario) 92%, white 8%);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  color: var(--texto-secundario);
+  cursor: grabbing;
+}
+
+.cdk-drag-placeholder {
+  opacity: 0.25;
+}
+
+.cdk-drag-animating {
+  transition: transform 200ms ease;
+}
+
+:host-context(.file-explorer.cdk-drop-list-dragging) .file-edition:not(.cdk-drag-placeholder) {
+  transition: transform 200ms ease;
+}
+
+.file-header.active {
+  border: 1px solid var(--verde-primario);
+}
+
+.file-header.active .file-title,
+.file-header.active .file-actions .svg-icon {
+  color: var(--verde-primario);
+}
+
+.delete {
+  color: var(--vermelho-primario);
+}
+
+.delete:hover {
+  color: var(--vermelho-hover);
+}

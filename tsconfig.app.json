@@ -8,9 +8,9 @@
     "types": []
   },
   "include": [
-    "src/main.ts"
+    "src/**/*.ts"
   ],
   "exclude": [
-    "src/**/*.d.ts"
+    "src/**/*.spec.ts"
   ]
 }

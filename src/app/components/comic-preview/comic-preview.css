@@ -68,7 +68,7 @@ svg {
   width: 60px;
   height: auto;
   background-color: var(--fundo-primario);
-  color: var(--cor-secundario);
+  color: var(--fundo-secundario);
 }
 
 .name-selected-comic {

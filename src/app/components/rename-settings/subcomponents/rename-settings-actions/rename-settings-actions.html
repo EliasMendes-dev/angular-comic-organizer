@@ -1,0 +1,14 @@
+<div class="buttons">
+  <button class="rename-preview" (click)="handlePreview()" [disabled]="isPreviewDisabled">
+    <svg lucideEye></svg> Visualizar
+  </button>
+  <button class="onlyrename" [disabled]="isRenameDisabled" (click)="handleRename()">
+    <svg lucidePenLine></svg> Renomear
+  </button>
+  <button class="convert-to" [disabled]="isConvertToDisabled" (click)="handleConvertTo()">
+    <svg lucideFileArchive></svg>Converter para {{ choiceForConvertTo }}
+  </button>
+  <button class="omnibus" [disabled]="isOmnibusDisabled" (click)="handleOmnibus()">
+    <svg lucideLayers></svg> Omnibus
+  </button>
+</div>

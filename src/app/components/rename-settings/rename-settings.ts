@@ -1,26 +1,23 @@
 import { Component, OnInit } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import {
-  LucideSettings,
-  LucideEye,
-  LucideFileArchive,
-  LucidePenLine,
-  LucideLayers,
-  LucideTrash2,
-} from '@lucide/angular';
 import { FileManagerService } from '../../services/file-manager';
+import { ConversionStateService } from '../../services/conversion-state';
+import { RenameSettingsHeader } from './subcomponents/rename-settings-header/rename-settings-header';
+import { RenameSettingsForm } from './subcomponents/rename-settings-form/rename-settings-form';
+import { RenameSettingsActions } from './subcomponents/rename-settings-actions/rename-settings-actions';
+import {
+  RenameSettingsPreview,
+  PreviewEdition,
+  PreviewPage,
+} from './subcomponents/rename-settings-preview/rename-settings-preview';
 
 @Component({
   selector: 'app-rename-settings',
   standalone: true,
   imports: [
-    FormsModule,
-    LucideSettings,
-    LucideEye,
-    LucideFileArchive,
-    LucidePenLine,
-    LucideLayers,
-    LucideTrash2,
+    RenameSettingsHeader,
+    RenameSettingsForm,
+    RenameSettingsActions,
+    RenameSettingsPreview,
   ],
   templateUrl: './rename-settings.html',
   styleUrls: ['./rename-settings.css', './rename-settings-responsive.css'],
@@ -32,21 +29,22 @@ export class RenameSettings implements OnInit {
 
   showPreview = false;
 
-  // Estados de erro dos inputs
-  titleError: string = '';
-  yearError: string = '';
-  editionError: string = '';
+  titleError = '';
+  yearError = '';
+  editionError = '';
 
   hasTriedSubmit = false;
 
-  constructor(public fileManagerService: FileManagerService) {}
+  constructor(
+    public fileManagerService: FileManagerService,
+    private conversionStateService: ConversionStateService,
+  ) {}
 
   get selectedEditionsCount(): number {
     return this.fileManagerService.activeEditionIds.size;
   }
 
-  // Preview só aparece se showPreview for true
-  get renamePreview() {
+  get renamePreview(): PreviewEdition[] {
     if (!this.showPreview) return [];
 
     const selectedEditions = this.fileManagerService.fileEditions.filter((edition) =>
@@ -63,39 +61,32 @@ export class RenameSettings implements OnInit {
 
       return {
         oldNameEdition: edition.title,
-
         newNameEdition:
-          `${this.title || 'Sem título'} ` + `(${this.year || '0000'}) ` + `#${currentEdition}`,
-
-        // páginas da edição
+          `${this.title || 'Sem titulo'} ` + `(${this.year || '0000'}) ` + `#${currentEdition}`,
         pages: edition.pages.map((page: string, pageIndex: number) => {
           const currentPage = String(pageIndex + 1).padStart(3, '0');
 
           return {
             oldNamePage: page,
-
             newNamePage:
-              `${this.title || 'Sem título'} ` +
+              `${this.title || 'Sem titulo'} ` +
               `(${this.year || '0000'}) ` +
               `#${currentEdition} - ${currentPage}.jpg`,
-          };
+          } satisfies PreviewPage;
         }),
       };
     });
   }
 
   get previewMessage(): string {
-    // Nenhuma edição selecionada
     if (!this.hasSelectedEditions()) {
       return 'Selecione ou envie uma edição para começar';
     }
 
-    // Campos vazios
     if (!this.title || !this.year || !this.edition) {
       return 'Preencha os campos de título, ano e edição';
     }
 
-    // Ainda não clicou preview
     if (!this.showPreview) {
       return 'Clique em "Visualizar" para gerar a prévia';
     }
@@ -111,6 +102,26 @@ export class RenameSettings implements OnInit {
     return this.selectedEditionsCount > 1;
   }
 
+  hasSelectedConvertTo(): boolean {
+    return this.conversionStateService.getConversion() !== null;
+  }
+
+  get canUsePreviewAndRename(): boolean {
+    return this.hasSelectedEditions();
+  }
+
+  get canUseConvertTo(): boolean {
+    return this.hasSelectedEditions() && this.hasSelectedConvertTo();
+  }
+
+  get canUseOmnibus(): boolean {
+    return (
+      this.hasSelectedEditions() &&
+      this.hasSelectedConvertTo() &&
+      this.hasMultipleSelectedEditions()
+    );
+  }
+
   ngOnInit(): void {}
 
   validateRealtime(): void {
@@ -119,7 +130,6 @@ export class RenameSettings implements OnInit {
     this.validateFields();
   }
 
-  // Validação dos campos
   validateFields(): boolean {
     this.titleError = '';
     this.yearError = '';
@@ -127,13 +137,11 @@ export class RenameSettings implements OnInit {
 
     let valid = true;
 
-    // TITLE
     if (!this.title.trim()) {
       this.titleError = 'Digite um título';
       valid = false;
     }
 
-    // YEAR
     const yearNum = Number(this.year);
 
     if (!this.year.trim()) {
@@ -147,7 +155,6 @@ export class RenameSettings implements OnInit {
       valid = false;
     }
 
-    // EDITION
     const editionNum = Number(this.edition);
 
     if (!this.edition.trim()) {
@@ -177,10 +184,20 @@ export class RenameSettings implements OnInit {
     this.hasTriedSubmit = false;
   }
 
-  // Handler do botão Visualizar
   onPreviewClick(): void {
     this.hasTriedSubmit = true;
-
     this.showPreview = this.validateFields();
+  }
+
+  onRename(): void {
+    // TODO: Implementar lógica de renomeação
+  }
+
+  onConvertTo(): void {
+    // TODO: Implementar lógica de conversão
+  }
+
+  onOmnibus(): void {
+    // TODO: Implementar lógica de omnibus
   }
 }

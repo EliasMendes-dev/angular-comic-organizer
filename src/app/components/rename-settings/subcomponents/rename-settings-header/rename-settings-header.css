@@ -1,0 +1,41 @@
+svg {
+  width: 20px;
+  height: 20px;
+}
+
+.header-rename-settings {
+  display: flex;
+  position: sticky;
+  top: 0;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: var(--padding-padrao);
+  background-color: var(--fundo-primario);
+  z-index: 1;
+}
+
+.title-rename-settings {
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.title-rename-settings h2 {
+  margin-left: 10px;
+  font-size: 0.8rem;
+  color: var(--texto-secundario);
+}
+
+.delete {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border: none;
+  border-radius: 4px;
+  background-color: transparent;
+}
