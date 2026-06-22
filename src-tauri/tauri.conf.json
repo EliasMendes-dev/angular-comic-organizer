@@ -1,0 +1,40 @@
+{
+  "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
+  "productName": "comic-organizer",
+  "version": "0.1.0",
+  "identifier": "com.tauri.dev",
+  "build": {
+    "beforeDevCommand": "npm run start",
+    "beforeBuildCommand": "npm run build",
+    "devUrl": "http://localhost:4200",
+    "frontendDist": "../dist/angular_comic_organizer/browser"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "Comic Organizer",
+        "width": 800,
+        "height": 600,
+        "resizable": true,
+        "fullscreen": false
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "android": {
+      "debugApplicationIdSuffix": ".debug"
+    }
+  }
+}
