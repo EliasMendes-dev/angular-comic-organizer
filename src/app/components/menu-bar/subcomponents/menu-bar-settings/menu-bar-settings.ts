@@ -3,6 +3,7 @@ import { LucidePlus, LucideChevronDown, LucideMoon, LucideSun } from '@lucide/an
 import { ConversionStateService } from '../../../../services/conversion-state';
 import { FileManagerService } from '../../../../services/file-manager';
 import { ConversionType } from '../../../../models/conversion-type';
+import { invoke } from '@tauri-apps/api/core';
 
 @Component({
   selector: 'app-menu-bar-settings',
@@ -16,7 +17,7 @@ export class MenuBarSettings implements OnInit {
 
   constructor(
     private conversionStateService: ConversionStateService,
-    private fileManager: FileManagerService
+    private fileManager: FileManagerService,
   ) {}
 
   async selectConversion(type: ConversionType): Promise<void> {
@@ -30,7 +31,15 @@ export class MenuBarSettings implements OnInit {
 
     console.log('📦 Paths recebidos do Tauri:');
 
-    paths.forEach(p => console.log(p));
+    paths.forEach((p) => console.log(p));
+
+    console.log('📤 Enviando paths para o backend...');
+
+    await invoke('process_cbr_files', {
+      paths,
+    });
+
+    console.log('✅ Backend respondeu');
   }
 
   get selectedConversion(): ConversionType | null {
