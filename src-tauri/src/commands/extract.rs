@@ -1,4 +1,3 @@
-use std::env;
 use std::fs;
 use std::path::Path;
 use std::process::Command;
@@ -14,23 +13,18 @@ pub fn process_cbr_files(paths: Vec<String>) {
         println!("{}", path);
     }
 
-    let temp_dir = env::temp_dir().join("comic-organizer");
-
-    fs::create_dir_all(&temp_dir)
-        .expect("failed to create temp directory");
+    let temp_dir = get_temp_dir();
+    clean_temp(&temp_dir);
+    fs::create_dir_all(&temp_dir).expect("failed to create temp directory");
 
     println!("TEMP DIR: {}", temp_dir.display());
 
     for path in &paths {
-        let file_name = Path::new(path)
-            .file_stem()
-            .unwrap()
-            .to_string_lossy();
+        let file_name = Path::new(path).file_stem().unwrap().to_string_lossy();
 
         let edition_dir = temp_dir.join(file_name.as_ref());
 
-        fs::create_dir_all(&edition_dir)
-            .expect("failed to create edition directory");
+        fs::create_dir_all(&edition_dir).expect("failed to create edition directory");
 
         println!("EDITION DIR: {}", edition_dir.display());
 
@@ -46,12 +40,7 @@ fn extract_cbr(cbr_path: &str, output_dir: &Path) {
     println!("TO: {}", output_dir.display());
 
     let output = Command::new(r"C:\Program Files\WinRAR\UnRAR.exe")
-        .args([
-            "x",
-            "-o+",
-            cbr_path,
-            output_dir.to_str().unwrap(),
-        ])
+        .args(["x", "-o+", cbr_path, output_dir.to_str().unwrap()])
         .output()
         .expect("failed to execute unrar");
 
@@ -104,24 +93,28 @@ fn normalize_edition_directory(edition_dir: &Path) {
 
         println!("FLATTENING: {}", nested_dir.display());
 
-        for entry in fs::read_dir(nested_dir)
-            .expect("failed to read nested directory")
-        {
+        for entry in fs::read_dir(nested_dir).expect("failed to read nested directory") {
             let entry = entry.expect("failed to read entry");
 
             let source = entry.path();
 
-            let destination = edition_dir.join(
-                source.file_name().unwrap()
-            );
+            let destination = edition_dir.join(source.file_name().unwrap());
 
-            fs::rename(&source, &destination)
-                .expect("failed to move file");
+            fs::rename(&source, &destination).expect("failed to move file");
         }
 
-        fs::remove_dir(nested_dir)
-            .expect("failed to remove nested directory");
+        fs::remove_dir(nested_dir).expect("failed to remove nested directory");
     }
 
     println!("NORMALIZATION COMPLETE");
+}
+
+fn get_temp_dir() -> std::path::PathBuf {
+    std::env::temp_dir().join("comic-organizer")
+}
+
+fn clean_temp(temp_dir: &std::path::Path) {
+    if temp_dir.exists() {
+        fs::remove_dir_all(temp_dir).expect("failed to clean temp directory");
+    }
 }
