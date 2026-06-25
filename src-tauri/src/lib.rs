@@ -1,5 +1,6 @@
 use std::env;
 use std::fs;
+use std::path::Path;
 
 use tauri_plugin_dialog;
 
@@ -32,9 +33,20 @@ fn process_cbr_files(paths: Vec<String>) {
 
     let temp_dir = env::temp_dir().join("comic-organizer");
 
-    fs::create_dir_all(&temp_dir)
-        .expect("failed to create temp directory");
+    fs::create_dir_all(&temp_dir).expect("failed to create temp directory");
 
     println!("=== TEMP DIRECTORY ===");
     println!("{}", temp_dir.display());
+
+    println!("=== EDITION DIRECTORIES ===");
+
+    for path in &paths {
+        let file_name = Path::new(path).file_stem().unwrap().to_string_lossy();
+
+        let edition_dir = temp_dir.join(file_name.as_ref());
+
+        fs::create_dir_all(&edition_dir).expect("failed to create edition directory");
+
+        println!("{}", edition_dir.display());
+    }
 }
