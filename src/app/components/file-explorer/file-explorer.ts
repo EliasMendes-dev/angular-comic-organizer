@@ -4,6 +4,8 @@ import { ConversionStateService } from '../../services/conversion-state';
 import { FileManagerService } from '../../services/file-manager';
 import { FileExplorerHeader } from './subcomponents/file-explorer-header/file-explorer-header';
 import { FileExplorerEditionItem } from './subcomponents/file-explorer-edition-item/file-explorer-edition-item';
+import { ComicEdition } from '../../models/comic-edition';
+import { ComicPage } from '../../models/comic-page';
 
 @Component({
   selector: 'app-file-explorer',
@@ -35,8 +37,8 @@ export class FileExplorer implements OnInit {
     return this.openEditionId === editionId;
   }
 
-  togglePageSelection(editionId: number, page: string): void {
-    const pageKey = `${editionId}-${page}`;
+  togglePageSelection(editionId: number, page: ComicPage): void {
+    const pageKey = `${editionId}-${page.id}`;
 
     if (this.activePageKeys.has(pageKey)) {
       this.activePageKeys.delete(pageKey);
@@ -60,8 +62,8 @@ export class FileExplorer implements OnInit {
     return this.fileManagerService.activeEditionIds.has(editionId);
   }
 
-  isPageSelected(editionId: number, page: string): boolean {
-    return this.activePageKeys.has(`${editionId}-${page}`);
+  isPageSelected(editionId: number, page: ComicPage): boolean {
+    return this.activePageKeys.has(`${editionId}-${page.id}`);
   }
 
   toggleChooseAll(): void {
@@ -82,7 +84,7 @@ export class FileExplorer implements OnInit {
       this.fileManagerService.activeEditionIds.add(edition.id);
 
       edition.pages.forEach((page) => {
-        this.activePageKeys.add(`${edition.id}-${page}`);
+        this.activePageKeys.add(`${edition.id}-${page.id}`);
       });
     });
 
@@ -132,12 +134,6 @@ export class FileExplorer implements OnInit {
       if (this.isEditionSelected(edition.id)) {
         console.log(`Titulo: ${edition.title}`);
       }
-
-      edition.pages.forEach((page) => {
-        if (this.isPageSelected(edition.id, page)) {
-          console.log(`  Pagina: ${page}`);
-        }
-      });
     });
   }
 

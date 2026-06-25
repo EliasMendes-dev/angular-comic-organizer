@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { LucidePlus, LucideChevronDown, LucideMoon, LucideSun } from '@lucide/angular';
 import { ConversionStateService } from '../../../../services/conversion-state';
+import { FileManagerService } from '../../../../services/file-manager';
 import { ConversionType } from '../../../../models/conversion-type';
 
 @Component({
@@ -13,26 +14,23 @@ export class MenuBarSettings implements OnInit {
   isActive = false;
   isDarkMode: boolean = true;
 
-  constructor(private conversionStateService: ConversionStateService) {}
+  constructor(
+    private conversionStateService: ConversionStateService,
+    private fileManager: FileManagerService
+  ) {}
 
-  selectConversion(type: ConversionType): void {
+  async selectConversion(type: ConversionType): Promise<void> {
     if (this.conversionStateService.getConversion()) {
       return;
     }
 
     this.conversionStateService.setConversion(type);
 
-    const input = document.createElement('input');
+    const paths = await this.fileManager.selectCbrFiles();
 
-    input.type = 'file';
-    input.multiple = true;
-    input.accept = '.cbr';
+    console.log('📦 Paths recebidos do Tauri:');
 
-    input.onchange = () => {
-      console.log(input.files);
-    };
-
-    input.click();
+    paths.forEach(p => console.log(p));
   }
 
   get selectedConversion(): ConversionType | null {

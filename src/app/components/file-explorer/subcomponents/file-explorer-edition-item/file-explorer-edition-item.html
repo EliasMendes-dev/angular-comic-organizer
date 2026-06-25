@@ -54,7 +54,7 @@
           [class.active]="isPageSelected(page)"
           (click)="handlePageRequested(page); $event.stopPropagation()"
         >
-          {{ page }}
+          {{ page.fileName }}
         </div>
       }
     </div>

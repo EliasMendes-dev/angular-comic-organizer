@@ -7,17 +7,9 @@ import {
   LucideChevronDown,
   LucideGrip,
 } from '@lucide/angular';
-import {
-  CdkDrag,
-  CdkDragHandle,
-  CdkDragPreview,
-} from '@angular/cdk/drag-drop';
-
-interface FileExplorerEdition {
-  id: number;
-  title: string;
-  pages: string[];
-}
+import { CdkDrag, CdkDragHandle, CdkDragPreview } from '@angular/cdk/drag-drop';
+import { ComicEdition } from '../../../../models/comic-edition';
+import { ComicPage } from '../../../../models/comic-page';
 
 @Component({
   selector: 'app-file-explorer-edition-item',
@@ -37,7 +29,7 @@ interface FileExplorerEdition {
   styleUrl: './file-explorer-edition-item.css',
 })
 export class FileExplorerEditionItem {
-  @Input({ required: true }) edition!: FileExplorerEdition;
+  @Input({ required: true }) edition!: ComicEdition;
   @Input() canDrag = true;
   @Input() isOpen = false;
   @Input() isSelected = false;
@@ -46,7 +38,7 @@ export class FileExplorerEditionItem {
   @Output() openRequested = new EventEmitter<void>();
   @Output() selectionRequested = new EventEmitter<void>();
   @Output() deleteRequested = new EventEmitter<void>();
-  @Output() pageRequested = new EventEmitter<string>();
+  @Output() pageRequested = new EventEmitter<ComicPage>();
 
   isHoveringSelection = false;
 
@@ -62,11 +54,11 @@ export class FileExplorerEditionItem {
     this.deleteRequested.emit();
   }
 
-  handlePageRequested(page: string): void {
+  handlePageRequested(page: ComicPage): void {
     this.pageRequested.emit(page);
   }
 
-  isPageSelected(page: string): boolean {
-    return this.selectedPageKeys.has(`${this.edition.id}-${page}`);
+  isPageSelected(page: ComicPage): boolean {
+    return this.selectedPageKeys.has(`${this.edition.id}-${page.id}`);
   }
 }

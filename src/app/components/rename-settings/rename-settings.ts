@@ -9,16 +9,12 @@ import {
   PreviewEdition,
   PreviewPage,
 } from './subcomponents/rename-settings-preview/rename-settings-preview';
+import { ComicPage } from '../../models/comic-page';
 
 @Component({
   selector: 'app-rename-settings',
   standalone: true,
-  imports: [
-    RenameSettingsHeader,
-    RenameSettingsForm,
-    RenameSettingsActions,
-    RenameSettingsPreview,
-  ],
+  imports: [RenameSettingsHeader, RenameSettingsForm, RenameSettingsActions, RenameSettingsPreview],
   templateUrl: './rename-settings.html',
   styleUrls: ['./rename-settings.css', './rename-settings-responsive.css'],
 })
@@ -63,11 +59,11 @@ export class RenameSettings implements OnInit {
         oldNameEdition: edition.title,
         newNameEdition:
           `${this.title || 'Sem titulo'} ` + `(${this.year || '0000'}) ` + `#${currentEdition}`,
-        pages: edition.pages.map((page: string, pageIndex: number) => {
+        pages: edition.pages.map((page: ComicPage, pageIndex: number) => {
           const currentPage = String(pageIndex + 1).padStart(3, '0');
 
           return {
-            oldNamePage: page,
+            oldNamePage: page.fileName,
             newNamePage:
               `${this.title || 'Sem titulo'} ` +
               `(${this.year || '0000'}) ` +
