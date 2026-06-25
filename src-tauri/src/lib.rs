@@ -1,3 +1,6 @@
+use std::env;
+use std::fs;
+
 use tauri_plugin_dialog;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -23,7 +26,15 @@ pub fn run() {
 fn process_cbr_files(paths: Vec<String>) {
     println!("=== CBR FILES RECEIVED ===");
 
-    for path in paths {
+    for path in &paths {
         println!("{}", path);
     }
+
+    let temp_dir = env::temp_dir().join("comic-organizer");
+
+    fs::create_dir_all(&temp_dir)
+        .expect("failed to create temp directory");
+
+    println!("=== TEMP DIRECTORY ===");
+    println!("{}", temp_dir.display());
 }
