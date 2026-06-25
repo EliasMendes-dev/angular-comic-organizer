@@ -22,7 +22,17 @@ export class MenuBarSettings implements OnInit {
 
     this.conversionStateService.setConversion(type);
 
-    console.log('Conversão escolhida:', type);
+    const input = document.createElement('input');
+
+    input.type = 'file';
+    input.multiple = true;
+    input.accept = '.cbr';
+
+    input.onchange = () => {
+      console.log(input.files);
+    };
+
+    input.click();
   }
 
   get selectedConversion(): ConversionType | null {
