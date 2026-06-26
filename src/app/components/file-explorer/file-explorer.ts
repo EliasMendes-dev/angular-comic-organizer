@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, NgZone, OnInit, OnDestroy } from '@angular/core';
 import { CdkDropList, CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { ConversionStateService } from '../../services/conversion-state';
 import { FileManagerService } from '../../services/file-manager';
@@ -6,6 +6,8 @@ import { FileExplorerHeader } from './subcomponents/file-explorer-header/file-ex
 import { FileExplorerEditionItem } from './subcomponents/file-explorer-edition-item/file-explorer-edition-item';
 import { ComicEdition } from '../../models/comic-edition';
 import { ComicPage } from '../../models/comic-page';
+import { ChangeDetectorRef } from '@angular/core';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-file-explorer',
@@ -14,18 +16,26 @@ import { ComicPage } from '../../models/comic-page';
   templateUrl: './file-explorer.html',
   styleUrls: ['./file-explorer.css', './file-explorer-responsive.css'],
 })
-export class FileExplorer implements OnInit {
+export class FileExplorer implements OnInit, OnDestroy {
   isActive = false;
   openEditionId: number | null = null;
-  activePageKeys = new Set<string>();
+  activePages = new Map<number, Set<number>>();
+  private sub = new Subscription();
 
   constructor(
     private conversionStateService: ConversionStateService,
     public fileManagerService: FileManagerService,
+    private ngZone: NgZone,
+    private cdr: ChangeDetectorRef,
   ) {}
 
   drop(event: CdkDragDrop<any[]>): void {
-    moveItemInArray(this.fileManagerService.fileEditions, event.previousIndex, event.currentIndex);
+    const updated = [...this.fileManagerService.fileEditions];
+    moveItemInArray(updated, event.previousIndex, event.currentIndex);
+
+    this.fileManagerService.fileEditions = updated;
+
+    void this.fileManagerService.saveOrder(updated);
   }
 
   toggleFileEdition(editionId: number): void {
@@ -38,14 +48,18 @@ export class FileExplorer implements OnInit {
   }
 
   togglePageSelection(editionId: number, page: ComicPage): void {
-    const pageKey = `${editionId}-${page.id}`;
+    const pageId = page.id;
 
-    if (this.activePageKeys.has(pageKey)) {
-      this.activePageKeys.delete(pageKey);
-      return;
+    const pages = this.activePages.get(editionId) ?? new Set<number>();
+
+    if (pages.has(pageId)) {
+      pages.delete(pageId);
+    } else {
+      pages.add(pageId);
     }
 
-    this.activePageKeys.add(pageKey);
+    // força reatividade Angular
+    this.activePages.set(editionId, new Set(pages));
   }
 
   toggleEditionSelection(editionId: number): void {
@@ -63,7 +77,21 @@ export class FileExplorer implements OnInit {
   }
 
   isPageSelected(editionId: number, page: ComicPage): boolean {
-    return this.activePageKeys.has(`${editionId}-${page.id}`);
+    return this.activePages.get(editionId)?.has(page.id) ?? false;
+  }
+
+  getDisplayEdition(edition: ComicEdition): ComicEdition {
+    return {
+      ...edition,
+      pages: edition.pages.map((page) => ({
+        ...page,
+        selected: this.isPageSelected(edition.id, page),
+      })),
+    };
+  }
+
+  getPageSelectionHandler(editionId: number): (page: ComicPage) => boolean {
+    return (page: ComicPage) => this.isPageSelected(editionId, page);
   }
 
   toggleChooseAll(): void {
@@ -74,7 +102,7 @@ export class FileExplorer implements OnInit {
     this.isActive = !this.isActive;
 
     this.fileManagerService.activeEditionIds.clear();
-    this.activePageKeys.clear();
+    this.activePages.clear();
 
     if (!this.isActive) {
       return;
@@ -83,9 +111,13 @@ export class FileExplorer implements OnInit {
     this.fileManagerService.fileEditions.forEach((edition) => {
       this.fileManagerService.activeEditionIds.add(edition.id);
 
+      const pageSet = new Set<number>();
+
       edition.pages.forEach((page) => {
-        this.activePageKeys.add(`${edition.id}-${page.id}`);
+        pageSet.add(page.id);
       });
+
+      this.activePages.set(edition.id, pageSet);
     });
 
     this.printSelectedItems();
@@ -98,11 +130,7 @@ export class FileExplorer implements OnInit {
 
     this.fileManagerService.activeEditionIds.delete(editionId);
 
-    this.activePageKeys.forEach((key) => {
-      if (key.startsWith(`${editionId}-`)) {
-        this.activePageKeys.delete(key);
-      }
-    });
+    this.activePages.delete(editionId);
 
     if (this.openEditionId === editionId) {
       this.openEditionId = null;
@@ -121,7 +149,7 @@ export class FileExplorer implements OnInit {
     this.fileManagerService.fileEditions = [];
 
     this.fileManagerService.activeEditionIds.clear();
-    this.activePageKeys.clear();
+    this.activePages.clear();
 
     this.openEditionId = null;
     this.isActive = false;
@@ -138,6 +166,14 @@ export class FileExplorer implements OnInit {
   }
 
   ngOnInit(): void {
-    // debug placeholder
+    this.sub.add(
+      this.fileManagerService.refreshChanges.subscribe(() => {
+        this.cdr.markForCheck();
+      }),
+    );
+  }
+
+  ngOnDestroy(): void {
+    this.sub.unsubscribe();
   }
 }

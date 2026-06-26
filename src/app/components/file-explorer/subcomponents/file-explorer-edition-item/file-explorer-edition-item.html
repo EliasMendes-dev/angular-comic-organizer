@@ -48,10 +48,10 @@
 
   @if (isOpen) {
     <div class="file-pages">
-      @for (page of edition.pages; track page) {
+      @for (page of edition.pages; track page.id) {
         <div
           class="file-page"
-          [class.active]="isPageSelected(page)"
+          [class.active]="isPageSelectedFn(page)"
           (click)="handlePageRequested(page); $event.stopPropagation()"
         >
           {{ page.fileName }}

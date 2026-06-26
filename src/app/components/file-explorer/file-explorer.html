@@ -9,15 +9,15 @@
   <div class="file-explorer" cdkDropList (cdkDropListDropped)="drop($event)">
     @for (edition of fileManagerService.fileEditions; track edition.id) {
       <app-file-explorer-edition-item
-        [edition]="edition"
+        [edition]="getDisplayEdition(edition)"
         [canDrag]="fileManagerService.fileEditions.length > 1"
         [isOpen]="isEditionOpen(edition.id)"
         [isSelected]="isEditionSelected(edition.id)"
-        [selectedPageKeys]="activePageKeys"
         (openRequested)="toggleFileEdition(edition.id)"
         (selectionRequested)="toggleEditionSelection(edition.id)"
         (deleteRequested)="deleteEdition(edition.id)"
         (pageRequested)="togglePageSelection(edition.id, $event)"
+        [isPageSelectedFn]="getPageSelectionHandler(edition.id)"
       ></app-file-explorer-edition-item>
     }
   </div>

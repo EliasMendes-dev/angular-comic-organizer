@@ -3,6 +3,7 @@ import { LucidePlus, LucideChevronDown, LucideMoon, LucideSun } from '@lucide/an
 import { ConversionStateService } from '../../../../services/conversion-state';
 import { FileManagerService } from '../../../../services/file-manager';
 import { ConversionType } from '../../../../models/conversion-type';
+import { ComicEdition } from '../../../../models/comic-edition';
 import { invoke } from '@tauri-apps/api/core';
 
 @Component({
@@ -35,9 +36,11 @@ export class MenuBarSettings implements OnInit {
 
     console.log('📤 Enviando paths para o backend...');
 
-    await invoke('process_cbr_files', {
+    const editions = await invoke<ComicEdition[]>('process_cbr_files', {
       paths,
     });
+
+    this.fileManager.loadEditionsFromBackend(editions);
 
     console.log('✅ Backend respondeu');
   }

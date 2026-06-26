@@ -33,12 +33,13 @@ export class FileExplorerEditionItem {
   @Input() canDrag = true;
   @Input() isOpen = false;
   @Input() isSelected = false;
-  @Input() selectedPageKeys = new Set<string>();
 
   @Output() openRequested = new EventEmitter<void>();
   @Output() selectionRequested = new EventEmitter<void>();
   @Output() deleteRequested = new EventEmitter<void>();
   @Output() pageRequested = new EventEmitter<ComicPage>();
+  @Input() isPageSelectedFn: (page: ComicPage) => boolean = (page) =>
+    (page as ComicPage & { selected?: boolean }).selected ?? false;
 
   isHoveringSelection = false;
 
@@ -56,9 +57,5 @@ export class FileExplorerEditionItem {
 
   handlePageRequested(page: ComicPage): void {
     this.pageRequested.emit(page);
-  }
-
-  isPageSelected(page: ComicPage): boolean {
-    return this.selectedPageKeys.has(`${this.edition.id}-${page.id}`);
   }
 }

@@ -1,6 +1,7 @@
 export interface ComicPage {
   id: number;
   fileName: string;
-  imageUrl: string;
+  imagePath: string;
   pageNumber: number;
+  selected?: boolean;
 }

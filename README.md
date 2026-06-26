@@ -1,5 +1,7 @@
 ﻿# 📚 Comic Organizer
 
+## C:\Users\home\AppData\Local\Temp
+
 Aplicação para organização, renomeação, compactação e gerenciamento de coleções de quadrinhos digitais.
 
 Atualmente o projeto utiliza Angular 21 como camada de interface, com arquitetura preparada para desktop utilizando Node.js + Electron.
