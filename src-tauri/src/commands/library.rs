@@ -1,4 +1,5 @@
 use crate::models::ComicEdition;
+use crate::services::archive::{clear_temp_directory, remove_edition_from_temp};
 use std::sync::{Mutex, OnceLock};
 
 static EDITION_ORDER: OnceLock<Mutex<Vec<String>>> = OnceLock::new();
@@ -9,7 +10,10 @@ fn edition_order_store() -> &'static Mutex<Vec<String>> {
 
 #[tauri::command]
 pub fn save_edition_order(editions: Vec<ComicEdition>) -> Result<(), String> {
-    let ordered_titles: Vec<String> = editions.iter().map(|edition| edition.title.clone()).collect();
+    let ordered_titles: Vec<String> = editions
+        .iter()
+        .map(|edition| edition.title.clone())
+        .collect();
 
     let mut store = edition_order_store()
         .lock()
@@ -27,6 +31,16 @@ pub fn get_edition_order() -> Result<Vec<String>, String> {
         .map_err(|error| format!("Failed to lock edition order store: {error}"))?;
 
     Ok(store.clone())
+}
+
+#[tauri::command]
+pub fn delete_edition_from_temp(edition_title: String) -> Result<(), String> {
+    remove_edition_from_temp(&edition_title)
+}
+
+#[tauri::command]
+pub fn clear_all_temp_editions() -> Result<(), String> {
+    clear_temp_directory()
 }
 
 #[cfg(test)]

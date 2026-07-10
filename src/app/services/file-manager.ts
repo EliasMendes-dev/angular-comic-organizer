@@ -66,6 +66,22 @@ export class FileManagerService {
     }
   }
 
+  async deleteEditionFromBackend(editionTitle: string): Promise<void> {
+    try {
+      await invoke('delete_edition_from_temp', { editionTitle });
+    } catch (error) {
+      console.error('Erro ao remover a edição do backend:', error);
+    }
+  }
+
+  async clearAllTempEditions(): Promise<void> {
+    try {
+      await invoke('clear_all_temp_editions');
+    } catch (error) {
+      console.error('Erro ao limpar o diretório temporário:', error);
+    }
+  }
+
   constructor(private ngZone: NgZone) {}
 
   get refreshChanges() {

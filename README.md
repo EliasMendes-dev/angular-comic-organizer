@@ -33,7 +33,7 @@ Atualmente o projeto utiliza Angular 21 como camada de interface, com arquitetur
 * 📚 Criação de omnibuses e coleções personalizadas
 * 🏷️ Renomeação inteligente baseada em templates
 * 💾 Persistência de configurações locais
-* 🖥️ Aplicação desktop utilizando Node.js + Electron
+* 🖥️ Aplicação desktop utilizando Node.js + Tauri
 
 ---
 

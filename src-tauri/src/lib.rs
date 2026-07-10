@@ -3,7 +3,9 @@ mod models;
 mod services;
 
 use crate::commands::extract::process_cbr_files;
-use crate::commands::library::{get_edition_order, save_edition_order};
+use crate::commands::library::{
+    clear_all_temp_editions, delete_edition_from_temp, get_edition_order, save_edition_order,
+};
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -12,7 +14,9 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             process_cbr_files,
             save_edition_order,
-            get_edition_order
+            get_edition_order,
+            delete_edition_from_temp,
+            clear_all_temp_editions
         ])
         .setup(|app| {
             if cfg!(debug_assertions) {

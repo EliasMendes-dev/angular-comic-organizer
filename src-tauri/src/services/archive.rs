@@ -6,18 +6,10 @@ use std::path::{Path, PathBuf};
 use std::process::Command;
 
 pub fn process_cbr_files(paths: Vec<String>) -> Result<Vec<ComicEdition>, String> {
-    println!("=== CBR FILES RECEIVED ===");
-
-    for path in &paths {
-        println!("{}", path);
-    }
-
     let temp_dir = get_temp_dir();
     clean_temp(&temp_dir);
 
     fs::create_dir_all(&temp_dir).map_err(|e| format!("Failed to create temp dir: {e}"))?;
-
-    println!("TEMP DIR: {}", temp_dir.display());
 
     for path in &paths {
         let edition_name = Path::new(path)
@@ -30,8 +22,6 @@ pub fn process_cbr_files(paths: Vec<String>) -> Result<Vec<ComicEdition>, String
 
         fs::create_dir_all(&edition_dir)
             .map_err(|e| format!("Failed to create edition dir {edition_dir:?}: {e}"))?;
-
-        println!("EDITION DIR: {}", edition_dir.display());
 
         if let Err(error) = extract_cbr(path, &edition_dir) {
             eprintln!("Skipping archive {path}: {error}");
@@ -46,17 +36,10 @@ pub fn process_cbr_files(paths: Vec<String>) -> Result<Vec<ComicEdition>, String
     let editions = build_editions_from_temp(&temp_dir)
         .map_err(|e| format!("Failed to build editions from temp dir: {e}"))?;
 
-    println!("TOTAL EDITIONS: {}", editions.len());
-    println!("FIRST EDITION: {:#?}", editions.get(0));
-
     Ok(editions)
 }
 
 fn extract_cbr(cbr_path: &str, output_dir: &Path) -> Result<(), String> {
-    println!("=== EXTRACTING ===");
-    println!("CBR: {cbr_path}");
-    println!("TO: {}", output_dir.display());
-
     let unrar_binary = find_unrar_binary()?;
 
     let output = Command::new(&unrar_binary)
@@ -73,14 +56,6 @@ fn extract_cbr(cbr_path: &str, output_dir: &Path) -> Result<(), String> {
             stdout.trim(),
             stderr.trim()
         ));
-    }
-
-    if !output.stdout.is_empty() {
-        println!("STDOUT:\n{}", String::from_utf8_lossy(&output.stdout));
-    }
-
-    if !output.stderr.is_empty() {
-        println!("STDERR:\n{}", String::from_utf8_lossy(&output.stderr));
     }
 
     Ok(())
@@ -252,7 +227,42 @@ fn find_unrar_binary() -> Result<PathBuf, String> {
 }
 
 fn get_temp_dir() -> PathBuf {
+    if let Some(path) = env::var_os("COMIC_ORGANIZER_TEMP_DIR") {
+        return PathBuf::from(path);
+    }
+
     env::temp_dir().join("comic-organizer")
+}
+
+pub fn remove_edition_from_temp(edition_title: &str) -> Result<(), String> {
+    let temp_dir = get_temp_dir();
+    let edition_dir = temp_dir.join(edition_title);
+
+    if !edition_dir.exists() {
+        return Ok(());
+    }
+
+    fs::remove_dir_all(&edition_dir).map_err(|error| {
+        format!(
+            "Failed to remove edition directory {}: {error}",
+            edition_dir.display()
+        )
+    })
+}
+
+pub fn clear_temp_directory() -> Result<(), String> {
+    let temp_dir = get_temp_dir();
+
+    if !temp_dir.exists() {
+        return Ok(());
+    }
+
+    fs::remove_dir_all(&temp_dir).map_err(|error| {
+        format!(
+            "Failed to clear temp directory {}: {error}",
+            temp_dir.display()
+        )
+    })
 }
 
 fn clean_temp(temp_dir: &Path) {
@@ -260,5 +270,40 @@ fn clean_temp(temp_dir: &Path) {
         if let Err(error) = fs::remove_dir_all(temp_dir) {
             eprintln!("Failed to clean temp dir {}: {error}", temp_dir.display());
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn remove_edition_from_temp_removes_the_matching_directory() {
+        let temp_dir = env::temp_dir().join("comic-organizer-delete-test");
+        let edition_dir = temp_dir.join("Batman");
+
+        fs::create_dir_all(&edition_dir).unwrap();
+        fs::write(edition_dir.join("page1.jpg"), b"x").unwrap();
+
+        let original_temp_dir = env::var_os("COMIC_ORGANIZER_TEMP_DIR").map(PathBuf::from);
+        unsafe {
+            std::env::set_var("COMIC_ORGANIZER_TEMP_DIR", &temp_dir);
+        }
+
+        remove_edition_from_temp("Batman").unwrap();
+
+        assert!(!edition_dir.exists());
+
+        if let Some(previous) = original_temp_dir {
+            unsafe {
+                std::env::set_var("COMIC_ORGANIZER_TEMP_DIR", previous);
+            }
+        } else {
+            unsafe {
+                std::env::remove_var("COMIC_ORGANIZER_TEMP_DIR");
+            }
+        }
+
+        let _ = fs::remove_dir_all(&temp_dir);
     }
 }

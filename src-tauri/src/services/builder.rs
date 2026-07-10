@@ -7,45 +7,50 @@ use std::{fs, path::Path};
 pub fn build_editions_from_temp(temp_dir: &Path) -> Result<Vec<ComicEdition>, std::io::Error> {
     let mut editions = Vec::new();
 
-    let entries = fs::read_dir(temp_dir)?;
+    let mut entries = fs::read_dir(temp_dir)?
+        .filter_map(Result::ok)
+        .map(|entry| entry.path())
+        .filter(|path| path.is_dir())
+        .collect::<Vec<_>>();
 
-    for entry in entries {
-        let entry = match entry {
-            Ok(e) => e,
-            Err(_) => continue,
-        };
+    entries.sort_by(|a, b| {
+        let a_name = a
+            .file_name()
+            .and_then(|name| name.to_str())
+            .unwrap_or("unknown");
+        let b_name = b
+            .file_name()
+            .and_then(|name| name.to_str())
+            .unwrap_or("unknown");
+        compare(a_name, b_name)
+    });
 
-        let path = entry.path();
-
-        if !path.is_dir() {
-            continue;
-        }
-
+    for path in entries {
         let title = path
             .file_name()
-            .map(|n| n.to_string_lossy().to_string())
+            .map(|name| name.to_string_lossy().into_owned())
             .unwrap_or_else(|| "unknown".to_string());
 
         let edition_id = stable_id(&title);
 
         let mut images = match fs::read_dir(&path) {
             Ok(dir) => dir
-                .filter_map(|e| e.ok())
-                .map(|e| e.path())
-                .filter(|p| is_image(p))
+                .filter_map(Result::ok)
+                .map(|entry| entry.path())
+                .filter(|path| is_image(path))
                 .collect::<Vec<_>>(),
             Err(_) => continue,
         };
 
         sort_image_paths(&mut images);
 
-        let pages: Vec<ComicPage> = images
+        let pages = images
             .into_iter()
             .enumerate()
             .map(|(index, path)| {
                 let file_name = path
                     .file_name()
-                    .map(|n| n.to_string_lossy().to_string())
+                    .map(|name| name.to_string_lossy().into_owned())
                     .unwrap_or_else(|| "unknown".to_string());
 
                 let page_id = stable_id(&format!("{title}:{file_name}"));
@@ -53,11 +58,11 @@ pub fn build_editions_from_temp(temp_dir: &Path) -> Result<Vec<ComicEdition>, st
                 ComicPage {
                     id: page_id as usize,
                     file_name: file_name.clone(),
-                    image_path: path.to_string_lossy().to_string(),
+                    image_path: path.to_string_lossy().into_owned(),
                     page_number: index + 1,
                 }
             })
-            .collect();
+            .collect::<Vec<_>>();
 
         editions.push(ComicEdition {
             id: edition_id as usize,
@@ -66,7 +71,13 @@ pub fn build_editions_from_temp(temp_dir: &Path) -> Result<Vec<ComicEdition>, st
         });
     }
 
+    sort_editions_by_title(&mut editions);
+
     Ok(editions)
+}
+
+fn sort_editions_by_title(editions: &mut [ComicEdition]) {
+    editions.sort_by(|left, right| compare(&left.title, &right.title));
 }
 
 fn sort_image_paths(paths: &mut [std::path::PathBuf]) {
@@ -118,5 +129,35 @@ mod tests {
             .collect();
 
         assert_eq!(names, vec!["page1.jpg", "page2.jpg", "page10.jpg"]);
+    }
+
+    #[test]
+    fn editions_are_sorted_naturally_by_title() {
+        let mut editions = vec![
+            ComicEdition {
+                id: 3,
+                title: "Zeta".to_string(),
+                pages: vec![],
+            },
+            ComicEdition {
+                id: 1,
+                title: "Alpha 2".to_string(),
+                pages: vec![],
+            },
+            ComicEdition {
+                id: 2,
+                title: "Alpha 1".to_string(),
+                pages: vec![],
+            },
+        ];
+
+        sort_editions_by_title(&mut editions);
+
+        let titles: Vec<_> = editions
+            .iter()
+            .map(|edition| edition.title.as_str())
+            .collect();
+
+        assert_eq!(titles, vec!["Alpha 1", "Alpha 2", "Zeta"]);
     }
 }

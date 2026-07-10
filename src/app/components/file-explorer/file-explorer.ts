@@ -149,12 +149,19 @@ export class FileExplorer implements OnInit, OnDestroy {
     this.printSelectedItems();
   }
 
-  deleteEdition(editionId: number): void {
+  async deleteEdition(editionId: number): Promise<void> {
+    const edition = this.fileManagerService.fileEditions.find((item) => item.id === editionId);
+
+    if (edition) {
+      await this.fileManagerService.deleteEditionFromBackend(edition.title);
+    }
+
     this.fileManagerService.fileEditions = this.fileManagerService.fileEditions.filter(
-      (edition) => edition.id !== editionId,
+      (item) => item.id !== editionId,
     );
 
     this.fileManagerService.activeEditionIds.delete(editionId);
+    this.cdr.detectChanges();
 
     this.activePages.delete(editionId);
 
@@ -171,10 +178,13 @@ export class FileExplorer implements OnInit, OnDestroy {
     }
   }
 
-  deleteAll(): void {
+  async deleteAll(): Promise<void> {
+    await this.fileManagerService.clearAllTempEditions();
+
     this.fileManagerService.fileEditions = [];
 
     this.fileManagerService.activeEditionIds.clear();
+    this.cdr.detectChanges();
     this.activePages.clear();
 
     this.openEditionId = null;
