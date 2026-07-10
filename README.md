@@ -1,5 +1,7 @@
 ﻿# 📚 Comic Organizer
 
+## npm install
+## npx tauri dev
 ## C:\Users\home\AppData\Local\Temp
 
 Aplicação para organização, renomeação, compactação e gerenciamento de coleções de quadrinhos digitais.

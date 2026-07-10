@@ -17,6 +17,7 @@
         (selectionRequested)="toggleEditionSelection(edition.id)"
         (deleteRequested)="deleteEdition(edition.id)"
         (pageRequested)="togglePageSelection(edition.id, $event)"
+        (pageNavigationRequested)="navigatePageSelection(edition.id, $event.direction, $event.page)"
         [isPageSelectedFn]="getPageSelectionHandler(edition.id)"
       ></app-file-explorer-edition-item>
     }

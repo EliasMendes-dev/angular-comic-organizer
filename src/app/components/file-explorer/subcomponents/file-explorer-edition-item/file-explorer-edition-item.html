@@ -52,7 +52,10 @@
         <div
           class="file-page"
           [class.active]="isPageSelectedFn(page)"
+          tabindex="0"
+          role="button"
           (click)="handlePageRequested(page); $event.stopPropagation()"
+          (keydown)="handlePageKeydown(page, $event); $event.stopPropagation()"
         >
           {{ page.fileName }}
         </div>

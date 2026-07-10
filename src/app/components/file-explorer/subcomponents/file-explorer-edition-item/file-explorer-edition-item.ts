@@ -38,6 +38,7 @@ export class FileExplorerEditionItem {
   @Output() selectionRequested = new EventEmitter<void>();
   @Output() deleteRequested = new EventEmitter<void>();
   @Output() pageRequested = new EventEmitter<ComicPage>();
+  @Output() pageNavigationRequested = new EventEmitter<{ page: ComicPage; direction: 'up' | 'down' }>();
   @Input() isPageSelectedFn: (page: ComicPage) => boolean = (page) =>
     (page as ComicPage & { selected?: boolean }).selected ?? false;
 
@@ -57,5 +58,18 @@ export class FileExplorerEditionItem {
 
   handlePageRequested(page: ComicPage): void {
     this.pageRequested.emit(page);
+  }
+
+  handlePageKeydown(page: ComicPage, event: KeyboardEvent): void {
+    if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      this.pageNavigationRequested.emit({ page, direction: 'down' });
+      return;
+    }
+
+    if (event.key === 'ArrowUp') {
+      event.preventDefault();
+      this.pageNavigationRequested.emit({ page, direction: 'up' });
+    }
   }
 }

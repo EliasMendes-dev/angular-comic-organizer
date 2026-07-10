@@ -48,18 +48,44 @@ export class FileExplorer implements OnInit, OnDestroy {
   }
 
   togglePageSelection(editionId: number, page: ComicPage): void {
-    const pageId = page.id;
+    this.selectPage(editionId, page);
+  }
 
-    const pages = this.activePages.get(editionId) ?? new Set<number>();
+  private selectPage(editionId: number, page: ComicPage): void {
+    this.activePages.set(editionId, new Set<number>([page.id]));
+  }
 
-    if (pages.has(pageId)) {
-      pages.delete(pageId);
-    } else {
-      pages.add(pageId);
+  navigatePageSelection(editionId: number, direction: 'up' | 'down', currentPage?: ComicPage): void {
+    const edition = this.fileManagerService.fileEditions.find((item) => item.id === editionId);
+
+    if (!edition?.pages?.length) {
+      return;
     }
 
-    // força reatividade Angular
-    this.activePages.set(editionId, new Set(pages));
+    const pages = edition.pages;
+    const selectedPage = pages.find((page) => this.isPageSelected(editionId, page));
+    const currentIndex = currentPage ? pages.findIndex((page) => page.id === currentPage.id) : -1;
+    const startIndex =
+      selectedPage !== undefined
+        ? pages.findIndex((page) => page.id === selectedPage.id)
+        : currentIndex;
+
+    if (startIndex < 0) {
+      const fallbackIndex = direction === 'down' ? 0 : pages.length - 1;
+      this.selectPage(editionId, pages[fallbackIndex]);
+
+      return;
+    }
+
+    if ((direction === 'up' && startIndex === 0) || (direction === 'down' && startIndex === pages.length - 1)) {
+      this.selectPage(editionId, pages[startIndex]);
+
+      return;
+    }
+
+    const targetIndex = direction === 'down' ? startIndex + 1 : startIndex - 1;
+
+    this.selectPage(editionId, pages[targetIndex]);
   }
 
   toggleEditionSelection(editionId: number): void {
