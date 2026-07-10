@@ -9,7 +9,6 @@ use std::thread;
 
 pub fn process_cbr_files(paths: Vec<String>) -> Result<Vec<ComicEdition>, String> {
     let temp_dir = get_temp_dir();
-    clean_temp(&temp_dir);
 
     fs::create_dir_all(&temp_dir).map_err(|e| format!("Failed to create temp dir: {e}"))?;
 
@@ -318,14 +317,6 @@ pub fn clear_temp_directory() -> Result<(), String> {
             temp_dir.display()
         )
     })
-}
-
-fn clean_temp(temp_dir: &Path) {
-    if temp_dir.exists() {
-        if let Err(error) = fs::remove_dir_all(temp_dir) {
-            eprintln!("Failed to clean temp dir {}: {error}", temp_dir.display());
-        }
-    }
 }
 
 #[cfg(test)]

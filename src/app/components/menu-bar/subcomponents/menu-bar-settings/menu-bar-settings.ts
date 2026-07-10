@@ -22,23 +22,31 @@ export class MenuBarSettings implements OnInit {
   ) {}
 
   async selectConversion(type: ConversionType): Promise<void> {
+    const currentConversion = this.conversionStateService.getConversion();
     const hasLoadedEditions = this.fileManager.fileEditions.length > 0;
 
-    if (this.conversionStateService.getConversion() && hasLoadedEditions) {
+    if (currentConversion && currentConversion !== type) {
       return;
     }
 
     const paths = await this.fileManager.selectFiles(type);
 
     if (!paths.length) {
-      if (!hasLoadedEditions) {
+      if (!hasLoadedEditions && !currentConversion) {
         this.conversionStateService.clearConversion();
       }
       return;
     }
 
+    const newPaths = this.fileManager.getNewSourcePaths(paths);
+
+    if (!newPaths.length) {
+      console.warn('Nenhum arquivo novo selecionado. Os arquivos já foram adicionados.');
+      return;
+    }
+
     console.log('📦 Paths recebidos do Tauri:');
-    paths.forEach((p) => console.log(p));
+    newPaths.forEach((p) => console.log(p));
 
     console.log('📤 Enviando paths para o backend...');
 
@@ -46,24 +54,28 @@ export class MenuBarSettings implements OnInit {
 
     try {
       editions = await invoke<ComicEdition[]>('process_cbr_files', {
-        paths,
+        paths: newPaths,
       });
     } catch (error) {
       console.error('Erro ao processar arquivos no backend:', error);
-      if (!hasLoadedEditions) {
+      if (!hasLoadedEditions && !currentConversion) {
         this.conversionStateService.clearConversion();
       }
       return;
     }
 
     if (!editions?.length) {
-      if (!hasLoadedEditions) {
+      if (!hasLoadedEditions && !currentConversion) {
         this.conversionStateService.clearConversion();
       }
       return;
     }
 
-    this.conversionStateService.setConversion(type);
+    if (!currentConversion) {
+      this.conversionStateService.setConversion(type);
+    }
+
+    this.fileManager.addSourcePaths(newPaths);
     this.fileManager.loadEditionsFromBackend(editions);
 
     console.log('✅ Backend respondeu');

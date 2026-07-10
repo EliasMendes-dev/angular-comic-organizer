@@ -167,6 +167,7 @@ export class FileExplorer implements OnInit, OnDestroy {
 
     if (edition) {
       await this.fileManagerService.deleteEditionFromBackend(edition.title);
+      this.fileManagerService.removeSourcePathsByTitle(edition.title);
     }
 
     this.fileManagerService.fileEditions = this.fileManagerService.fileEditions.filter(
@@ -186,6 +187,7 @@ export class FileExplorer implements OnInit, OnDestroy {
       this.isActive = false;
 
       this.conversionStateService.clearConversion();
+      this.fileManagerService.clearSourcePaths();
 
       console.log('Conversao liberada novamente');
     }
@@ -195,6 +197,7 @@ export class FileExplorer implements OnInit, OnDestroy {
     await this.fileManagerService.clearAllTempEditions();
 
     this.fileManagerService.fileEditions = [];
+    this.fileManagerService.clearSourcePaths();
 
     this.fileManagerService.activeEditionIds.clear();
     this.cdr.detectChanges();

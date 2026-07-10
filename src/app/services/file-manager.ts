@@ -56,6 +56,7 @@ export function mapBackendEditionsToExplorerModel(editions: ComicEdition[]): Com
 export class FileManagerService {
   fileEditions: ComicEdition[] = [];
   activeEditionIds = new Set<number>();
+  selectedSourcePaths = new Map<string, string>();
 
   private refresh$ = new Subject<void>();
 
@@ -91,12 +92,46 @@ export class FileManagerService {
 
   loadEditionsFromBackend(editions: ComicEdition[]): void {
     this.ngZone.run(() => {
-      this.fileEditions = mapBackendEditionsToExplorerModel(editions);
+      const newEditions = mapBackendEditionsToExplorerModel(editions);
+      const existingTitles = new Set(this.fileEditions.map((edition) => edition.title));
+
+      this.fileEditions = [...this.fileEditions, ...newEditions.filter((edition) => !existingTitles.has(edition.title))].sort((left, right) =>
+        naturalCompare(left.title, right.title),
+      );
       this.activeEditionIds.clear();
 
       // 🔥 trigger correto
       this.refresh$.next();
     });
+  }
+
+  getNewSourcePaths(paths: string[]): string[] {
+    const uniquePaths = Array.from(new Set(paths));
+    return uniquePaths.filter((path) => !this.selectedSourcePaths.has(path));
+  }
+
+  addSourcePaths(paths: string[]): void {
+    paths.forEach((path) => {
+      const title = this.getEditionTitleFromPath(path);
+      this.selectedSourcePaths.set(path, title);
+    });
+  }
+
+  removeSourcePathsByTitle(title: string): void {
+    for (const [path, storedTitle] of Array.from(this.selectedSourcePaths.entries())) {
+      if (storedTitle === title) {
+        this.selectedSourcePaths.delete(path);
+      }
+    }
+  }
+
+  clearSourcePaths(): void {
+    this.selectedSourcePaths.clear();
+  }
+
+  private getEditionTitleFromPath(path: string): string {
+    const fileName = path.split(/[/\\]/).pop() ?? '';
+    return fileName.replace(/\.[^.]+$/, '');
   }
 
   async selectFiles(conversion: ConversionType): Promise<string[]> {

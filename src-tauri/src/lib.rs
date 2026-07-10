@@ -6,6 +6,8 @@ use crate::commands::extract::process_cbr_files;
 use crate::commands::library::{
     clear_all_temp_editions, delete_edition_from_temp, get_edition_order, save_edition_order,
 };
+use crate::services::archive::clear_temp_directory;
+use tauri::WindowEvent;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -19,6 +21,11 @@ pub fn run() {
             clear_all_temp_editions
         ])
         .setup(|app| {
+            // Remove qualquer arquivo temporário deixado por uma execução anterior.
+            if let Err(error) = clear_temp_directory() {
+                log::error!("{error}");
+            }
+
             if cfg!(debug_assertions) {
                 app.handle().plugin(
                     tauri_plugin_log::Builder::default()
@@ -26,7 +33,16 @@ pub fn run() {
                         .build(),
                 )?;
             }
+
             Ok(())
+        })
+        .on_window_event(|_, event| {
+            if let WindowEvent::CloseRequested { .. } = event {
+                // Remove os arquivos temporários da execução atual.
+                if let Err(error) = clear_temp_directory() {
+                    log::error!("{error}");
+                }
+            }
         })
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
