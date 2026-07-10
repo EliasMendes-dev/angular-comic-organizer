@@ -19,7 +19,7 @@ import { Subscription } from 'rxjs';
 export class FileExplorer implements OnInit, OnDestroy {
   isActive = false;
   openEditionId: number | null = null;
-  activePages = new Map<number, Set<number>>();
+  activePages = new Map<number, number>();
   private sub = new Subscription();
 
   constructor(
@@ -67,7 +67,7 @@ export class FileExplorer implements OnInit, OnDestroy {
   }
 
   private selectPage(editionId: number, page: ComicPage): void {
-    this.activePages.set(editionId, new Set<number>([page.id]));
+    this.activePages.set(editionId, page.id);
   }
 
   navigatePageSelection(editionId: number, direction: 'up' | 'down', currentPage?: ComicPage): void {
@@ -118,7 +118,7 @@ export class FileExplorer implements OnInit, OnDestroy {
   }
 
   isPageSelected(editionId: number, page: ComicPage): boolean {
-    return this.activePages.get(editionId)?.has(page.id) ?? false;
+    return this.activePages.get(editionId) === page.id;
   }
 
   getDisplayEdition(edition: ComicEdition): ComicEdition {
@@ -152,13 +152,11 @@ export class FileExplorer implements OnInit, OnDestroy {
     this.fileManagerService.fileEditions.forEach((edition) => {
       this.fileManagerService.activeEditionIds.add(edition.id);
 
-      const pageSet = new Set<number>();
-
-      edition.pages.forEach((page) => {
-        pageSet.add(page.id);
-      });
-
-      this.activePages.set(edition.id, pageSet);
+      if (edition.pages.length) {
+        this.activePages.set(edition.id, edition.pages[0].id);
+      } else {
+        this.activePages.delete(edition.id);
+      }
     });
 
     this.printSelectedItems();
