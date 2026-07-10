@@ -50,6 +50,7 @@
     <div class="file-pages">
       @for (page of edition.pages; track page.id) {
         <div
+          #pageElement
           class="file-page"
           [class.active]="isPageSelectedFn(page)"
           tabindex="0"

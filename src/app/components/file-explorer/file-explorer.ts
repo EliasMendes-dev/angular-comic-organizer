@@ -39,7 +39,22 @@ export class FileExplorer implements OnInit, OnDestroy {
   }
 
   toggleFileEdition(editionId: number): void {
-    this.openEditionId = this.openEditionId === editionId ? null : editionId;
+    if (this.openEditionId === editionId) {
+      this.openEditionId = null;
+      this.activePages.delete(editionId);
+      return;
+    }
+
+    this.openEditionId = editionId;
+
+    const edition = this.fileManagerService.fileEditions.find(
+      (item) => item.id === editionId,
+    );
+
+    if (edition?.pages.length) {
+      this.selectPage(editionId, edition.pages[0]);
+    }
+
     this.printSelectedItems();
   }
 

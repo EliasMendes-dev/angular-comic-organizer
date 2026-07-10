@@ -1,9 +1,11 @@
 use crate::models::ComicEdition;
 use crate::services::builder::build_editions_from_temp;
+use rayon::prelude::*;
 use std::env;
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::Command;
+use std::thread;
 
 pub fn process_cbr_files(paths: Vec<String>) -> Result<Vec<ComicEdition>, String> {
     let temp_dir = get_temp_dir();
@@ -11,32 +13,64 @@ pub fn process_cbr_files(paths: Vec<String>) -> Result<Vec<ComicEdition>, String
 
     fs::create_dir_all(&temp_dir).map_err(|e| format!("Failed to create temp dir: {e}"))?;
 
-    for path in &paths {
-        let edition_name = Path::new(path)
-            .file_stem()
-            .and_then(|stem| stem.to_str())
-            .unwrap_or("unknown")
-            .to_string();
+    let tasks = build_extraction_tasks(&paths, &temp_dir);
+    let parallelism = resolve_parallelism(tasks.len());
 
-        let edition_dir = temp_dir.join(&edition_name);
+    if tasks.len() > 1 {
+        rayon::ThreadPoolBuilder::new()
+            .num_threads(parallelism)
+            .build_global()
+            .map_err(|error| format!("Failed to initialize Rayon thread pool: {error}"))?;
+    }
 
-        fs::create_dir_all(&edition_dir)
-            .map_err(|e| format!("Failed to create edition dir {edition_dir:?}: {e}"))?;
+    tasks.into_par_iter().for_each(|task| {
+        let edition_dir = task.1;
+        let archive_path = task.0;
 
-        if let Err(error) = extract_cbr(path, &edition_dir) {
-            eprintln!("Skipping archive {path}: {error}");
-            continue;
+        if let Err(error) = fs::create_dir_all(&edition_dir) {
+            eprintln!("Failed to create edition dir {edition_dir:?}: {error}");
+            return;
+        }
+
+        if let Err(error) = extract_cbr(&archive_path, &edition_dir) {
+            eprintln!("Skipping archive {archive_path}: {error}");
+            return;
         }
 
         if let Err(error) = normalize_edition_directory(&edition_dir) {
-            eprintln!("Skipping normalization for {path}: {error}");
+            eprintln!("Skipping normalization for {archive_path}: {error}");
         }
-    }
+    });
 
     let editions = build_editions_from_temp(&temp_dir)
         .map_err(|e| format!("Failed to build editions from temp dir: {e}"))?;
 
     Ok(editions)
+}
+
+fn build_extraction_tasks(paths: &[String], temp_dir: &Path) -> Vec<(String, PathBuf)> {
+    paths
+        .iter()
+        .map(|path| {
+            let edition_name = Path::new(path)
+                .file_stem()
+                .and_then(|stem| stem.to_str())
+                .unwrap_or("unknown")
+                .to_string();
+
+            (path.clone(), temp_dir.join(edition_name))
+        })
+        .collect()
+}
+
+fn resolve_parallelism(task_count: usize) -> usize {
+    let available = thread::available_parallelism()
+        .map(|value| value.get())
+        .unwrap_or(1);
+
+    let desired = available.max(1).min(task_count.max(1));
+
+    desired.min(4).max(1)
 }
 
 fn extract_cbr(cbr_path: &str, output_dir: &Path) -> Result<(), String> {
@@ -276,6 +310,29 @@ fn clean_temp(temp_dir: &Path) {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn resolve_parallelism_caps_the_pool_for_large_hosts() {
+        assert_eq!(resolve_parallelism(1), 1);
+        assert_eq!(resolve_parallelism(2), 2);
+        assert_eq!(resolve_parallelism(4), 4);
+        assert_eq!(resolve_parallelism(8), 4);
+        assert_eq!(resolve_parallelism(16), 4);
+        assert_eq!(resolve_parallelism(32), 4);
+    }
+
+    #[test]
+    fn build_extraction_tasks_preserves_order_and_name() {
+        let temp_dir = Path::new("/tmp/comic-organizer");
+        let paths = vec!["/tmp/Alpha.cbr".to_string(), "/tmp/Beta.cbr".to_string()];
+
+        let tasks = build_extraction_tasks(&paths, temp_dir);
+
+        assert_eq!(tasks[0].0, "/tmp/Alpha.cbr");
+        assert_eq!(tasks[0].1, temp_dir.join("Alpha"));
+        assert_eq!(tasks[1].0, "/tmp/Beta.cbr");
+        assert_eq!(tasks[1].1, temp_dir.join("Beta"));
+    }
 
     #[test]
     fn remove_edition_from_temp_removes_the_matching_directory() {

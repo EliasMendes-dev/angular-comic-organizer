@@ -1,4 +1,14 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  Input,
+  Output,
+  QueryList,
+  SimpleChanges,
+  ViewChildren,
+  OnChanges,
+} from '@angular/core';
 import {
   LucideTrash2,
   LucideSquareCheckBig,
@@ -28,11 +38,24 @@ import { ComicPage } from '../../../../models/comic-page';
   templateUrl: './file-explorer-edition-item.html',
   styleUrl: './file-explorer-edition-item.css',
 })
-export class FileExplorerEditionItem {
+
+export class FileExplorerEditionItem implements OnChanges {
+
+ngOnChanges(changes: SimpleChanges): void {
+  if (changes['isOpen']?.currentValue) {
+    queueMicrotask(() => {
+      this.pageElements.first?.nativeElement.focus();
+    });
+  }
+}
+
   @Input({ required: true }) edition!: ComicEdition;
   @Input() canDrag = true;
   @Input() isOpen = false;
   @Input() isSelected = false;
+
+  @ViewChildren('pageElement')
+pageElements!: QueryList<ElementRef<HTMLDivElement>>;
 
   @Output() openRequested = new EventEmitter<void>();
   @Output() selectionRequested = new EventEmitter<void>();
