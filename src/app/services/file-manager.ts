@@ -2,6 +2,7 @@ import { Injectable, NgZone } from '@angular/core';
 import { open } from '@tauri-apps/plugin-dialog';
 import { invoke } from '@tauri-apps/api/core';
 import { ComicEdition } from '../models/comic-edition';
+import { ConversionType } from '../models/conversion-type';
 import { Subject } from 'rxjs';
 
 function naturalCompare(a: string, b: string): number {
@@ -98,16 +99,18 @@ export class FileManagerService {
     });
   }
 
-  async selectCbrFiles(): Promise<string[]> {
+  async selectFiles(conversion: ConversionType): Promise<string[]> {
+    const extensions = conversion === 'cbr-to-cbz' ? ['cbr'] : ['cbz'];
+
     try {
       const files = await open({
         multiple: true,
         filters: [
           {
             name: 'Comic Books',
-            extensions: ['cbr']
-          }
-        ]
+            extensions,
+          },
+        ],
       });
 
       if (!files) return [];

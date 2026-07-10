@@ -22,24 +22,48 @@ export class MenuBarSettings implements OnInit {
   ) {}
 
   async selectConversion(type: ConversionType): Promise<void> {
-    if (this.conversionStateService.getConversion()) {
+    const hasLoadedEditions = this.fileManager.fileEditions.length > 0;
+
+    if (this.conversionStateService.getConversion() && hasLoadedEditions) {
       return;
     }
 
-    this.conversionStateService.setConversion(type);
+    const paths = await this.fileManager.selectFiles(type);
 
-    const paths = await this.fileManager.selectCbrFiles();
+    if (!paths.length) {
+      if (!hasLoadedEditions) {
+        this.conversionStateService.clearConversion();
+      }
+      return;
+    }
 
     console.log('📦 Paths recebidos do Tauri:');
-
     paths.forEach((p) => console.log(p));
 
     console.log('📤 Enviando paths para o backend...');
 
-    const editions = await invoke<ComicEdition[]>('process_cbr_files', {
-      paths,
-    });
+    let editions: ComicEdition[];
 
+    try {
+      editions = await invoke<ComicEdition[]>('process_cbr_files', {
+        paths,
+      });
+    } catch (error) {
+      console.error('Erro ao processar arquivos no backend:', error);
+      if (!hasLoadedEditions) {
+        this.conversionStateService.clearConversion();
+      }
+      return;
+    }
+
+    if (!editions?.length) {
+      if (!hasLoadedEditions) {
+        this.conversionStateService.clearConversion();
+      }
+      return;
+    }
+
+    this.conversionStateService.setConversion(type);
     this.fileManager.loadEditionsFromBackend(editions);
 
     console.log('✅ Backend respondeu');

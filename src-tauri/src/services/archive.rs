@@ -17,30 +17,51 @@ pub fn process_cbr_files(paths: Vec<String>) -> Result<Vec<ComicEdition>, String
     let parallelism = resolve_parallelism(tasks.len());
 
     if tasks.len() > 1 {
-        rayon::ThreadPoolBuilder::new()
+        let thread_pool = rayon::ThreadPoolBuilder::new()
             .num_threads(parallelism)
-            .build_global()
+            .build()
             .map_err(|error| format!("Failed to initialize Rayon thread pool: {error}"))?;
+
+        thread_pool.install(|| {
+            tasks.into_par_iter().for_each(|task| {
+                let edition_dir = task.1;
+                let archive_path = task.0;
+
+                if let Err(error) = fs::create_dir_all(&edition_dir) {
+                    eprintln!("Failed to create edition dir {edition_dir:?}: {error}");
+                    return;
+                }
+
+                if let Err(error) = extract_cbr(&archive_path, &edition_dir) {
+                    eprintln!("Skipping archive {archive_path}: {error}");
+                    return;
+                }
+
+                if let Err(error) = normalize_edition_directory(&edition_dir) {
+                    eprintln!("Skipping normalization for {archive_path}: {error}");
+                }
+            });
+        });
+    } else {
+        tasks.into_iter().for_each(|task| {
+            let edition_dir = task.1;
+            let archive_path = task.0;
+
+            if let Err(error) = fs::create_dir_all(&edition_dir) {
+                eprintln!("Failed to create edition dir {edition_dir:?}: {error}");
+                return;
+            }
+
+            if let Err(error) = extract_cbr(&archive_path, &edition_dir) {
+                eprintln!("Skipping archive {archive_path}: {error}");
+                return;
+            }
+
+            if let Err(error) = normalize_edition_directory(&edition_dir) {
+                eprintln!("Skipping normalization for {archive_path}: {error}");
+            }
+        });
     }
-
-    tasks.into_par_iter().for_each(|task| {
-        let edition_dir = task.1;
-        let archive_path = task.0;
-
-        if let Err(error) = fs::create_dir_all(&edition_dir) {
-            eprintln!("Failed to create edition dir {edition_dir:?}: {error}");
-            return;
-        }
-
-        if let Err(error) = extract_cbr(&archive_path, &edition_dir) {
-            eprintln!("Skipping archive {archive_path}: {error}");
-            return;
-        }
-
-        if let Err(error) = normalize_edition_directory(&edition_dir) {
-            eprintln!("Skipping normalization for {archive_path}: {error}");
-        }
-    });
 
     let editions = build_editions_from_temp(&temp_dir)
         .map_err(|e| format!("Failed to build editions from temp dir: {e}"))?;
