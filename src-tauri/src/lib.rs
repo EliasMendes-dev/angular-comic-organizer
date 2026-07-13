@@ -7,6 +7,8 @@ use crate::commands::library::{
     clear_all_temp_editions, delete_edition_from_temp, get_edition_order, save_edition_order,
 };
 use crate::services::archive::clear_temp_directory;
+use crate::commands::page::load_page;
+
 use tauri::WindowEvent;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -18,7 +20,8 @@ pub fn run() {
             save_edition_order,
             get_edition_order,
             delete_edition_from_temp,
-            clear_all_temp_editions
+            clear_all_temp_editions,
+            load_page
         ])
         .setup(|app| {
             // Remove qualquer arquivo temporário deixado por uma execução anterior.

@@ -28,7 +28,9 @@ export class FileExplorer implements OnInit, OnDestroy {
     public fileManagerService: FileManagerService,
     private cdr: ChangeDetectorRef,
     private comicPreviewStateService: ComicPreviewStateService,
-  ) {}
+  ) {
+    console.log('Explorer service', this.comicPreviewStateService);
+  }
 
   drop(event: CdkDragDrop<any[]>): void {
     const updated = [...this.fileManagerService.fileEditions];

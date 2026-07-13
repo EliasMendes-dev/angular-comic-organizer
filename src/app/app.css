@@ -1,6 +1,16 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
 .app-container {
   display: grid;
   grid-template-rows: auto 1fr auto;
   min-height: 100vh;
   gap: 20px;
+}
+
+main {
+  min-height: 0;
 }

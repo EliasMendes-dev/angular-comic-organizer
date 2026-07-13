@@ -5,11 +5,12 @@
       <h2>Visualização</h2>
     </div>
   </div>
+
   <div class="content-comic-preview">
-    @if (comicPreviewStateService.selectedPage) {
+    @if (imageUrl) {
       <img
-        [src]="comicPreviewStateService.selectedPage.imagePath"
-        [alt]="comicPreviewStateService.selectedPage.fileName"
+        [src]="imageUrl"
+        [alt]="comicPreviewStateService.selectedPage()?.fileName"
         class="comic-preview-image"
       />
     } @else {
@@ -20,9 +21,10 @@
       <p>Selecione uma página para visualizar</p>
     }
   </div>
+
   <div class="name-selected-comic">
-    @if (comicPreviewStateService.selectedPage) {
-      <p>{{ comicPreviewStateService.selectedPage.fileName }}</p>
+    @if (comicPreviewStateService.selectedPage()) {
+      <p>{{ comicPreviewStateService.selectedPage()?.fileName | titlecase }}</p>
     } @else {
       <p>Nenhum Arquivo Selecionado</p>
     }
