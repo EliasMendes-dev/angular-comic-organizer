@@ -1,3 +1,11 @@
+.app-container {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  min-height: 100vh;
+  gap: 20px;
+}
+
+@media (min-width: 1001px) {
 :host {
   display: flex;
   flex-direction: column;
@@ -13,4 +21,5 @@
 
 main {
   min-height: 0;
+}
 }

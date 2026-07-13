@@ -1,6 +1,6 @@
 .container-rename-settings {
   display: grid;
-  grid-template-rows: auto 1fr;
+  grid-template-rows: auto 1fr 1fr;
   width: 100%;
   height: 100%;
   border: 1px solid var(--cor-borda);
@@ -21,8 +21,8 @@
 .rename-settings {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
   align-items: stretch;
+  gap: 2rem;
   justify-content: center;
   background-color: var(--fundo-secundario);
 }
