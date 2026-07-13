@@ -8,6 +8,7 @@ import { ComicEdition } from '../../models/comic-edition';
 import { ComicPage } from '../../models/comic-page';
 import { ChangeDetectorRef } from '@angular/core';
 import { Subscription } from 'rxjs';
+import { ComicPreviewStateService } from '../../services/comic-preview-state';
 
 @Component({
   selector: 'app-file-explorer',
@@ -25,8 +26,8 @@ export class FileExplorer implements OnInit, OnDestroy {
   constructor(
     private conversionStateService: ConversionStateService,
     public fileManagerService: FileManagerService,
-    private ngZone: NgZone,
     private cdr: ChangeDetectorRef,
+    private comicPreviewStateService: ComicPreviewStateService,
   ) {}
 
   drop(event: CdkDragDrop<any[]>): void {
@@ -42,14 +43,13 @@ export class FileExplorer implements OnInit, OnDestroy {
     if (this.openEditionId === editionId) {
       this.openEditionId = null;
       this.activePages.delete(editionId);
+      this.comicPreviewStateService.clearSelectedPage();
       return;
     }
 
     this.openEditionId = editionId;
 
-    const edition = this.fileManagerService.fileEditions.find(
-      (item) => item.id === editionId,
-    );
+    const edition = this.fileManagerService.fileEditions.find((item) => item.id === editionId);
 
     if (edition?.pages.length) {
       this.selectPage(editionId, edition.pages[0]);
@@ -68,9 +68,14 @@ export class FileExplorer implements OnInit, OnDestroy {
 
   private selectPage(editionId: number, page: ComicPage): void {
     this.activePages.set(editionId, page.id);
+    this.comicPreviewStateService.setSelectedPage(page);
   }
 
-  navigatePageSelection(editionId: number, direction: 'up' | 'down', currentPage?: ComicPage): void {
+  navigatePageSelection(
+    editionId: number,
+    direction: 'up' | 'down',
+    currentPage?: ComicPage,
+  ): void {
     const edition = this.fileManagerService.fileEditions.find((item) => item.id === editionId);
 
     if (!edition?.pages?.length) {
@@ -92,7 +97,10 @@ export class FileExplorer implements OnInit, OnDestroy {
       return;
     }
 
-    if ((direction === 'up' && startIndex === 0) || (direction === 'down' && startIndex === pages.length - 1)) {
+    if (
+      (direction === 'up' && startIndex === 0) ||
+      (direction === 'down' && startIndex === pages.length - 1)
+    ) {
       this.selectPage(editionId, pages[startIndex]);
 
       return;
@@ -181,6 +189,7 @@ export class FileExplorer implements OnInit, OnDestroy {
 
     if (this.openEditionId === editionId) {
       this.openEditionId = null;
+      this.comicPreviewStateService.clearSelectedPage();
     }
 
     if (this.fileManagerService.fileEditions.length === 0) {
@@ -202,6 +211,7 @@ export class FileExplorer implements OnInit, OnDestroy {
     this.fileManagerService.activeEditionIds.clear();
     this.cdr.detectChanges();
     this.activePages.clear();
+    this.comicPreviewStateService.clearSelectedPage();
 
     this.openEditionId = null;
     this.isActive = false;

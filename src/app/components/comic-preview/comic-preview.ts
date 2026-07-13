@@ -1,5 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import {LucideEye, LucideImage} from '@lucide/angular';
+import { ComicPreviewStateService } from '../../services/comic-preview-state';
 
 @Component({
   selector: 'app-comic-preview',
@@ -8,7 +9,9 @@ import {LucideEye, LucideImage} from '@lucide/angular';
   templateUrl: './comic-preview.html',
   styleUrls: ['./comic-preview.css', './comic-preview-responsive.css'],
 })
-export class ComicPreview implements OnInit {
-  ngOnInit(): void {
-  }
+export class ComicPreview {
+  constructor(
+    public comicPreviewStateService: ComicPreviewStateService,
+  ) {}
+
 }

@@ -18,6 +18,7 @@
 }
 
 .file-explorer {
+  height: 100px;
   color: var(--texto-secundario);
   background-color: var(--fundo-secundario);
 }

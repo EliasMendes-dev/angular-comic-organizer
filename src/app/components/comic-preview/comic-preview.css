@@ -71,6 +71,12 @@ svg {
   color: var(--fundo-secundario);
 }
 
+.comic-preview-image {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
 .name-selected-comic {
   display: flex;
   align-items: center;

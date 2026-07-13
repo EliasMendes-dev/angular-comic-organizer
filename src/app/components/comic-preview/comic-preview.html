@@ -6,13 +6,25 @@
     </div>
   </div>
   <div class="content-comic-preview">
-    <!-- Se não estiver selecionada uma página, vai mostrar essa mensagem abaixo -->
-    <div class="content-comic-preview-svg">
-      <svg lucideImage></svg>
-    </div>
-    <p>Selecione uma pagina para visualizar</p>
+    @if (comicPreviewStateService.selectedPage) {
+      <img
+        [src]="comicPreviewStateService.selectedPage.imagePath"
+        [alt]="comicPreviewStateService.selectedPage.fileName"
+        class="comic-preview-image"
+      />
+    } @else {
+      <div class="content-comic-preview-svg">
+        <svg lucideImage></svg>
+      </div>
+
+      <p>Selecione uma página para visualizar</p>
+    }
   </div>
   <div class="name-selected-comic">
-    <p>Nenhum Arquivo Selecionado</p>
+    @if (comicPreviewStateService.selectedPage) {
+      <p>{{ comicPreviewStateService.selectedPage.fileName }}</p>
+    } @else {
+      <p>Nenhum Arquivo Selecionado</p>
+    }
   </div>
 </div>
