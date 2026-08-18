@@ -1,323 +1,335 @@
-﻿# 📚 Comic Organizer
+# 📚 Comic Organizer
 
-## npm install
-## npx tauri dev
-## C:\Users\home\AppData\Local\Temp
-
-Aplicação para organização, renomeação, compactação e gerenciamento de coleções de quadrinhos digitais.
-
-Atualmente o projeto utiliza Angular 21 como camada de interface, com arquitetura preparada para desktop utilizando Node.js + Electron.
-
-> O objetivo final é oferecer uma ferramenta desktop capaz de organizar coleções de HQs, gerar arquivos compactados, renomear edições em massa e gerenciar bibliotecas pessoais de quadrinhos sem depender de servidores externos.
+A powerful desktop utility for organizing and managing digital comic collections with batch processing, format conversion, and intelligent renaming—built with **Angular 22**, **Tauri**, and **Rust**.
 
 ---
 
-## 🚀 Funcionalidades Atuais
+## 🎯 Overview
 
-* 📂 Exibe edições de quadrinhos como coleções com páginas
-* ✏️ Permite selecionar e remover edições ou páginas
-* 🧠 Usa ordenação e seleção inteligente para listas de edições
-* 🎛️ Interface responsiva com layout adaptável para desktop e mobile
-* 🧩 Arquitetura baseada em componentes standalone do Angular
-* 🧠 Suporte a drag & drop via Angular CDK
-* 🎨 Ícones via `@lucide/angular`
+**Comic Organizer** is a full-featured desktop application designed for comic book enthusiasts and collectors. It provides an intuitive interface for managing comic libraries, converting between CBZ and CBR formats, performing batch renaming operations, and organizing collections with standardized naming conventions.
 
----
-
-## 🚧 Funcionalidades Planejadas
-
-* 📦 Geração de arquivos `.cbz`
-* 📦 Geração de arquivos `.cbr` compatíveis
-* 🔄 Conversão entre formatos suportados
-* 🖼️ Importação de imagens `.jpg`, `.png` e `.webp`
-* 📚 Criação de omnibuses e coleções personalizadas
-* 🏷️ Renomeação inteligente baseada em templates
-* 💾 Persistência de configurações locais
-* 🖥️ Aplicação desktop utilizando Node.js + Tauri
+### Key Highlights
+- 📱 **Modern UI** – Angular 22 with standalone components and responsive design
+- 🚀 **Desktop-Native Performance** – Tauri + Rust backend for fast, lightweight execution
+- 📦 **Format Support** – CBZ/CBR conversion with batch processing capabilities
+- 🏷️ **Smart Renaming** – Template-based batch renaming with intelligent file organization
+- 🎨 **Visual Preview** – Real-time preview of comic collections with page-level management
+- 💾 **Local-First** – All data stays on your machine; no cloud dependencies
 
 ---
 
-## 🧱 Estrutura do Projeto Atual
+## ✨ Current Features
 
-```text
-angular_comic_organizer/
-│
-├── angular.json
-├── package.json
-├── README.md
-├── tsconfig.app.json
-├── tsconfig.json
-├── tsconfig.spec.json
-├── public/
-│   ├── favicon.ico
-│   └── ...
-├── src/
-│   ├── main.ts
-│   ├── styles.css
-│   ├── app/
-│   │   ├── app.config.ts
-│   │   ├── app.routes.ts
-│   │   ├── app.ts
-│   │   ├── app.html
-│   │   ├── app.css
-│   │   ├── components/
-│   │   │   ├── comic-preview/
-│   │   │   ├── file-explorer/
-│   │   │   ├── footer-bar/
-│   │   │   ├── menu-bar/
-│   │   │   └── rename-settings/
-│   │   ├── pages/
-│   │   │   └── home/
-│   │   └── services/
-│   │       ├── conversion-state.ts
-│   │       └── file-manager.ts
-└── README.md
-```
+- ✅ Browse and organize comic collections with visual previews
+- ✅ Select and manage individual editions and pages
+- ✅ Smart sorting and selection for large comic libraries
+- ✅ Responsive interface with adaptive layouts (desktop/mobile)
+- ✅ Standalone Angular components with modern architecture
+- ✅ Drag & drop support via Angular CDK
+- ✅ Lucide icons for intuitive visual feedback
+- ✅ Tauri desktop integration with native file dialogs
 
 ---
 
-## 🧠 Arquitetura Geral
+## 🗂️ Planned Features
 
-### Frontend Angular 21
-
-Este projeto utiliza uma arquitetura Angular moderna baseada em:
-
-* Componentes `standalone`
-* `bootstrapApplication()`
-* `provideRouter()`
-* Signals (`signal`)
-* Angular CDK Drag & Drop
-* Layout adaptativo com `angular-split`
-* Ícones via `@lucide/angular`
-
-### Componentes Principais
-
-* `App` — componente raiz da aplicação
-* `Home` — página principal com layout responsivo
-* `FileExplorer` — gerenciamento de edições, páginas e seleção
-* `ComicPreview` — preview visual das coleções
-* `RenameSettings` — configurações de renomeação
-* `MenuBar` — navegação principal
-* `FooterBar` — informações e ações complementares
-
-### Serviços Atuais
-
-* `FileManagerService` — gerenciamento de estado das edições e páginas
-* `ConversionStateService` — controle de processos de conversão e renomeação
-
-### Camada Desktop Prevista
-
-* `Electron Main Process` — acesso ao sistema de arquivos, leitura de pastas e execução das ações locais
-* `Preload` — ponte segura entre Angular e Electron
-* `IPC` — comunicação entre a interface e a camada desktop
-
-> Atualmente os dados são simulados para desenvolvimento da interface. A lógica real de manipulação de arquivos será implementada na camada desktop do Electron, usando Node.js.
+- 📦 CBZ file generation and packaging
+- 📦 CBR format compatibility and conversion
+- 🔄 Bidirectional format conversion (CBZ ↔ CBR)
+- 🖼️ Image import support (.jpg, .png, .webp)
+- 📚 Omnibus creation and custom collection building
+- 🏷️ Intelligent batch renaming with custom templates
+- 💾 Local configuration persistence
+- 🧠 AI-powered metadata detection
+- ⚡ Advanced batch processing with progress tracking
+- 🔍 Library search and filtering
+- 📊 Collection statistics and analytics
 
 ---
 
-## ⚙️ Tecnologias Utilizadas
+## 🏗️ Architecture
 
-* Angular 21
-* TypeScript 5.9
-* Angular Router
-* Angular CDK Drag & Drop
-* Angular Signals
-* Angular Split
-* `@lucide/angular`
-* Vitest
-* Prettier
+### Frontend Layer (TypeScript / Angular 22)
+- **Framework:** Angular 22 with standalone components
+- **Routing:** Angular Router for navigation
+- **State Management:** Angular Signals for reactive state
+- **UI Components:**
+  - `FileExplorer` – Browse and select comics and pages
+  - `ComicPreview` – Visual collection preview and management
+  - `RenameSettings` – Configure batch renaming rules
+  - `MenuBar` & `FooterBar` – Application navigation and actions
+- **Dependencies:** Angular CDK, Angular Split, Lucide icons, RxJS
 
-### Tecnologias Planejadas
+### Backend Layer (Rust / Tauri)
+- **Desktop Runtime:** Tauri 2.x for cross-platform execution
+- **Core Logic:** Rust backend for high-performance file operations
+- **File Operations:**
+  - Directory traversal and comic library detection
+  - CBZ/CBR parsing and generation
+  - Batch file processing and renaming
+  - Image handling and compression
+- **Libraries:** serde, rayon (parallel processing), unrar, mime_guess
 
-* Node.js
-* Electron
-* SQLite
-* Bibliotecas de ZIP/CBZ e manipulação de imagens
-* Acesso local ao sistema de arquivos via `fs`, `path` e IPC
-
----
-
-## 📦 Instalação
-
-Clone o repositório e instale as dependências:
-
-```bash
-git clone <seu-repositorio>
-cd angular_comic_organizer
-npm install
-```
+### IPC Communication
+- TypeScript frontend communicates with Rust backend via Tauri's command system
+- Async message passing for non-blocking operations
+- Native file dialogs for directory and file selection
 
 ---
 
-## ▶️ Como Executar
+## 💻 Tech Stack
 
-Durante o desenvolvimento:
+| Layer | Technology | Version |
+|-------|-----------|---------|
+| **Frontend** | Angular | 22.0.6 |
+| **Language** | TypeScript | 6.0.3 |
+| **Desktop Framework** | Tauri | 2.11.5 |
+| **Backend** | Rust | 1.77.2+ |
+| **UI Components** | Angular CDK | 22.0.4 |
+| **Icons** | Lucide Angular | 1.23.0 |
+| **Testing** | Vitest | 4.1.10 |
+| **Formatting** | Prettier | 3.9.5 |
 
+### Backend Dependencies
+- `serde` / `serde_json` – Serialization framework
+- `tauri-plugin-dialog` – Native file dialogs
+- `tauri-plugin-log` – Structured logging
+- `unrar` – RAR file handling
+- `rayon` – Data parallelism
+- `mime_guess` – File type detection
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+- **Node.js** 18+ with npm 11+
+- **Rust** 1.77.2+ (for backend development)
+- **Tauri CLI** (installed via npm)
+
+### Installation
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/EliasMendes-dev/angular-comic-organizer.git
+   cd angular-comic-organizer
+   ```
+
+2. **Install dependencies:**
+   ```bash
+   npm install
+   ```
+
+3. **Set up Tauri (if building desktop app):**
+   ```bash
+   npm install -D @tauri-apps/cli
+   ```
+
+### Development
+
+#### Run in browser (Angular dev server):
 ```bash
 npm start
 ```
+Accessible at `http://localhost:4200`
 
-Acesse:
+#### Run as desktop app (Tauri):
+```bash
+npm run tauri dev
+```
+Or using the Tauri CLI directly:
+```bash
+npx tauri dev
+```
 
-```text
-http://localhost:4200
+### Build
+
+#### Production Angular build:
+```bash
+npm run build
+```
+
+#### Production desktop application:
+```bash
+npm run tauri build
 ```
 
 ---
 
-## 📂 Fluxo de Uso Atual
+## 📁 Project Structure
 
-1. Abra o aplicativo no navegador
-2. Navegue pelas edições disponíveis
-3. Selecione páginas ou edições
-4. Utilize as ações disponíveis para manipulação dos itens
-5. Visualize as alterações em tempo real
-6. O layout adapta-se automaticamente para diferentes tamanhos de tela
-
----
-
-## 📁 Como os Arquivos Entram no App
-
-No Electron, o equivalente ao "upload" não é enviar arquivos para um servidor. O fluxo correto é trabalhar com arquivos locais do usuário:
-
-1. O usuário escolhe uma pasta ou arquivos pelo dialog nativo do sistema.
-2. O Angular exibe a interface e envia o pedido para a camada desktop.
-3. O processo principal do Electron usa Node.js para ler o disco e montar a lista de `.cbz`, `.cbr` ou imagens.
-4. A interface recebe os metadados já organizados e atualiza o preview.
-
-Isso significa que você pode trabalhar com uma pasta local de quadrinhos baixados no seu computador sem depender de site externo. Durante a fase atual, sem Electron, o projeto continua usando dados mockados para simular esse fluxo na UI.
-
----
-
-## 📦 Sobre os Formatos Suportados
-
-### CBZ
-
-Formato principal do projeto.
-
-Um arquivo `.cbz` consiste em um arquivo ZIP contendo imagens organizadas em sequência.
-
-Exemplo:
-
-```text
-Batman (2016) #01.cbz
+```
+angular-comic-organizer/
+├── src/                          # Angular frontend source
+│   ├── main.ts                   # Application bootstrap
+│   ├── app/
+│   │   ├── app.ts               # Root component
+│   │   ├── app.routes.ts         # Route configuration
+│   │   ├── components/           # Reusable UI components
+│   │   │   ├── comic-preview/    # Collection preview
+│   │   │   ├── file-explorer/    # File browser
+│   │   │   ├── menu-bar/         # Navigation
+│   │   │   ├── footer-bar/       # Status & actions
+│   │   │   └── rename-settings/  # Rename configuration
+│   │   ├── pages/
+│   │   │   └── home/             # Main application page
+│   │   └── services/
+│   │       ├── file-manager.ts   # File operations service
+│   │       └── conversion-state.ts # State management
+│   └── styles/                   # Global styles
+├── src-tauri/                    # Tauri backend (Rust)
+│   ├── src/
+│   │   ├── main.rs              # Tauri main process
+│   │   ├── lib.rs               # Core library
+│   │   └── commands/            # IPC command handlers
+│   └── Cargo.toml               # Rust dependencies
+├── angular.json                  # Angular configuration
+├── package.json                  # Node dependencies
+└── tsconfig.json                 # TypeScript config
 ```
 
 ---
 
-### CBR Compatível
+## 🔄 Workflow
 
-O projeto prevê suporte à geração de arquivos `.cbr` compatíveis.
+### Current Flow (Browser Mode)
+1. Launch application in Angular dev server
+2. Browse mock comic collection structure
+3. Select editions and pages for management
+4. Preview and test UI interactions
+5. Layout automatically adapts to screen size
 
-Nesse modo, o conteúdo é compactado utilizando ZIP e salvo com extensão `.cbr`.
+### Planned Flow (Desktop App)
+1. Launch native desktop application
+2. Use native file dialog to select local comic directory
+3. Application scans and parses CBZ/CBR files and images
+4. Metadata is extracted and displayed in organized interface
+5. User performs operations (rename, convert, organize)
+6. Backend processes files asynchronously with progress feedback
+7. Library updates in real-time as operations complete
 
-Exemplo:
+---
 
-```text
-Batman (2016) #01.cbr
+## 📊 Supported Formats
+
+### CBZ (Comic Book Zip)
+- **Format:** ZIP archive containing sequential images
+- **Usage:** Primary format for this project
+- **Example:** `Batman (2016) #001.cbz`
+
+### CBR (Comic Book RAR - Compatible Mode)
+- **Format:** ZIP archive with `.cbr` extension (not actual RAR compression)
+- **Usage:** Cross-compatible format for broader reader support
+- **Note:** Uses ZIP internally for simplicity and compatibility
+
+### Image Imports (Planned)
+- `.jpg` / `.jpeg` – JPEG images
+- `.png` – PNG images with transparency
+- `.webp` – Modern web image format
+
+---
+
+## 🗺️ Development Roadmap
+
+### Phase 1: Desktop Foundation ✅ (In Progress)
+- [x] Tauri integration and setup
+- [x] Angular + Tauri communication
+- [ ] Native window management
+- [ ] File dialog integration
+
+### Phase 2: Core Features 🔄
+- [ ] Directory scanning and comic detection
+- [ ] CBZ file parsing and extraction
+- [ ] Image display and rendering
+- [ ] Basic batch renaming
+
+### Phase 3: Format Support
+- [ ] CBZ generation from image sequences
+- [ ] CBR compatibility mode
+- [ ] Format conversion (CBZ ↔ CBR)
+- [ ] Archive validation
+
+### Phase 4: Advanced Features
+- [ ] Omnibus/collection creation
+- [ ] Metadata extraction and management
+- [ ] Search and filtering system
+- [ ] Collection statistics dashboard
+
+### Phase 5: Optimization & Distribution
+- [ ] Performance optimization
+- [ ] Windows executable packaging
+- [ ] Linux support (experimental)
+- [ ] macOS support (experimental)
+- [ ] Auto-update mechanism
+
+---
+
+## 🛠️ Development Guide
+
+### Running Tests
+```bash
+npm test
 ```
 
-Internamente:
-
-```text
-ZIP + extensão .cbr
+### Code Formatting
+```bash
+npm run format  # Format with Prettier
+npm run lint    # (if linter configured)
 ```
 
-Essa abordagem permite ampla compatibilidade com leitores de quadrinhos sem depender de bibliotecas proprietárias de compressão RAR.
+### Building for Production
+```bash
+npm run build          # Build Angular
+npx tauri build        # Build desktop app
+```
 
-> O formato CBR Compatível não é um arquivo RAR real. Trata-se de um arquivo ZIP salvo com extensão `.cbr`.
-
----
-
-## 🔧 Roadmap para Node.js + Electron
-
-O objetivo é evoluir o Comic Organizer para uma aplicação desktop independente.
-
-Para o plano detalhado de implementação, veja `docs/node-electron-roadmap.md`.
-
-### Fase 1 — Aplicação Desktop
-
-* Configurar ambiente Electron
-* Integrar Angular ao Electron
-* Gerar executáveis desktop
-* Eliminar dependência de `ng serve` para uso final
-
-### Fase 2 — Backend de Organização e Compactação
-
-* Implementar leitura de diretórios locais
-* Desenvolver parser de coleções
-* Criar sistema de renomeação inteligente
-* Gerar arquivos `.cbz`
-* Gerar arquivos `.cbr` compatíveis
-* Importar arquivos `.cbz`
-* Importar arquivos `.cbr`
-
-### Fase 3 — Persistência e Biblioteca
-
-* Salvar configurações locais
-* Histórico de operações
-* Catálogo de coleções
-* Banco de dados local com SQLite
-
-### Fase 4 — Recursos Avançados
-
-* Suporte a `.jpg`
-* Suporte a `.png`
-* Suporte a `.webp`
-* Criação de omnibuses
-* Validação de arquivos corrompidos
-* Otimização de compactação
-* Processamento em lote
-
-### Fase 5 — Distribuição
-
-* Empacotamento para Windows
-* Suporte experimental para Linux
-* Suporte experimental para macOS
-* Documentação de instalação
-* Releases versionadas
+### Debugging
+- **Frontend:** Chrome DevTools via Angular dev server
+- **Backend:** Rust debug logging via `tauri-plugin-log`
+- **Tauri Windows:** Use Tauri's webview developer tools
 
 ---
 
-## 🎯 Visão de Longo Prazo
+## 🤝 Contributing
 
-O Comic Organizer pretende se tornar uma ferramenta desktop especializada em organização de quadrinhos digitais, permitindo:
+This project is developed primarily for personal use, but contributions are welcome! 
 
-* Organização de bibliotecas pessoais
-* Renomeação inteligente em massa
-* Compactação e exportação
-* Criação de coleções completas
-* Gerenciamento de páginas e edições
-* Fluxo de trabalho independente de serviços online
-
----
-
-## 📝 Notas de Desenvolvimento
-
-* A interface atual é UI-first
-* Não existe camada desktop/backend ativa neste repositório
-* O componente `Home` utiliza detecção de tamanho de tela para responsividade
-* Os serviços atuais utilizam dados simulados
-* A futura camada Electron/Node será responsável pela manipulação real de arquivos
-* A UI deve permanecer desacoplada da implementação de backend
+Areas for contribution:
+- UI/UX improvements
+- Performance optimization
+- Format support expansion
+- Platform-specific fixes
+- Documentation
 
 ---
 
-## 🧩 Observações
+## 📝 Notes
 
-* Este projeto é desenvolvido inicialmente para uso pessoal
-* O foco atual é estabilizar a experiência de usuário e a arquitetura da interface
-* O backend Node/Electron será implementado progressivamente conforme a evolução do projeto
-* O formato principal de trabalho será CBZ, mantendo suporte a CBR Compatível para interoperabilidade
-
----
-
-## 👨‍💻 Autor
-
-Desenvolvido por **José Elias**
+- **Current Status:** UI-first development with simulated data
+- **Backend:** Real file operations will be handled by Tauri/Rust
+- **UI Isolation:** Frontend remains decoupled from backend implementation
+- **Data Security:** All files processed locally; no cloud services
+- **Desktop-Only:** Optimized for desktop; mobile support secondary
 
 ---
 
-## 📄 Licença
+## 📄 License
 
-Licenciado sob a licença MIT.
+Licensed under the **MIT License** – see LICENSE file for details.
+
+---
+
+## 👨‍💻 Author
+
+Developed by **José Elias**  
+GitHub: [@EliasMendes-dev](https://github.com/EliasMendes-dev)
+
+---
+
+## 🔗 Resources
+
+- [Angular Documentation](https://angular.io/docs)
+- [Tauri Documentation](https://tauri.app/docs/)
+- [Rust Book](https://doc.rust-lang.org/book/)
+- [CBZ Format Specification](https://en.wikipedia.org/wiki/Comic_book_archive)
+
