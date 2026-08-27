@@ -1,4 +1,4 @@
-import { Component, effect, OnInit } from '@angular/core';
+import { Component, effect } from '@angular/core';
 import { FileManagerService } from '../../services/file-manager';
 import { ConversionStateService } from '../../services/conversion-state';
 import { RenameSettingsHeader } from './subcomponents/rename-settings-header/rename-settings-header';
@@ -18,7 +18,7 @@ import { ComicPage } from '../../models/comic-page';
   templateUrl: './rename-settings.html',
   styleUrls: ['./rename-settings.css', './rename-settings-responsive.css'],
 })
-export class RenameSettings implements OnInit {
+export class RenameSettings {
   title = '';
   year = '';
   edition = '';
@@ -123,8 +123,6 @@ export class RenameSettings implements OnInit {
   get canUseOmnibus(): boolean {
     return this.hasMultipleSelectedEditions();
   }
-
-  ngOnInit(): void {}
 
   validateRealtime(): void {
     if (!this.hasTriedSubmit) return;
