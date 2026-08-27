@@ -9,6 +9,7 @@ import { ComicPage } from '../../models/comic-page';
 import { ChangeDetectorRef } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { ComicPreviewStateService } from '../../services/comic-preview-state';
+import { PageLoaderService } from '../../services/page-loader';
 
 @Component({
   selector: 'app-file-explorer',
@@ -28,6 +29,7 @@ export class FileExplorer implements OnInit, OnDestroy {
     public fileManagerService: FileManagerService,
     private cdr: ChangeDetectorRef,
     private comicPreviewStateService: ComicPreviewStateService,
+    private pageLoader: PageLoaderService,
   ) {
     console.log('Explorer service', this.comicPreviewStateService);
   }
@@ -46,6 +48,7 @@ export class FileExplorer implements OnInit, OnDestroy {
       this.openEditionId = null;
       this.activePages.delete(editionId);
       this.comicPreviewStateService.clearSelectedPage();
+      this.pageLoader.clearCache(); // Limpa a RAM aqui
       return;
     }
 
@@ -71,6 +74,22 @@ export class FileExplorer implements OnInit, OnDestroy {
   private selectPage(editionId: number, page: ComicPage): void {
     this.activePages.set(editionId, page.id);
     this.comicPreviewStateService.setSelectedPage(page);
+
+    // Otimização: Pré-carrega a próxima página e a anterior em background
+    const edition = this.fileManagerService.fileEditions.find((item) => item.id === editionId);
+    if (edition && edition.pages.length > 0) {
+      const currentIndex = edition.pages.findIndex((p) => p.id === page.id);
+
+      // Busca a próxima página
+      if (currentIndex + 1 < edition.pages.length) {
+        this.pageLoader.preload(edition.pages[currentIndex + 1].imagePath);
+      }
+
+      // Busca a página anterior (útil se o usuário voltar)
+      if (currentIndex - 1 >= 0) {
+        this.pageLoader.preload(edition.pages[currentIndex - 1].imagePath);
+      }
+    }
   }
 
   navigatePageSelection(
@@ -202,6 +221,9 @@ export class FileExplorer implements OnInit, OnDestroy {
 
       console.log('Conversao liberada novamente');
     }
+
+    // Limpa a RAM após deletar a edição
+    this.pageLoader.clearCache();
   }
 
   async deleteAll(): Promise<void> {
@@ -219,6 +241,9 @@ export class FileExplorer implements OnInit, OnDestroy {
     this.isActive = false;
 
     this.conversionStateService.clearConversion();
+
+    // Limpa toda a RAM após deletar tudo
+    this.pageLoader.clearCache();
   }
 
   printSelectedItems(): void {

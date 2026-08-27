@@ -8,6 +8,10 @@
   "permissions": [
     "core:default",
     "dialog:default",
-    "dialog:allow-open"
+    "dialog:allow-open",
+    {
+      "identifier": "fs:allow-read",
+      "allow": [{ "path": "$TEMP/comic-organizer/**" }]
+    }
   ]
 }

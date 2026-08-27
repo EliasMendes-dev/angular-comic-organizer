@@ -12,7 +12,6 @@ import { TitleCasePipe } from '@angular/common';
   styleUrls: ['./comic-preview.css', './comic-preview-responsive.css'],
 })
 export class ComicPreview {
-
   imageUrl: string | null = null;
 
   constructor(
@@ -20,45 +19,20 @@ export class ComicPreview {
     private pageLoader: PageLoaderService,
     private cdr: ChangeDetectorRef,
   ) {
-
     effect(() => {
-
       const page = this.comicPreviewStateService.selectedPage();
 
-      console.log('Effect executou', page);
-
       if (!page) {
-        this.clearImage();
+        this.imageUrl = null;
         return;
       }
 
       this.loadImage(page.imagePath);
-
     });
-
   }
-
 
   private async loadImage(path: string) {
-
-    this.clearImage();
-
-    const url = await this.pageLoader.load(path);
-
-    console.log('Imagem carregada:', url);
-
-    this.imageUrl = url;
-
+    this.imageUrl = await this.pageLoader.load(path);
     this.cdr.detectChanges();
-  }
-
-
-  private clearImage(): void {
-
-    if (this.imageUrl) {
-      URL.revokeObjectURL(this.imageUrl);
-      this.imageUrl = null;
-    }
-
   }
 }
