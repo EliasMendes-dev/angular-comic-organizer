@@ -1,4 +1,4 @@
-import { Injectable, NgZone } from '@angular/core';
+import { Injectable, NgZone, signal } from '@angular/core';
 import { open } from '@tauri-apps/plugin-dialog';
 import { invoke } from '@tauri-apps/api/core';
 import { ComicEdition } from '../models/comic-edition';
@@ -50,12 +50,19 @@ export function mapBackendEditionsToExplorerModel(editions: ComicEdition[]): Com
     .sort((left, right) => naturalCompare(left.title, right.title));
 }
 
+interface LibraryState {
+  editions: ComicEdition[];
+  activeEditionIds: ReadonlySet<number>;
+}
+
 @Injectable({
   providedIn: 'root',
 })
 export class FileManagerService {
-  fileEditions: ComicEdition[] = [];
-  activeEditionIds = new Set<number>();
+  readonly libraryState = signal<LibraryState>({
+    editions: [],
+    activeEditionIds: new Set<number>(),
+  });
   selectedSourcePaths = new Map<string, string>();
 
   private refresh$ = new Subject<void>();
@@ -90,6 +97,52 @@ export class FileManagerService {
     return this.refresh$.asObservable();
   }
 
+  get fileEditions(): ComicEdition[] {
+    return this.libraryState().editions;
+  }
+
+  set fileEditions(editions: ComicEdition[]) {
+    this.libraryState.update((state) => ({ ...state, editions }));
+  }
+
+  get activeEditionIds(): ReadonlySet<number> {
+    return this.libraryState().activeEditionIds;
+  }
+
+  toggleEditionSelection(editionId: number): void {
+    this.libraryState.update((state) => {
+      const activeEditionIds = new Set(state.activeEditionIds);
+
+      if (activeEditionIds.has(editionId)) {
+        activeEditionIds.delete(editionId);
+      } else {
+        activeEditionIds.add(editionId);
+      }
+
+      return { ...state, activeEditionIds };
+    });
+  }
+
+  clearEditionSelection(): void {
+    this.libraryState.update((state) => ({ ...state, activeEditionIds: new Set<number>() }));
+  }
+
+  removeEditionFromSelection(editionId: number): void {
+    this.libraryState.update((state) => {
+      const activeEditionIds = new Set(state.activeEditionIds);
+      activeEditionIds.delete(editionId);
+
+      return { ...state, activeEditionIds };
+    });
+  }
+
+  selectAllEditions(): void {
+    this.libraryState.update((state) => ({
+      ...state,
+      activeEditionIds: new Set(state.editions.map((edition) => edition.id)),
+    }));
+  }
+
   loadEditionsFromBackend(editions: ComicEdition[]): void {
     this.ngZone.run(() => {
       const newEditions = mapBackendEditionsToExplorerModel(editions);
@@ -98,7 +151,7 @@ export class FileManagerService {
       this.fileEditions = [...this.fileEditions, ...newEditions.filter((edition) => !existingTitles.has(edition.title))].sort((left, right) =>
         naturalCompare(left.title, right.title),
       );
-      this.activeEditionIds.clear();
+      this.clearEditionSelection();
 
       // 🔥 trigger correto
       this.refresh$.next();

@@ -133,13 +133,7 @@ export class FileExplorer implements OnInit, OnDestroy {
   }
 
   toggleEditionSelection(editionId: number): void {
-    if (this.fileManagerService.activeEditionIds.has(editionId)) {
-      this.fileManagerService.activeEditionIds.delete(editionId);
-
-      return;
-    }
-
-    this.fileManagerService.activeEditionIds.add(editionId);
+    this.fileManagerService.toggleEditionSelection(editionId);
   }
 
   isEditionSelected(editionId: number): boolean {
@@ -171,16 +165,15 @@ export class FileExplorer implements OnInit, OnDestroy {
 
     this.isActive = !this.isActive;
 
-    this.fileManagerService.activeEditionIds.clear();
     this.activePages.clear();
 
     if (!this.isActive) {
+      this.fileManagerService.clearEditionSelection();
       return;
     }
 
+    this.fileManagerService.selectAllEditions();
     this.fileManagerService.fileEditions.forEach((edition) => {
-      this.fileManagerService.activeEditionIds.add(edition.id);
-
       if (edition.pages.length) {
         this.activePages.set(edition.id, edition.pages[0].id);
       } else {
@@ -203,7 +196,7 @@ export class FileExplorer implements OnInit, OnDestroy {
       (item) => item.id !== editionId,
     );
 
-    this.fileManagerService.activeEditionIds.delete(editionId);
+    this.fileManagerService.removeEditionFromSelection(editionId);
     this.cdr.detectChanges();
 
     this.activePages.delete(editionId);
@@ -232,7 +225,7 @@ export class FileExplorer implements OnInit, OnDestroy {
     this.fileManagerService.fileEditions = [];
     this.fileManagerService.clearSourcePaths();
 
-    this.fileManagerService.activeEditionIds.clear();
+    this.fileManagerService.clearEditionSelection();
     this.cdr.detectChanges();
     this.activePages.clear();
     this.comicPreviewStateService.clearSelectedPage();

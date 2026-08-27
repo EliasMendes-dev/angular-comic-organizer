@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, effect, OnInit } from '@angular/core';
 import { FileManagerService } from '../../services/file-manager';
 import { ConversionStateService } from '../../services/conversion-state';
 import { RenameSettingsHeader } from './subcomponents/rename-settings-header/rename-settings-header';
@@ -34,7 +34,17 @@ export class RenameSettings implements OnInit {
   constructor(
     public fileManagerService: FileManagerService,
     private conversionStateService: ConversionStateService,
-  ) {}
+  ) {
+    effect(() => {
+      this.fileManagerService.libraryState();
+
+      if (!this.hasSelectedEditions()) {
+        this.clearInputs();
+      } else if (this.showPreview) {
+        this.showPreview = false;
+      }
+    });
+  }
 
   get selectedEditionsCount(): number {
     return this.fileManagerService.activeEditionIds.size;
@@ -111,11 +121,7 @@ export class RenameSettings implements OnInit {
   }
 
   get canUseOmnibus(): boolean {
-    return (
-      this.hasSelectedEditions() &&
-      this.hasSelectedConvertTo() &&
-      this.hasMultipleSelectedEditions()
-    );
+    return this.hasMultipleSelectedEditions();
   }
 
   ngOnInit(): void {}
@@ -124,6 +130,14 @@ export class RenameSettings implements OnInit {
     if (!this.hasTriedSubmit) return;
 
     this.validateFields();
+  }
+
+  onInputChanged(): void {
+    if (this.showPreview) {
+      this.showPreview = false;
+    }
+
+    this.validateRealtime();
   }
 
   validateFields(): boolean {
