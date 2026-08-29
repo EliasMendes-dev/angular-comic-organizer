@@ -20,7 +20,7 @@
 
       <app-rename-settings-actions
         [isPreviewDisabled]="!canUsePreviewAndRename"
-        [isRenameDisabled]="!canUsePreviewAndRename"
+        [isRenameDisabled]="!canUsePreviewAndRename || isRenaming"
         [isConvertToDisabled]="!canUseConvertTo"
         [isOmnibusDisabled]="!canUseOmnibus"
         (onPreview)="onPreviewClick()"

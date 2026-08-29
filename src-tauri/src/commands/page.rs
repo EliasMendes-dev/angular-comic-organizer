@@ -9,7 +9,7 @@ pub struct PageData {
 
 #[tauri::command]
 pub fn load_page(path: String) -> Result<PageData, String> {
-  println!("load_page: {}", path);
+    println!("load_page: {}", path);
     let bytes = fs::read(&path).map_err(|e| e.to_string())?;
 
     let mime = match Path::new(&path)

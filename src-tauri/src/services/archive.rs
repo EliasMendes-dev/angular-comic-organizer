@@ -1,5 +1,6 @@
 use crate::models::ComicEdition;
 use crate::services::builder::build_editions_from_temp;
+use natord::compare;
 use rayon::prelude::*;
 use std::env;
 use std::fs;
@@ -68,6 +69,107 @@ pub fn process_cbr_files(paths: Vec<String>) -> Result<Vec<ComicEdition>, String
     Ok(editions)
 }
 
+pub fn export_renamed_cbrs(
+    editions: Vec<ComicEdition>,
+    title: String,
+    year: String,
+    starting_edition: usize,
+) -> Result<Vec<String>, String> {
+    if editions.is_empty() {
+        return Err("No editions selected".to_string());
+    }
+
+    let series_name = format!("{} ({})", title.trim(), year.trim());
+    let downloads_dir = get_downloads_dir()?;
+    let output_dir = downloads_dir.join(&series_name);
+
+    fs::create_dir_all(&output_dir)
+        .map_err(|error| format!("Failed to create output directory: {error}"))?;
+
+    let staging_root = get_temp_dir().join(".rename-export");
+    fs::create_dir_all(&staging_root)
+        .map_err(|error| format!("Failed to create export staging directory: {error}"))?;
+
+    let rar_binary = find_rar_binary()?;
+    let mut output_paths = Vec::with_capacity(editions.len());
+
+    for (index, edition) in editions.iter().enumerate() {
+        let edition_number = starting_edition + index;
+        let edition_name = format!("{series_name} #{edition_number:03}");
+        let archive_path = output_dir.join(format!("{edition_name}.cbr"));
+
+        if archive_path.exists() {
+            return Err(format!(
+                "The output file already exists: {}",
+                archive_path.display()
+            ));
+        }
+
+        let staging_dir = staging_root.join(format!("{index}-{edition_number:03}"));
+        if staging_dir.exists() {
+            fs::remove_dir_all(&staging_dir)
+                .map_err(|error| format!("Failed to clear export staging directory: {error}"))?;
+        }
+        fs::create_dir_all(&staging_dir)
+            .map_err(|error| format!("Failed to create edition staging directory: {error}"))?;
+
+        let mut pages = edition.pages.clone();
+        pages.sort_by_key(|page| page.page_number);
+
+        for (page_index, page) in pages.iter().enumerate() {
+            let source = Path::new(&page.image_path);
+            let extension = source
+                .extension()
+                .and_then(|extension| extension.to_str())
+                .unwrap_or("jpg")
+                .to_lowercase();
+            let destination = staging_dir.join(format!(
+                "{edition_name} - {:03}.{extension}",
+                page_index + 1
+            ));
+
+            fs::copy(source, &destination)
+                .map_err(|error| format!("Failed to stage page {}: {error}", source.display()))?;
+        }
+
+        let page_paths = fs::read_dir(&staging_dir)
+            .map_err(|error| format!("Failed to read staged pages: {error}"))?
+            .filter_map(Result::ok)
+            .map(|entry| entry.path())
+            .filter(|path| path.is_file())
+            .collect::<Vec<_>>();
+
+        let mut command = Command::new(&rar_binary);
+        command.current_dir(&staging_dir).args([
+            "a",
+            "-ep",
+            archive_path.to_string_lossy().as_ref(),
+        ]);
+        for page_path in &page_paths {
+            command.arg(page_path.file_name().unwrap_or_default());
+        }
+
+        let output = command
+            .output()
+            .map_err(|error| format!("Failed to run RAR: {error}"))?;
+
+        if !output.status.success() {
+            let stderr = String::from_utf8_lossy(&output.stderr);
+            return Err(format!(
+                "RAR failed for {}: {}",
+                archive_path.display(),
+                stderr.trim()
+            ));
+        }
+
+        output_paths.push(archive_path.to_string_lossy().into_owned());
+        fs::remove_dir_all(&staging_dir)
+            .map_err(|error| format!("Failed to clean export staging directory: {error}"))?;
+    }
+
+    Ok(output_paths)
+}
+
 fn build_extraction_tasks(paths: &[String], temp_dir: &Path) -> Vec<(String, PathBuf)> {
     paths
         .iter()
@@ -117,9 +219,58 @@ fn extract_cbr(cbr_path: &str, output_dir: &Path) -> Result<(), String> {
 
 fn normalize_edition_directory(edition_dir: &Path) -> Result<(), String> {
     flatten_directory_tree(edition_dir)?;
+    rename_extracted_pages(edition_dir)?;
     remove_empty_dirs(edition_dir)?;
     println!("NORMALIZATION COMPLETE");
     Ok(())
+}
+
+fn rename_extracted_pages(edition_dir: &Path) -> Result<(), String> {
+    let edition_name = edition_dir
+        .file_name()
+        .and_then(|name| name.to_str())
+        .unwrap_or("unknown");
+
+    let mut image_paths = fs::read_dir(edition_dir)
+        .map_err(|e| format!("Failed to read directory {}: {e}", edition_dir.display()))?
+        .filter_map(Result::ok)
+        .map(|entry| entry.path())
+        .filter(|path| path.is_file() && is_image(path))
+        .collect::<Vec<_>>();
+
+    sort_image_paths(&mut image_paths);
+
+    for (index, path) in image_paths.into_iter().enumerate() {
+        let extension = path
+            .extension()
+            .and_then(|ext| ext.to_str())
+            .unwrap_or("jpg")
+            .to_lowercase();
+
+        let destination =
+            edition_dir.join(format!("{edition_name} - {:03}.{extension}", index + 1));
+
+        move_path(&path, &destination)?;
+    }
+
+    Ok(())
+}
+
+fn sort_image_paths(paths: &mut [PathBuf]) {
+    paths.sort_by(|a, b| {
+        let a_name = a.file_name().and_then(|n| n.to_str()).unwrap_or("");
+        let b_name = b.file_name().and_then(|n| n.to_str()).unwrap_or("");
+        compare(a_name, b_name)
+    });
+}
+
+fn is_image(path: &Path) -> bool {
+    if let Some(ext) = path.extension() {
+        let ext = ext.to_string_lossy().to_lowercase();
+        return matches!(ext.as_str(), "jpg" | "jpeg" | "png" | "webp");
+    }
+
+    false
 }
 
 fn flatten_directory_tree(root: &Path) -> Result<(), String> {
@@ -280,6 +431,44 @@ fn find_unrar_binary() -> Result<PathBuf, String> {
     Err("No UnRAR executable was found. Install WinRAR or set COMIC_ORGANIZER_UNRAR.".to_string())
 }
 
+fn find_rar_binary() -> Result<PathBuf, String> {
+    if let Some(path) = env::var_os("COMIC_ORGANIZER_RAR") {
+        return Ok(PathBuf::from(path));
+    }
+
+    let candidates = ["rar", "rar.exe", "Rar.exe", "WinRAR.exe"];
+
+    if let Some(path_var) = env::var_os("PATH") {
+        for dir in env::split_paths(&path_var) {
+            for candidate in candidates {
+                let full_path = dir.join(candidate);
+                if full_path.is_file() {
+                    return Ok(full_path);
+                }
+            }
+        }
+    }
+
+    for fallback in [
+        PathBuf::from(r"C:\Program Files\WinRAR\Rar.exe"),
+        PathBuf::from(r"C:\Program Files\WinRAR\WinRAR.exe"),
+    ] {
+        if fallback.is_file() {
+            return Ok(fallback);
+        }
+    }
+
+    Err("No RAR executable was found. Install WinRAR or set COMIC_ORGANIZER_RAR.".to_string())
+}
+
+fn get_downloads_dir() -> Result<PathBuf, String> {
+    let home = env::var_os("USERPROFILE")
+        .or_else(|| env::var_os("HOME"))
+        .ok_or_else(|| "Could not determine the user home directory".to_string())?;
+
+    Ok(PathBuf::from(home).join("Downloads"))
+}
+
 fn get_temp_dir() -> PathBuf {
     if let Some(path) = env::var_os("COMIC_ORGANIZER_TEMP_DIR") {
         return PathBuf::from(path);
@@ -344,6 +533,42 @@ mod tests {
         assert_eq!(tasks[0].1, temp_dir.join("Alpha"));
         assert_eq!(tasks[1].0, "/tmp/Beta.cbr");
         assert_eq!(tasks[1].1, temp_dir.join("Beta"));
+    }
+
+    #[test]
+    fn normalize_edition_directory_flattens_and_renames_pages() {
+        let temp_dir = env::temp_dir().join("comic-organizer-normalize-test");
+        let edition_dir = temp_dir.join("Flash Absoluto (2025) #002");
+        let nested_dir = edition_dir.join("Flsh Abslt #2 (2025) (DarkseidClub)");
+
+        let _ = fs::remove_dir_all(&temp_dir);
+
+        fs::create_dir_all(&nested_dir).unwrap();
+        fs::write(nested_dir.join("page_02.jpg"), b"2").unwrap();
+        fs::write(nested_dir.join("page_01.jpg"), b"1").unwrap();
+        fs::write(nested_dir.join("page_03.png"), b"3").unwrap();
+
+        normalize_edition_directory(&edition_dir).unwrap();
+
+        let mut files = fs::read_dir(&edition_dir)
+            .unwrap()
+            .filter_map(Result::ok)
+            .map(|entry| entry.file_name().to_string_lossy().into_owned())
+            .collect::<Vec<_>>();
+
+        files.sort();
+
+        assert_eq!(
+            files,
+            vec![
+                "Flash Absoluto (2025) #002 - 001.jpg".to_string(),
+                "Flash Absoluto (2025) #002 - 002.jpg".to_string(),
+                "Flash Absoluto (2025) #002 - 003.png".to_string(),
+            ]
+        );
+        assert!(!nested_dir.exists());
+
+        let _ = fs::remove_dir_all(&temp_dir);
     }
 
     #[test]

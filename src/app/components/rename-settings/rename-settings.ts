@@ -10,6 +10,7 @@ import {
   PreviewPage,
 } from './subcomponents/rename-settings-preview/rename-settings-preview';
 import { ComicPage } from '../../models/comic-page';
+import { invoke } from '@tauri-apps/api/core';
 
 @Component({
   selector: 'app-rename-settings',
@@ -30,6 +31,7 @@ export class RenameSettings {
   editionError = '';
 
   hasTriedSubmit = false;
+  isRenaming = false;
 
   constructor(
     public fileManagerService: FileManagerService,
@@ -198,7 +200,34 @@ export class RenameSettings {
   }
 
   onRename(): void {
-    // TODO: Implementar lógica de renomeação
+    this.hasTriedSubmit = true;
+
+    if (!this.validateFields() || this.isRenaming) {
+      return;
+    }
+
+    const selectedEditions = this.fileManagerService.fileEditions.filter((edition) =>
+      this.fileManagerService.activeEditionIds.has(edition.id),
+    );
+
+    this.isRenaming = true;
+    void invoke<string[]>('export_renamed_cbrs', {
+      editions: selectedEditions,
+      title: this.title.trim(),
+      year: this.year.trim(),
+      startingEdition: Number(this.edition),
+    })
+      .then((paths) => {
+        window.alert(`${paths.length} arquivo(s) criado(s) em Downloads.`);
+      })
+      .catch((error) => {
+        console.error('Erro ao exportar arquivos renomeados:', error);
+        window.alert(`Não foi possível criar os arquivos: ${error}`);
+      })
+      .finally(() => {
+        this.isRenaming = false;
+      });
+
   }
 
   onConvertTo(): void {
