@@ -1,4 +1,4 @@
-import { Component, NgZone, OnInit, OnDestroy } from '@angular/core';
+import { Component, NgZone, OnInit, OnDestroy, effect } from '@angular/core';
 import { CdkDropList, CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { ConversionStateService } from '../../services/conversion-state';
 import { FileManagerService } from '../../services/file-manager';
@@ -32,6 +32,15 @@ export class FileExplorer implements OnInit, OnDestroy {
     private pageLoader: PageLoaderService,
   ) {
     console.log('Explorer service', this.comicPreviewStateService);
+
+    effect(() => {
+      const editionId = this.comicPreviewStateService.selectedEditionId();
+      const page = this.comicPreviewStateService.selectedPage();
+
+      if (editionId !== null && page) {
+        this.activePages.set(editionId, page.id);
+      }
+    });
   }
 
   drop(event: CdkDragDrop<any[]>): void {
@@ -77,7 +86,7 @@ export class FileExplorer implements OnInit, OnDestroy {
 
   private selectPage(editionId: number, page: ComicPage): void {
     this.activePages.set(editionId, page.id);
-    this.comicPreviewStateService.setSelectedPage(page);
+    this.comicPreviewStateService.setSelectedPage(page, editionId);
 
     // Otimização: Pré-carrega a próxima página e a anterior em background
     const edition = this.fileManagerService.fileEditions.find((item) => item.id === editionId);

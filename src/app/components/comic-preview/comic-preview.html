@@ -1,4 +1,4 @@
-<div class="container-comic-preview">
+<div class="container-comic-preview" (click)="openModal()">
   <div class="header-comic-preview">
     <div class="title-comic-preview">
       <svg lucideEye class="svg-icon"></svg>
@@ -30,3 +30,67 @@
     }
   </div>
 </div>
+
+@if (isModalOpen) {
+  <div
+    class="preview-modal-backdrop"
+    role="presentation"
+    (click)="closeModal()"
+  >
+    <section
+      class="preview-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Visualização ampliada"
+      (click)="$event.stopPropagation()"
+    >
+      <header class="preview-modal-header">
+        <div class="title-comic-preview">
+          <svg lucideEye class="svg-icon"></svg>
+          <h2>Visualização</h2>
+        </div>
+
+        <button
+          type="button"
+          class="preview-modal-close"
+          aria-label="Fechar visualização"
+          (click)="closeModal()"
+        >
+          <svg lucideX></svg>
+        </button>
+      </header>
+
+      <div class="preview-modal-content">
+        @if (imageUrl) {
+          <div class="preview-modal-image-stage">
+            <button
+              type="button"
+              class="preview-modal-page-zone preview-modal-page-zone-previous"
+              aria-label="Página anterior"
+              (click)="navigatePage('previous')"
+            ></button>
+
+            <img
+              [src]="imageUrl"
+              [alt]="comicPreviewStateService.selectedPage()?.fileName"
+              class="preview-modal-image"
+            />
+
+            <button
+              type="button"
+              class="preview-modal-page-zone preview-modal-page-zone-next"
+              aria-label="Próxima página"
+              (click)="navigatePage('next')"
+            ></button>
+          </div>
+        } @else {
+          <p>Carregando página...</p>
+        }
+      </div>
+
+      <footer class="preview-modal-footer">
+        <p>{{ comicPreviewStateService.selectedPage()?.fileName | titlecase }}</p>
+      </footer>
+    </section>
+  </div>
+}
