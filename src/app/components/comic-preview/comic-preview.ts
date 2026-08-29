@@ -105,6 +105,16 @@ export class ComicPreview {
     this.stopDragging();
   }
 
+  @HostListener('window:resize')
+  handleWindowResize(): void {
+    if (!this.isModalOpen) {
+      return;
+    }
+
+    this.dragOffset = { x: 0, y: 0 };
+    this.stopDragging();
+  }
+
   navigatePage(direction: 'next' | 'previous'): void {
     if (!this.isModalOpen) {
       return;

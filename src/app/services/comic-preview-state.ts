@@ -7,6 +7,7 @@ import { ComicPage } from '../models/comic-page';
 export class ComicPreviewStateService {
   selectedPage = signal<ComicPage | null>(null);
   selectedEditionId = signal<number | null>(null);
+  openedEditionId = signal<number | null>(null);
 
   setSelectedPage(page: ComicPage | null, editionId: number | null = null): void {
     this.selectedPage.set(page);
@@ -16,5 +17,9 @@ export class ComicPreviewStateService {
   clearSelectedPage(): void {
     this.selectedPage.set(null);
     this.selectedEditionId.set(null);
+  }
+
+  setOpenedEdition(editionId: number | null): void {
+    this.openedEditionId.set(editionId);
   }
 }

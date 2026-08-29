@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { FileExplorer } from './file-explorer';
 import { ComicPage } from '../../models/comic-page';
+import { ComicPreviewStateService } from '../../services/comic-preview-state';
 
 describe('FileExplorer page selection', () => {
   const createComponent = () =>
@@ -11,7 +12,8 @@ describe('FileExplorer page selection', () => {
         activeEditionIds: new Set<number>(),
       } as any,
       {} as any,
-      {} as any,
+      new ComicPreviewStateService(),
+      { clearCache: () => {}, preloadAround: () => {} } as any,
     );
 
   it('keeps only one page selected per edition at a time', () => {

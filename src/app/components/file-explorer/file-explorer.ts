@@ -32,7 +32,7 @@ export class FileExplorer implements OnInit, OnDestroy {
     private pageLoader: PageLoaderService,
   ) {
     console.log('Explorer service', this.comicPreviewStateService);
-
+    this.openEditionId = this.comicPreviewStateService.openedEditionId();
   }
 
   drop(event: CdkDragDrop<any[]>): void {
@@ -47,6 +47,7 @@ export class FileExplorer implements OnInit, OnDestroy {
   toggleFileEdition(editionId: number): void {
     if (this.openEditionId === editionId) {
       this.openEditionId = null;
+      this.comicPreviewStateService.setOpenedEdition(null);
       this.activePages.delete(editionId);
       this.comicPreviewStateService.clearSelectedPage();
       this.pageLoader.clearCache(); // Limpa a RAM aqui
@@ -58,6 +59,7 @@ export class FileExplorer implements OnInit, OnDestroy {
     }
 
     this.openEditionId = editionId;
+    this.comicPreviewStateService.setOpenedEdition(editionId);
 
     const edition = this.fileManagerService.fileEditions.find((item) => item.id === editionId);
 
@@ -69,7 +71,7 @@ export class FileExplorer implements OnInit, OnDestroy {
   }
 
   isEditionOpen(editionId: number): boolean {
-    return this.openEditionId === editionId;
+    return this.comicPreviewStateService.openedEditionId() === editionId;
   }
 
   togglePageSelection(editionId: number, page: ComicPage): void {
@@ -215,6 +217,7 @@ export class FileExplorer implements OnInit, OnDestroy {
 
     if (this.openEditionId === editionId) {
       this.openEditionId = null;
+      this.comicPreviewStateService.setOpenedEdition(null);
       this.comicPreviewStateService.clearSelectedPage();
     }
 
@@ -243,6 +246,7 @@ export class FileExplorer implements OnInit, OnDestroy {
     this.comicPreviewStateService.clearSelectedPage();
 
     this.openEditionId = null;
+    this.comicPreviewStateService.setOpenedEdition(null);
     this.isActive = false;
 
     this.conversionStateService.clearConversion();
