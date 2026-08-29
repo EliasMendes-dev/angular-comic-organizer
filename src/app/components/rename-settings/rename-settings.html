@@ -21,12 +21,8 @@
       <app-rename-settings-actions
         [isPreviewDisabled]="!canUsePreviewAndRename"
         [isRenameDisabled]="!canUsePreviewAndRename || isRenaming"
-        [isConvertToDisabled]="!canUseConvertTo"
-        [isOmnibusDisabled]="!canUseOmnibus"
         (onPreview)="onPreviewClick()"
         (onRename)="onRename()"
-        (onConvertTo)="onConvertTo()"
-        (onOmnibus)="onOmnibus()"
       ></app-rename-settings-actions>
 
     </div>

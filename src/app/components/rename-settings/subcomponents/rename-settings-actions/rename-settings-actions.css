@@ -37,22 +37,12 @@
 }
 
 .rename-preview,
-.onlyrename,
-.omnibus {
+.onlyrename {
   background-color: var(--fundo-primario);
   color: var(--texto-primario);
 }
 
 .rename-preview:hover,
-.onlyrename:hover,
-.omnibus:hover {
+.onlyrename:hover {
   background-color: var(--fundo-hover);
-}
-
-.convert-to {
-  background-color: var(--verde-primario);
-}
-
-.convert-to:hover {
-  background-color: var(--verde-hover);
 }

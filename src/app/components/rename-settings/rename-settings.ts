@@ -1,6 +1,5 @@
 import { Component, effect } from '@angular/core';
 import { FileManagerService } from '../../services/file-manager';
-import { ConversionStateService } from '../../services/conversion-state';
 import { RenameSettingsHeader } from './subcomponents/rename-settings-header/rename-settings-header';
 import { RenameSettingsForm } from './subcomponents/rename-settings-form/rename-settings-form';
 import { RenameSettingsActions } from './subcomponents/rename-settings-actions/rename-settings-actions';
@@ -35,7 +34,6 @@ export class RenameSettings {
 
   constructor(
     public fileManagerService: FileManagerService,
-    private conversionStateService: ConversionStateService,
   ) {
     effect(() => {
       this.fileManagerService.libraryState();
@@ -79,7 +77,7 @@ export class RenameSettings {
             newNamePage:
               `${this.title || 'Sem titulo'} ` +
               `(${this.year || '0000'}) ` +
-              `#${currentEdition} - ${currentPage}.jpg`,
+              `#${currentEdition} - ${currentPage}.${this.getPageExtension(page.fileName)}`,
           } satisfies PreviewPage;
         }),
       };
@@ -110,20 +108,8 @@ export class RenameSettings {
     return this.selectedEditionsCount > 1;
   }
 
-  hasSelectedConvertTo(): boolean {
-    return this.conversionStateService.getConversion() !== null;
-  }
-
   get canUsePreviewAndRename(): boolean {
     return this.hasSelectedEditions();
-  }
-
-  get canUseConvertTo(): boolean {
-    return this.hasSelectedEditions() && this.hasSelectedConvertTo();
-  }
-
-  get canUseOmnibus(): boolean {
-    return this.hasMultipleSelectedEditions();
   }
 
   validateRealtime(): void {
@@ -230,11 +216,8 @@ export class RenameSettings {
 
   }
 
-  onConvertTo(): void {
-    // TODO: Implementar lógica de conversão
-  }
-
-  onOmnibus(): void {
-    // TODO: Implementar lógica de omnibus
+  private getPageExtension(fileName: string): string {
+    const extension = fileName.match(/\.([^.]+)$/)?.[1];
+    return extension?.toLowerCase() || 'jpg';
   }
 }

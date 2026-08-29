@@ -52,6 +52,10 @@ export class FileExplorer implements OnInit, OnDestroy {
       return;
     }
 
+    if (this.openEditionId !== null) {
+      this.pageLoader.clearCache();
+    }
+
     this.openEditionId = editionId;
 
     const edition = this.fileManagerService.fileEditions.find((item) => item.id === editionId);

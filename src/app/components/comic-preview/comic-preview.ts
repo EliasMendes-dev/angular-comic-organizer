@@ -13,6 +13,7 @@ import { TitleCasePipe } from '@angular/common';
 })
 export class ComicPreview {
   imageUrl: string | null = null;
+  private loadVersion = 0;
 
   constructor(
     public comicPreviewStateService: ComicPreviewStateService,
@@ -23,16 +24,24 @@ export class ComicPreview {
       const page = this.comicPreviewStateService.selectedPage();
 
       if (!page) {
+        this.loadVersion += 1;
         this.imageUrl = null;
         return;
       }
 
-      this.loadImage(page.imagePath);
+      const version = ++this.loadVersion;
+      void this.loadImage(page.imagePath, version);
     });
   }
 
-  private async loadImage(path: string) {
-    this.imageUrl = await this.pageLoader.load(path);
+  private async loadImage(path: string, version: number): Promise<void> {
+    const imageUrl = await this.pageLoader.load(path);
+
+    if (version !== this.loadVersion) {
+      return;
+    }
+
+    this.imageUrl = imageUrl || null;
     this.cdr.detectChanges();
   }
 }
