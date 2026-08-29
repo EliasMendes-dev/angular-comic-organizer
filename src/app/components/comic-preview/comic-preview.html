@@ -7,12 +7,14 @@
   </div>
 
   <div class="content-comic-preview">
-    @if (imageUrl) {
+    @if (imageUrl()) {
       <img
-        [src]="imageUrl"
+        [src]="imageUrl()"
         [alt]="comicPreviewStateService.selectedPage()?.fileName"
         class="comic-preview-image"
       />
+    } @else if (comicPreviewStateService.selectedPage()) {
+      <p>Carregando pagina...</p>
     } @else {
       <div class="content-comic-preview-svg">
         <svg lucideImage></svg>
@@ -50,30 +52,51 @@
           <h2>Visualização</h2>
         </div>
 
-        <button
-          type="button"
-          class="preview-modal-close"
-          aria-label="Fechar visualização"
-          (click)="closeModal()"
-        >
-          <svg lucideX></svg>
-        </button>
+        <div class="preview-modal-controls">
+          <div class="preview-modal-zoom-controls" aria-label="Controles de zoom">
+            <button type="button" (click)="zoomOut()" aria-label="Diminuir zoom">-</button>
+            <span>{{ zoomPercent }}%</span>
+            <button type="button" (click)="zoomIn()" aria-label="Aumentar zoom">+</button>
+            <button type="button" (click)="resetZoom()">Ajustar</button>
+          </div>
+
+          <button
+            type="button"
+            class="preview-modal-close"
+            aria-label="Fechar visualização"
+            (click)="closeModal()"
+          >
+            <svg lucideX></svg>
+          </button>
+        </div>
       </header>
 
-      <div class="preview-modal-content">
-        @if (imageUrl) {
-          <div class="preview-modal-image-stage">
+      <div
+        class="preview-modal-content"
+        [class.is-zoomed]="zoom > 1"
+        [class.is-dragging]="isDragging"
+        (wheel)="handleZoomWheel($event)"
+      >
+        @if (imageUrl()) {
+          <div
+            class="preview-modal-image-stage"
+            [class.is-dragging]="isDragging"
+            (pointerdown)="startDragging($event)"
+          >
             <button
               type="button"
               class="preview-modal-page-zone preview-modal-page-zone-previous"
               aria-label="Página anterior"
               (click)="navigatePage('previous')"
+              (pointerdown)="$event.stopPropagation()"
             ></button>
 
             <img
-              [src]="imageUrl"
+              [src]="imageUrl()"
               [alt]="comicPreviewStateService.selectedPage()?.fileName"
               class="preview-modal-image"
+              [style.transform]="imageTransform"
+              draggable="false"
             />
 
             <button
@@ -81,6 +104,7 @@
               class="preview-modal-page-zone preview-modal-page-zone-next"
               aria-label="Próxima página"
               (click)="navigatePage('next')"
+              (pointerdown)="$event.stopPropagation()"
             ></button>
           </div>
         } @else {

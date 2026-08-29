@@ -32,6 +32,15 @@ export class PageLoaderService {
     }
   }
 
+  preloadAround(paths: string[], currentIndex: number): void {
+    for (const offset of [-1, 1]) {
+      const adjacentPath = paths[currentIndex + offset];
+      if (adjacentPath) {
+        void this.preload(adjacentPath);
+      }
+    }
+  }
+
   clearCache(): void {
     this.cacheGeneration += 1;
     this.pendingLoads.clear();

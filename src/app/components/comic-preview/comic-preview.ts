@@ -1,4 +1,4 @@
-import { Component, effect, ChangeDetectorRef, HostListener } from '@angular/core';
+import { Component, effect, HostListener, signal } from '@angular/core';
 import { LucideEye, LucideImage, LucideX } from '@lucide/angular';
 import { ComicPreviewStateService } from '../../services/comic-preview-state';
 import { PageLoaderService } from '../../services/page-loader';
@@ -14,26 +14,36 @@ import { TitleCasePipe } from '@angular/common';
   styleUrls: ['./comic-preview.css', './comic-preview-responsive.css'],
 })
 export class ComicPreview {
-  imageUrl: string | null = null;
+  imageUrl = signal<string | null>(null);
   isModalOpen = false;
+  zoom = 1;
+  dragOffset = { x: 0, y: 0 };
   private loadVersion = 0;
+  isDragging = false;
+  private dragStart = { x: 0, y: 0 };
+  private dragOrigin = { x: 0, y: 0 };
+
+  readonly minZoom = 0.5;
+  readonly maxZoom = 3;
+  readonly zoomStep = 0.25;
 
   constructor(
     public comicPreviewStateService: ComicPreviewStateService,
     private pageLoader: PageLoaderService,
     private fileManagerService: FileManagerService,
-    private cdr: ChangeDetectorRef,
   ) {
     effect(() => {
       const page = this.comicPreviewStateService.selectedPage();
 
       if (!page) {
         this.loadVersion += 1;
-        this.imageUrl = null;
+        this.resetZoom();
+        this.imageUrl.set(null);
         return;
       }
 
       const version = ++this.loadVersion;
+      this.imageUrl.set(null);
       void this.loadImage(page.imagePath, version);
     });
   }
@@ -45,8 +55,8 @@ export class ComicPreview {
       return;
     }
 
-    this.imageUrl = imageUrl || null;
-    this.cdr.detectChanges();
+    this.resetZoom();
+    this.imageUrl.set(imageUrl || null);
   }
 
   openModal(): void {
@@ -57,6 +67,7 @@ export class ComicPreview {
 
   closeModal(): void {
     this.isModalOpen = false;
+    this.stopDragging();
   }
 
   @HostListener('document:keydown.escape')
@@ -77,6 +88,21 @@ export class ComicPreview {
       event.preventDefault();
       this.navigatePage('previous');
     }
+  }
+
+  @HostListener('document:pointermove', ['$event'])
+  handleDocumentPointerMove(event: PointerEvent): void {
+    this.dragImage(event);
+  }
+
+  @HostListener('document:pointerup')
+  handleDocumentPointerUp(): void {
+    this.stopDragging();
+  }
+
+  @HostListener('document:pointercancel')
+  handleDocumentPointerCancel(): void {
+    this.stopDragging();
   }
 
   navigatePage(direction: 'next' | 'previous'): void {
@@ -102,6 +128,70 @@ export class ComicPreview {
 
     if (targetPage) {
       this.comicPreviewStateService.setSelectedPage(targetPage, edition.id);
+      this.pageLoader.preloadAround(
+        edition.pages.map((editionPage) => editionPage.imagePath),
+        targetIndex,
+      );
+    }
+  }
+
+  get zoomPercent(): number {
+    return Math.round(this.zoom * 100);
+  }
+
+  get imageTransform(): string {
+    return `translate(${this.dragOffset.x}px, ${this.dragOffset.y}px) scale(${this.zoom})`;
+  }
+
+  zoomIn(): void {
+    this.setZoom(this.zoom + this.zoomStep);
+  }
+
+  zoomOut(): void {
+    this.setZoom(this.zoom - this.zoomStep);
+  }
+
+  resetZoom(): void {
+    this.zoom = 1;
+    this.dragOffset = { x: 0, y: 0 };
+  }
+
+  handleZoomWheel(event: WheelEvent): void {
+    event.preventDefault();
+    this.setZoom(this.zoom + (event.deltaY < 0 ? this.zoomStep : -this.zoomStep));
+  }
+
+  startDragging(event: PointerEvent): void {
+    if (this.zoom <= 1 || event.button !== 0) {
+      return;
+    }
+
+    event.preventDefault();
+    this.isDragging = true;
+    this.dragStart = { x: event.clientX, y: event.clientY };
+    this.dragOrigin = { ...this.dragOffset };
+  }
+
+  dragImage(event: PointerEvent): void {
+    if (!this.isDragging) {
+      return;
+    }
+
+    this.dragOffset = {
+      x: this.dragOrigin.x + event.clientX - this.dragStart.x,
+      y: this.dragOrigin.y + event.clientY - this.dragStart.y,
+    };
+  }
+
+  stopDragging(): void {
+    this.isDragging = false;
+  }
+
+  private setZoom(value: number): void {
+    this.zoom = Math.min(this.maxZoom, Math.max(this.minZoom, value));
+
+    if (this.zoom <= 1) {
+      this.dragOffset = { x: 0, y: 0 };
     }
   }
 }

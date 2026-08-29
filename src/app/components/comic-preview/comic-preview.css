@@ -129,12 +129,28 @@ svg {
   border-bottom: 1px solid var(--cor-borda);
 }
 
+.preview-modal-controls,
+.preview-modal-zoom-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.preview-modal-zoom-controls span {
+  min-width: 3.5rem;
+  color: var(--texto-secundario);
+  font-size: 0.75rem;
+  text-align: center;
+}
+
+.preview-modal-zoom-controls button,
 .preview-modal-close {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 2rem;
+  min-width: 2rem;
   height: 2rem;
+  padding: 0 0.45rem;
   color: var(--texto-secundario);
   background: transparent;
   border: 1px solid transparent;
@@ -142,10 +158,19 @@ svg {
   cursor: pointer;
 }
 
+.preview-modal-zoom-controls button:hover,
 .preview-modal-close:hover {
   color: var(--texto-primario);
   background-color: var(--fundo-hover);
   border-color: var(--cor-borda);
+}
+
+.preview-modal-close {
+  margin-left: 0.35rem;
+}
+
+.preview-modal-close:hover {
+  color: var(--vermelho-hover);
 }
 
 .preview-modal-close svg {
@@ -160,8 +185,18 @@ svg {
   min-width: 0;
   min-height: 0;
   padding: 1rem;
-  overflow: auto;
+  overflow: hidden;
   background-color: var(--fundo-secundario);
+  cursor: default;
+  touch-action: none;
+}
+
+.preview-modal-content.is-zoomed {
+  cursor: grab;
+}
+
+.preview-modal-content.is-dragging {
+  cursor: grabbing;
 }
 
 .preview-modal-image {
@@ -170,6 +205,9 @@ svg {
   width: auto;
   height: auto;
   object-fit: contain;
+  transform-origin: center center;
+  user-select: none;
+  pointer-events: none;
 }
 
 .preview-modal-image-stage {
@@ -181,6 +219,10 @@ svg {
   height: 100%;
   min-width: 0;
   min-height: 0;
+}
+
+.preview-modal-image-stage.is-dragging {
+  cursor: grabbing;
 }
 
 .preview-modal-page-zone {

@@ -1,4 +1,4 @@
-import { Component, NgZone, OnInit, OnDestroy, effect } from '@angular/core';
+import { Component, NgZone, OnInit, OnDestroy } from '@angular/core';
 import { CdkDropList, CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { ConversionStateService } from '../../services/conversion-state';
 import { FileManagerService } from '../../services/file-manager';
@@ -33,14 +33,6 @@ export class FileExplorer implements OnInit, OnDestroy {
   ) {
     console.log('Explorer service', this.comicPreviewStateService);
 
-    effect(() => {
-      const editionId = this.comicPreviewStateService.selectedEditionId();
-      const page = this.comicPreviewStateService.selectedPage();
-
-      if (editionId !== null && page) {
-        this.activePages.set(editionId, page.id);
-      }
-    });
   }
 
   drop(event: CdkDragDrop<any[]>): void {
@@ -94,14 +86,14 @@ export class FileExplorer implements OnInit, OnDestroy {
       const currentIndex = edition.pages.findIndex((p) => p.id === page.id);
 
       // Busca a próxima página
-      if (currentIndex + 1 < edition.pages.length) {
-        this.pageLoader.preload(edition.pages[currentIndex + 1].imagePath);
+      if (currentIndex >= 0) {
+        this.pageLoader.preloadAround(
+          edition.pages.map((editionPage) => editionPage.imagePath),
+          currentIndex,
+        );
       }
 
       // Busca a página anterior (útil se o usuário voltar)
-      if (currentIndex - 1 >= 0) {
-        this.pageLoader.preload(edition.pages[currentIndex - 1].imagePath);
-      }
     }
   }
 
@@ -154,6 +146,13 @@ export class FileExplorer implements OnInit, OnDestroy {
   }
 
   isPageSelected(editionId: number, page: ComicPage): boolean {
+    const selectedEditionId = this.comicPreviewStateService.selectedEditionId();
+    const selectedPage = this.comicPreviewStateService.selectedPage();
+
+    if (selectedEditionId === editionId && selectedPage) {
+      return selectedPage.id === page.id;
+    }
+
     return this.activePages.get(editionId) === page.id;
   }
 
