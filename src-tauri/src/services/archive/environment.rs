@@ -16,36 +16,69 @@ pub(super) fn get_export_dir(series_name: &str) -> Result<PathBuf, String> {
 }
 
 pub(super) fn find_unrar_binary() -> Result<PathBuf, String> {
-    if let Some(path) = env::var_os("COMIC_ORGANIZER_UNRAR").or_else(|| env::var_os("UNRAR_EXE")) {
+    if let Some(path) = env::var_os("COMIC_ORGANIZER_UNRAR")
+        .or_else(|| env::var_os("UNRAR_EXE"))
+    {
         return Ok(PathBuf::from(path));
     }
-    find_on_path(&["unrar", "unrar.exe", "UnRAR.exe"])
-        .or_else(|| {
-            let path = PathBuf::from(r"C:\Program Files\WinRAR\UnRAR.exe");
-            path.is_file().then_some(path)
-        })
-        .ok_or_else(|| {
-            "No UnRAR executable was found. Install WinRAR or set COMIC_ORGANIZER_UNRAR."
-                .to_string()
-        })
+
+    if let Some(path) = find_on_path(&["unrar", "unrar.exe", "UnRAR.exe"]) {
+        return Ok(path);
+    }
+
+    let path = PathBuf::from(r"C:\Program Files\WinRAR\UnRAR.exe");
+
+    if path.is_file() {
+        return Ok(path);
+    }
+
+    // UnRAR incluído no próprio projeto
+    let bundled = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("resources")
+        .join("UnRAR.exe");
+
+    if bundled.is_file() {
+        return Ok(bundled);
+    }
+
+    Err(
+        "No UnRAR executable was found. Install WinRAR or provide COMIC_ORGANIZER_UNRAR."
+            .to_string()
+    )
 }
 
 pub(super) fn find_rar_binary() -> Result<PathBuf, String> {
     if let Some(path) = env::var_os("COMIC_ORGANIZER_RAR") {
         return Ok(PathBuf::from(path));
     }
-    find_on_path(&["rar", "rar.exe", "Rar.exe", "WinRAR.exe"])
-        .or_else(|| {
-            [
-                PathBuf::from(r"C:\Program Files\WinRAR\Rar.exe"),
-                PathBuf::from(r"C:\Program Files\WinRAR\WinRAR.exe"),
-            ]
-            .into_iter()
-            .find(|path| path.is_file())
-        })
-        .ok_or_else(|| {
-            "No RAR executable was found. Install WinRAR or set COMIC_ORGANIZER_RAR.".to_string()
-        })
+
+    if let Some(path) = find_on_path(&["rar", "rar.exe", "Rar.exe", "WinRAR.exe"]) {
+        return Ok(path);
+    }
+
+    if let Some(path) = [
+        PathBuf::from(r"C:\Program Files\WinRAR\Rar.exe"),
+        PathBuf::from(r"C:\Program Files\WinRAR\WinRAR.exe"),
+    ]
+    .into_iter()
+    .find(|path| path.is_file())
+    {
+        return Ok(path);
+    }
+
+    // RAR incluído no próprio projeto
+    let bundled = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("resources")
+        .join("RAR.exe");
+
+    if bundled.is_file() {
+        return Ok(bundled);
+    }
+
+    Err(
+        "No RAR executable was found. Install WinRAR or set COMIC_ORGANIZER_RAR."
+            .to_string(),
+    )
 }
 
 fn find_on_path(candidates: &[&str]) -> Option<PathBuf> {

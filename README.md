@@ -333,3 +333,6 @@ GitHub: [@EliasMendes-dev](https://github.com/EliasMendes-dev)
 - [Rust Book](https://doc.rust-lang.org/book/)
 - [CBZ Format Specification](https://en.wikipedia.org/wiki/Comic_book_archive)
 
+// TODO: Ajustar a localização dos executáveis RAR/UnRAR para funcionar corretamente
+// no aplicativo compilado (tauri build), usando o diretório de resources do Tauri.
+// Atualmente funciona no desenvolvimento através de src-tauri/resources.
