@@ -128,3 +128,105 @@ fn create_renamed_cbr(
     }
     result
 }
+
+pub fn export_renamed_cbzs(
+    editions: Vec<ComicEdition>,
+    title: String,
+    year: String,
+    starting_edition: usize,
+) -> Result<Vec<String>, String> {
+    if editions.is_empty() {
+        return Err("No editions selected".to_string());
+    }
+
+    let series_name = format!("{} ({})", title.trim(), year.trim());
+    let output_dir = get_export_dir(&series_name)?;
+    
+    let output_paths = editions
+        .iter()
+        .enumerate()
+        .map(|(index, _)| {
+            let edition_name = format!("{series_name} #{:03}", starting_edition + index);
+            output_dir.join(format!("{edition_name}.cbz")) // Extensão CBZ
+        })
+        .collect::<Vec<_>>();
+
+    if let Some(existing_path) = output_paths.iter().find(|path| path.exists()) {
+        return Err(format!(
+            "The output file already exists: {}",
+            existing_path.display()
+        ));
+    }
+
+    fs::create_dir_all(&output_dir)
+        .map_err(|e| format!("Failed to create output directory: {e}"))?;
+
+    let mut created_paths = Vec::with_capacity(editions.len());
+
+    for (index, edition) in editions.iter().enumerate() {
+        let edition_number = starting_edition + index;
+        let edition_name = format!("{series_name} #{edition_number:03}");
+        let archive_path = &output_paths[index];
+
+        if let Err(error) = create_renamed_cbz(edition, &edition_name, archive_path) {
+            // Em caso de erro, apaga os arquivos que já tinham sido criados
+            for created_path in &created_paths {
+                let _ = fs::remove_file(created_path);
+            }
+            return Err(error);
+        }
+        created_paths.push(archive_path.clone());
+    }
+    
+    Ok(created_paths
+        .into_iter()
+        .map(|path| path.to_string_lossy().into_owned())
+        .collect())
+}
+
+// Diferente do CBR, o CBZ pode ler o arquivo original e ejetar direto no ZIP, 
+// sem precisar copiar para uma pasta de staging temporária. É muito mais rápido.
+fn create_renamed_cbz(
+    edition: &ComicEdition,
+    edition_name: &str,
+    archive_path: &Path,
+) -> Result<(), String> {
+    let file = File::create(archive_path)
+        .map_err(|e| format!("Failed to create CBZ file: {e}"))?;
+        
+    let mut zip = ZipWriter::new(file);
+    let options = FileOptions::default()
+        .compression_method(zip::CompressionMethod::Deflated)
+        .unix_permissions(0o755);
+
+    let mut pages = edition.pages.clone();
+    pages.sort_by_key(|page| page.page_number);
+
+    for (page_index, page) in pages.iter().enumerate() {
+        let source = Path::new(&page.image_path);
+        let extension = source
+            .extension()
+            .and_then(|ext| ext.to_str())
+            .unwrap_or("jpg")
+            .to_lowercase();
+            
+        // Nome renomeado que ficará dentro do CBZ
+        let zip_file_name = format!("{edition_name} - {:03}.{extension}", page_index + 1);
+
+        zip.start_file(zip_file_name, options)
+            .map_err(|e| format!("Failed to start file in ZIP: {e}"))?;
+
+        let mut f = File::open(source)
+            .map_err(|e| format!("Failed to open source image {}: {e}", source.display()))?;
+            
+        let mut buffer = Vec::new();
+        f.read_to_end(&mut buffer).map_err(|e| e.to_string())?;
+        
+        zip.write_all(&buffer)
+            .map_err(|e| format!("Failed to write to ZIP: {e}"))?;
+    }
+
+    zip.finish().map_err(|e| format!("Failed to finalize CBZ: {e}"))?;
+    
+    Ok(())
+}
