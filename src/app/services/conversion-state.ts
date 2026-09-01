@@ -18,6 +18,12 @@ export function getExportCommandName(
   return conversion === 'cbr-to-cbz' ? 'export_renamed_cbzs' : 'export_renamed_cbrs';
 }
 
+export function getRenameCommandName(
+  conversion: ConversionType | null,
+): ExportCommandName {
+  return conversion === 'cbz-to-cbr' ? 'export_renamed_cbzs' : 'export_renamed_cbrs';
+}
+
 @Injectable({
   providedIn: 'root',
 })

@@ -32,9 +32,7 @@ export class MenuBarSettings implements OnInit {
     const paths = await this.fileManager.selectFiles(type);
 
     if (!paths.length) {
-      if (!hasLoadedEditions && !currentConversion) {
-        this.conversionStateService.clearConversion();
-      }
+      this.resetConversionIfNeeded(currentConversion, hasLoadedEditions);
       return;
     }
 
@@ -58,16 +56,12 @@ export class MenuBarSettings implements OnInit {
       });
     } catch (error) {
       console.error('Erro ao processar arquivos no backend:', error);
-      if (!hasLoadedEditions && !currentConversion) {
-        this.conversionStateService.clearConversion();
-      }
+      this.resetConversionIfNeeded(currentConversion, hasLoadedEditions);
       return;
     }
 
     if (!editions?.length) {
-      if (!hasLoadedEditions && !currentConversion) {
-        this.conversionStateService.clearConversion();
-      }
+      this.resetConversionIfNeeded(currentConversion, hasLoadedEditions);
       return;
     }
 
@@ -92,5 +86,14 @@ export class MenuBarSettings implements OnInit {
   changeTheme(): void {
     document.body.classList.toggle('dark-mode');
     this.isDarkMode = !this.isDarkMode;
+  }
+
+  private resetConversionIfNeeded(
+    currentConversion: ConversionType | null,
+    hasLoadedEditions: boolean,
+  ): void {
+    if (!hasLoadedEditions && !currentConversion) {
+      this.conversionStateService.clearConversion();
+    }
   }
 }

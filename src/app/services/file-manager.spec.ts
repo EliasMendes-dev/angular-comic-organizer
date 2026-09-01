@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { getExportCommandName } from './conversion-state';
+import { getExportCommandName, getRenameCommandName } from './conversion-state';
 import { mapBackendEditionsToExplorerModel } from './file-manager';
 
 describe('mapBackendEditionsToExplorerModel', () => {
@@ -39,5 +39,11 @@ describe('mapBackendEditionsToExplorerModel', () => {
     expect(getExportCommandName('cbr-to-cbz')).toBe('export_renamed_cbzs');
     expect(getExportCommandName('cbz-to-cbr')).toBe('export_renamed_cbrs');
     expect(getExportCommandName(null)).toBe('export_renamed_cbrs');
+  });
+
+  it('keeps the source format when renaming', () => {
+    expect(getRenameCommandName('cbr-to-cbz')).toBe('export_renamed_cbrs');
+    expect(getRenameCommandName('cbz-to-cbr')).toBe('export_renamed_cbzs');
+    expect(getRenameCommandName(null)).toBe('export_renamed_cbrs');
   });
 });

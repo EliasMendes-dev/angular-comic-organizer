@@ -3,6 +3,7 @@ import { FileManagerService } from '../../services/file-manager';
 import {
   ConversionStateService,
   getExportCommandName,
+  getRenameCommandName,
 } from '../../services/conversion-state';
 import { RenameSettingsHeader } from './subcomponents/rename-settings-header/rename-settings-header';
 import { RenameSettingsForm } from './subcomponents/rename-settings-form/rename-settings-form';
@@ -13,6 +14,7 @@ import {
   PreviewPage,
 } from './subcomponents/rename-settings-preview/rename-settings-preview';
 import { ComicPage } from '../../models/comic-page';
+import { ComicEdition } from '../../models/comic-edition';
 import { invoke } from '@tauri-apps/api/core';
 
 @Component({
@@ -58,31 +60,23 @@ export class RenameSettings {
   get renamePreview(): PreviewEdition[] {
     if (!this.showPreview) return [];
 
-    const selectedEditions = this.fileManagerService.fileEditions.filter((edition) =>
-      this.fileManagerService.activeEditionIds.has(edition.id),
-    );
+    const selectedEditions = this.getSelectedEditions();
+    const seriesName = this.getSeriesName();
+    const startingEdition = this.getStartingEdition();
 
     return selectedEditions.map((edition, index) => {
-      let rawEdition = this.edition || '1';
-      let startEdition = parseInt(rawEdition, 10);
-
-      if (isNaN(startEdition)) startEdition = 1;
-
-      const currentEdition = String(startEdition + index).padStart(3, '0');
+      const currentEdition = String(startingEdition + index).padStart(3, '0');
+      const editionName = `${seriesName} #${currentEdition}`;
 
       return {
         oldNameEdition: edition.title,
-        newNameEdition:
-          `${this.title || 'Sem titulo'} ` + `(${this.year || '0000'}) ` + `#${currentEdition}`,
+        newNameEdition: editionName,
         pages: edition.pages.map((page: ComicPage, pageIndex: number) => {
           const currentPage = String(pageIndex + 1).padStart(3, '0');
 
           return {
             oldNamePage: page.fileName,
-            newNamePage:
-              `${this.title || 'Sem titulo'} ` +
-              `(${this.year || '0000'}) ` +
-              `#${currentEdition} - ${currentPage}.${this.getPageExtension(page.fileName)}`,
+            newNamePage: `${editionName} - ${currentPage}.${this.getPageExtension(page.fileName)}`,
           } satisfies PreviewPage;
         }),
       };
@@ -211,36 +205,32 @@ export class RenameSettings {
   }
 
   onRename(): void {
-    this.hasTriedSubmit = true;
-
-    if (!this.validateFields() || this.isRenaming) {
-      return;
-    }
-
-    this.runExport(getExportCommandName(this.selectedConversion));
+    this.exportSelectedEditions(getRenameCommandName(this.selectedConversion));
   }
 
   onConvertClick(): void {
+    this.exportSelectedEditions(getExportCommandName(this.selectedConversion));
+  }
+
+  private exportSelectedEditions(command: 'export_renamed_cbrs' | 'export_renamed_cbzs'): void {
     this.hasTriedSubmit = true;
 
     if (!this.validateFields() || this.isRenaming) {
       return;
     }
 
-    this.runExport(getExportCommandName(this.selectedConversion));
+    this.runExport(command);
   }
 
   private runExport(command: 'export_renamed_cbrs' | 'export_renamed_cbzs'): void {
-    const selectedEditions = this.fileManagerService.fileEditions.filter((edition) =>
-      this.fileManagerService.activeEditionIds.has(edition.id),
-    );
+    const selectedEditions = this.getSelectedEditions();
 
     this.isRenaming = true;
     void invoke<string[]>(command, {
       editions: selectedEditions,
       title: this.title.trim(),
       year: this.year.trim(),
-      startingEdition: Number(this.edition),
+      startingEdition: this.getStartingEdition(),
     })
       .then((paths) => {
         window.alert(`${paths.length} arquivo(s) criado(s) em Downloads.`);
@@ -252,6 +242,21 @@ export class RenameSettings {
       .finally(() => {
         this.isRenaming = false;
       });
+  }
+
+  private getSelectedEditions(): ComicEdition[] {
+    return this.fileManagerService.fileEditions.filter((edition) =>
+      this.fileManagerService.activeEditionIds.has(edition.id),
+    );
+  }
+
+  private getSeriesName(): string {
+    return `${this.title || 'Sem titulo'} (${this.year || '0000'})`;
+  }
+
+  private getStartingEdition(): number {
+    const parsed = Number.parseInt(this.edition || '1', 10);
+    return Number.isNaN(parsed) ? 1 : parsed;
   }
 
   private getPageExtension(fileName: string): string {

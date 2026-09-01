@@ -1,7 +1,8 @@
 use super::environment::{find_rar_binary, get_export_dir, get_temp_dir};
 use crate::models::ComicEdition;
+use std::ffi::OsString;
 use std::fs::{self, File};
-use std::io::{Read, Write};
+use std::io;
 use std::path::Path;
 use std::process::Command;
 use zip::write::FileOptions;
@@ -83,6 +84,7 @@ fn create_renamed_cbr(
             .map_err(|e| format!("Failed to create edition staging directory: {e}"))?;
         let mut pages = edition.pages.clone();
         pages.sort_by_key(|page| page.page_number);
+        let mut staged_page_names = Vec::<OsString>::with_capacity(pages.len());
         for (page_index, page) in pages.iter().enumerate() {
             let source = Path::new(&page.image_path);
             let extension = source
@@ -96,22 +98,22 @@ fn create_renamed_cbr(
             ));
             fs::copy(source, &destination)
                 .map_err(|e| format!("Failed to stage page {}: {e}", source.display()))?;
+            let file_name = destination.file_name().ok_or_else(|| {
+                format!(
+                    "Failed to determine staged page name for {}",
+                    destination.display()
+                )
+            })?;
+            staged_page_names.push(file_name.to_os_string());
         }
-        let mut page_paths = fs::read_dir(staging_dir)
-            .map_err(|e| format!("Failed to read staged pages: {e}"))?
-            .filter_map(Result::ok)
-            .map(|entry| entry.path())
-            .filter(|path| path.is_file())
-            .collect::<Vec<_>>();
-        page_paths.sort();
         let mut command = Command::new(rar_binary);
         command.current_dir(staging_dir).args([
             "a",
             "-ep",
             archive_path.to_string_lossy().as_ref(),
         ]);
-        for page_path in &page_paths {
-            command.arg(page_path.file_name().unwrap_or_default());
+        for page_name in &staged_page_names {
+            command.arg(page_name);
         }
         let output = command
             .output()
@@ -222,10 +224,7 @@ fn create_renamed_cbz(
         let mut f = File::open(source)
             .map_err(|e| format!("Failed to open source image {}: {e}", source.display()))?;
 
-        let mut buffer = Vec::new();
-        f.read_to_end(&mut buffer).map_err(|e| e.to_string())?;
-
-        zip.write_all(&buffer)
+        io::copy(&mut f, &mut zip)
             .map_err(|e| format!("Failed to write to ZIP: {e}"))?;
     }
 
