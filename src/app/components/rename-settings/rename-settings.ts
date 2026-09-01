@@ -1,5 +1,9 @@
 import { Component, effect } from '@angular/core';
 import { FileManagerService } from '../../services/file-manager';
+import {
+  ConversionStateService,
+  getExportCommandName,
+} from '../../services/conversion-state';
 import { RenameSettingsHeader } from './subcomponents/rename-settings-header/rename-settings-header';
 import { RenameSettingsForm } from './subcomponents/rename-settings-form/rename-settings-form';
 import { RenameSettingsActions } from './subcomponents/rename-settings-actions/rename-settings-actions';
@@ -34,6 +38,7 @@ export class RenameSettings {
 
   constructor(
     public fileManagerService: FileManagerService,
+    private conversionStateService: ConversionStateService,
   ) {
     effect(() => {
       this.fileManagerService.libraryState();
@@ -98,6 +103,26 @@ export class RenameSettings {
     }
 
     return '';
+  }
+
+  get selectedConversion() {
+    return this.conversionStateService.getConversion();
+  }
+
+  get convertButtonText(): string {
+    if (this.selectedConversion === 'cbr-to-cbz') {
+      return 'Converter para CBZ';
+    }
+
+    if (this.selectedConversion === 'cbz-to-cbr') {
+      return 'Converter para CBR';
+    }
+
+    return 'Converter';
+  }
+
+  get showConvertButton(): boolean {
+    return this.selectedConversion !== null;
   }
 
   hasSelectedEditions(): boolean {
@@ -192,12 +217,26 @@ export class RenameSettings {
       return;
     }
 
+    this.runExport(getExportCommandName(this.selectedConversion));
+  }
+
+  onConvertClick(): void {
+    this.hasTriedSubmit = true;
+
+    if (!this.validateFields() || this.isRenaming) {
+      return;
+    }
+
+    this.runExport(getExportCommandName(this.selectedConversion));
+  }
+
+  private runExport(command: 'export_renamed_cbrs' | 'export_renamed_cbzs'): void {
     const selectedEditions = this.fileManagerService.fileEditions.filter((edition) =>
       this.fileManagerService.activeEditionIds.has(edition.id),
     );
 
     this.isRenaming = true;
-    void invoke<string[]>('export_renamed_cbrs', {
+    void invoke<string[]>(command, {
       editions: selectedEditions,
       title: this.title.trim(),
       year: this.year.trim(),
@@ -207,13 +246,12 @@ export class RenameSettings {
         window.alert(`${paths.length} arquivo(s) criado(s) em Downloads.`);
       })
       .catch((error) => {
-        console.error('Erro ao exportar arquivos renomeados:', error);
+        console.error(`Erro ao exportar arquivos do comando ${command}:`, error);
         window.alert(`Não foi possível criar os arquivos: ${error}`);
       })
       .finally(() => {
         this.isRenaming = false;
       });
-
   }
 
   private getPageExtension(fileName: string): string {

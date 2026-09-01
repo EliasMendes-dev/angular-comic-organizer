@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { getExportCommandName } from './conversion-state';
 import { mapBackendEditionsToExplorerModel } from './file-manager';
 
 describe('mapBackendEditionsToExplorerModel', () => {
@@ -32,5 +33,11 @@ describe('mapBackendEditionsToExplorerModel', () => {
       'Flsh Abslt #2 (2025) (DarkseidClub)',
       'Flsh Abslt #10 (2025) (DarkseidClub)',
     ]);
+  });
+
+  it('selects the correct export command for each conversion type', () => {
+    expect(getExportCommandName('cbr-to-cbz')).toBe('export_renamed_cbzs');
+    expect(getExportCommandName('cbz-to-cbr')).toBe('export_renamed_cbrs');
+    expect(getExportCommandName(null)).toBe('export_renamed_cbrs');
   });
 });

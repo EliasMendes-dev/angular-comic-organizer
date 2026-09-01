@@ -5,4 +5,10 @@
   <button class="onlyrename" [disabled]="isRenameDisabled" (click)="handleRename()">
     <svg lucidePenLine></svg> Renomear
   </button>
+
+  @if (showConvertButton) {
+    <button class="converttocbz" [disabled]="isConvertDisabled" (click)="handleConvert()">
+      <svg lucidePenLine></svg> {{ convertButtonText }}
+    </button>
+  }
 </div>

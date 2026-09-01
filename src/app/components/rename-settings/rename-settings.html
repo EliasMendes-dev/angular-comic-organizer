@@ -21,8 +21,12 @@
       <app-rename-settings-actions
         [isPreviewDisabled]="!canUsePreviewAndRename"
         [isRenameDisabled]="!canUsePreviewAndRename || isRenaming"
+        [showConvertButton]="showConvertButton"
+        [isConvertDisabled]="!canUsePreviewAndRename || isRenaming"
+        [convertButtonText]="convertButtonText"
         (onPreview)="onPreviewClick()"
         (onRename)="onRename()"
+        (onConvert)="onConvertClick()"
       ></app-rename-settings-actions>
 
     </div>

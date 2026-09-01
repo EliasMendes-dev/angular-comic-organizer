@@ -10,6 +10,14 @@ compartilhar estado entre componentes
 import { Injectable } from '@angular/core';
 import { ConversionType } from '../models/conversion-type';
 
+export type ExportCommandName = 'export_renamed_cbrs' | 'export_renamed_cbzs';
+
+export function getExportCommandName(
+  conversion: ConversionType | null,
+): ExportCommandName {
+  return conversion === 'cbr-to-cbz' ? 'export_renamed_cbzs' : 'export_renamed_cbrs';
+}
+
 @Injectable({
   providedIn: 'root',
 })

@@ -37,12 +37,14 @@
 }
 
 .rename-preview,
-.onlyrename {
+.onlyrename,
+.converttocbz {
   background-color: var(--fundo-primario);
   color: var(--texto-primario);
 }
 
 .rename-preview:hover,
-.onlyrename:hover {
+.onlyrename:hover,
+.converttocbz:hover {
   background-color: var(--fundo-hover);
 }

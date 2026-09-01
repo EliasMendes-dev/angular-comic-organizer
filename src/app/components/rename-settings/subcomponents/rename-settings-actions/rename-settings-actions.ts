@@ -11,9 +11,13 @@ import { LucideEye, LucidePenLine } from '@lucide/angular';
 export class RenameSettingsActions {
   @Input() isPreviewDisabled = true;
   @Input() isRenameDisabled = true;
+  @Input() showConvertButton = false;
+  @Input() isConvertDisabled = true;
+  @Input() convertButtonText = 'Converter';
 
   @Output() onPreview = new EventEmitter<void>();
   @Output() onRename = new EventEmitter<void>();
+  @Output() onConvert = new EventEmitter<void>();
 
   handlePreview(): void {
     this.onPreview.emit();
@@ -21,5 +25,9 @@ export class RenameSettingsActions {
 
   handleRename(): void {
     this.onRename.emit();
+  }
+
+  handleConvert(): void {
+    this.onConvert.emit();
   }
 }

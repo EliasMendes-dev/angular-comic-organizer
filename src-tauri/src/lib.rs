@@ -7,7 +7,7 @@ use crate::commands::library::{
     clear_all_temp_editions, delete_edition_from_temp, get_edition_order, save_edition_order,
 };
 use crate::commands::page::load_page;
-use crate::commands::rename::export_renamed_cbrs;
+use crate::commands::rename::{export_renamed_cbzs, export_renamed_cbrs};
 use crate::services::archive::clear_temp_directory;
 
 use tauri::WindowEvent;
@@ -24,7 +24,8 @@ pub fn run() {
             delete_edition_from_temp,
             clear_all_temp_editions,
             load_page,
-            export_renamed_cbrs
+            export_renamed_cbrs,
+            export_renamed_cbzs
         ])
         .setup(|app| {
             // Remove qualquer arquivo temporário deixado por uma execução anterior.
