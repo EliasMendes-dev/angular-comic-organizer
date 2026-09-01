@@ -3,24 +3,54 @@ use crate::models::ComicEdition;
 use crate::services::builder::build_editions_from_temp;
 use natord::compare;
 use std::collections::HashSet;
-use std::fs;
+use std::fs::{self, File};
+use std::io;
 use std::path::{Path, PathBuf};
 use std::process::Command;
+use zip::ZipArchive;
 
 pub fn process_cbr_files(paths: Vec<String>) -> Result<Vec<ComicEdition>, String> {
     let temp_dir = get_temp_dir();
     fs::create_dir_all(&temp_dir).map_err(|e| format!("Failed to create temp dir: {e}"))?;
+    let unrar_binary = find_unrar_binary()?;
     for (archive_path, edition_dir) in build_extraction_tasks(&paths, &temp_dir) {
-        extract_one_cbr(&archive_path, &edition_dir)?;
+        if let Err(error) = extract_one_cbr(&archive_path, &edition_dir, &unrar_binary) {
+            let _ = fs::remove_dir_all(&edition_dir);
+            return Err(error);
+        }
     }
     build_editions_from_temp(&temp_dir)
         .map_err(|e| format!("Failed to build editions from temp dir: {e}"))
 }
 
-fn extract_one_cbr(archive_path: &str, edition_dir: &Path) -> Result<(), String> {
+pub fn process_cbz_files(paths: Vec<String>) -> Result<Vec<ComicEdition>, String> {
+    let temp_dir = get_temp_dir();
+    fs::create_dir_all(&temp_dir).map_err(|e| format!("Failed to create temp dir: {e}"))?;
+    for (archive_path, edition_dir) in build_extraction_tasks(&paths, &temp_dir) {
+        if let Err(error) = extract_one_cbz(&archive_path, &edition_dir) {
+            let _ = fs::remove_dir_all(&edition_dir);
+            return Err(error);
+        }
+    }
+    build_editions_from_temp(&temp_dir)
+        .map_err(|e| format!("Failed to build editions from temp dir: {e}"))
+}
+
+fn extract_one_cbr(
+    archive_path: &str,
+    edition_dir: &Path,
+    unrar_binary: &Path,
+) -> Result<(), String> {
     fs::create_dir_all(edition_dir)
         .map_err(|e| format!("Failed to create edition dir {edition_dir:?}: {e}"))?;
-    extract_cbr(archive_path, edition_dir)?;
+    extract_cbr(archive_path, edition_dir, unrar_binary)?;
+    rename_extracted_pages(edition_dir)
+}
+
+fn extract_one_cbz(archive_path: &str, edition_dir: &Path) -> Result<(), String> {
+    fs::create_dir_all(edition_dir)
+        .map_err(|e| format!("Failed to create edition dir {edition_dir:?}: {e}"))?;
+    extract_cbz(archive_path, edition_dir)?;
     rename_extracted_pages(edition_dir)
 }
 
@@ -50,8 +80,7 @@ fn build_extraction_tasks(paths: &[String], temp_dir: &Path) -> Vec<(String, Pat
         .collect()
 }
 
-fn extract_cbr(cbr_path: &str, output_dir: &Path) -> Result<(), String> {
-    let unrar_binary = find_unrar_binary()?;
+fn extract_cbr(cbr_path: &str, output_dir: &Path, unrar_binary: &Path) -> Result<(), String> {
     let output = Command::new(&unrar_binary)
         .args([
             "x",
@@ -70,6 +99,51 @@ fn extract_cbr(cbr_path: &str, output_dir: &Path) -> Result<(), String> {
             String::from_utf8_lossy(&output.stderr).trim()
         ));
     }
+    Ok(())
+}
+
+fn extract_cbz(cbz_path: &str, output_dir: &Path) -> Result<(), String> {
+    let file = File::open(cbz_path)
+        .map_err(|e| format!("Failed to open CBZ {cbz_path}: {e}"))?;
+    let mut archive = ZipArchive::new(file)
+        .map_err(|e| format!("Failed to read CBZ {cbz_path}: {e}"))?;
+    let mut image_entries = Vec::new();
+
+    for entry_index in 0..archive.len() {
+        let entry = archive
+            .by_index(entry_index)
+            .map_err(|e| format!("Failed to read entry {entry_index} from CBZ {cbz_path}: {e}"))?;
+        if !entry.is_file() || !is_image(Path::new(entry.name())) {
+            continue;
+        }
+        image_entries.push((entry_index, entry.name().to_string()));
+    }
+    image_entries.sort_by(|(_, left), (_, right)| compare(left, right));
+
+    for (image_index, (entry_index, _)) in image_entries.into_iter().enumerate() {
+        let mut entry = archive
+            .by_index(entry_index)
+            .map_err(|e| format!("Failed to read entry {entry_index} from CBZ {cbz_path}: {e}"))?;
+        let extension = Path::new(entry.name())
+            .extension()
+            .and_then(|extension| extension.to_str())
+            .unwrap_or("jpg")
+            .to_lowercase();
+        let destination = output_dir.join(format!("page-{:06}.{extension}", image_index + 1));
+        let mut output = File::create(&destination).map_err(|e| {
+            format!(
+                "Failed to create extracted page {}: {e}",
+                destination.display()
+            )
+        })?;
+        io::copy(&mut entry, &mut output).map_err(|e| {
+            format!(
+                "Failed to extract entry {} from CBZ {cbz_path}: {e}",
+                entry.name()
+            )
+        })?;
+    }
+
     Ok(())
 }
 
@@ -134,6 +208,9 @@ fn is_image(path: &Path) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::io::Write;
+    use zip::write::FileOptions;
+    use zip::ZipWriter;
 
     #[test]
     fn build_extraction_tasks_preserves_order_and_name() {
@@ -178,5 +255,38 @@ mod tests {
             .join("Flash Absoluto (2025) #002 - 003.png")
             .exists());
         let _ = fs::remove_dir_all(temp_dir);
+    }
+
+    #[test]
+    fn extracts_cbz_images_in_natural_order_and_ignores_metadata() {
+        let root = std::env::temp_dir().join(format!(
+            "comic-organizer-cbz-test-{}",
+            std::process::id()
+        ));
+        let archive_path = root.join("sample.cbz");
+        let edition_dir = root.join("Sample");
+        let _ = fs::remove_dir_all(&root);
+        fs::create_dir_all(&edition_dir).unwrap();
+
+        let file = File::create(&archive_path).unwrap();
+        let mut archive = ZipWriter::new(file);
+        let options = FileOptions::default();
+        archive.start_file("ComicInfo.xml", options).unwrap();
+        archive.write_all(b"metadata").unwrap();
+        archive.start_file("pages/page10.jpg", options).unwrap();
+        archive.write_all(b"10").unwrap();
+        archive.start_file("pages/page2.jpg", options).unwrap();
+        archive.write_all(b"2").unwrap();
+        archive.start_file("pages/page1.jpg", options).unwrap();
+        archive.write_all(b"1").unwrap();
+        archive.finish().unwrap();
+
+        extract_cbz(archive_path.to_str().unwrap(), &edition_dir).unwrap();
+        rename_extracted_pages(&edition_dir).unwrap();
+
+        assert_eq!(fs::read(edition_dir.join("Sample - 001.jpg")).unwrap(), b"1");
+        assert_eq!(fs::read(edition_dir.join("Sample - 002.jpg")).unwrap(), b"2");
+        assert_eq!(fs::read(edition_dir.join("Sample - 003.jpg")).unwrap(), b"10");
+        let _ = fs::remove_dir_all(root);
     }
 }

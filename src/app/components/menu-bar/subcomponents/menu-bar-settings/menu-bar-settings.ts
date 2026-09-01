@@ -51,7 +51,8 @@ export class MenuBarSettings implements OnInit {
     let editions: ComicEdition[];
 
     try {
-      editions = await invoke<ComicEdition[]>('process_cbr_files', {
+      const command = type === 'cbr-to-cbz' ? 'process_cbr_files' : 'process_cbz_files';
+      editions = await invoke<ComicEdition[]>(command, {
         paths: newPaths,
       });
     } catch (error) {

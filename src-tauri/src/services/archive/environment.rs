@@ -1,6 +1,6 @@
 use std::env;
 use std::fs;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 
 pub(super) fn get_temp_dir() -> PathBuf {
     env::var_os("COMIC_ORGANIZER_TEMP_DIR")
@@ -48,29 +48,26 @@ pub(super) fn find_unrar_binary() -> Result<PathBuf, String> {
 }
 
 pub fn find_rar_binary() -> Result<PathBuf, String> {
+    if let Some(path) = env::var_os("COMIC_ORGANIZER_RAR").or_else(|| env::var_os("RAR_EXE")) {
+        return Ok(PathBuf::from(path));
+    }
+
+    if let Some(path) = find_on_path(&["rar", "rar.exe", "Rar.exe"]) {
+        return Ok(path);
+    }
+
     // 1. Procura nos locais de instalação padrão do Windows
-    let common_paths = vec![
-        r"C:\Program Files\WinRAR\Rar.exe",
-        r"C:\Program Files (x86)\WinRAR\Rar.exe",
+    let common_paths = [
+        env::var_os("ProgramFiles").map(|root| PathBuf::from(root).join(r"WinRAR\Rar.exe")),
+        env::var_os("ProgramFiles(x86)")
+            .map(|root| PathBuf::from(root).join(r"WinRAR\Rar.exe")),
     ];
 
-    for path_str in common_paths {
-        let path = Path::new(path_str);
-        if path.exists() {
-            return Ok(path.to_path_buf());
-        }
+    if let Some(path) = common_paths.into_iter().flatten().find(|path| path.is_file()) {
+        return Ok(path);
     }
 
     // 2. Procura nas variáveis de ambiente do sistema
-    if let Ok(path_var) = env::var("PATH") {
-        for dir in env::split_paths(&path_var) {
-            let rar_path = dir.join("Rar.exe");
-            if rar_path.exists() {
-                return Ok(rar_path);
-            }
-        }
-    }
-
     // 3. Se não achar no PC do usuário, devolve um erro avisando
     Err(
         "WinRAR não encontrado no sistema. Para exportar em CBR, você precisa ter o WinRAR instalado na sua máquina. \n\nRecomendamos exportar no formato CBZ, que não exige programas externos e é muito mais rápido!"

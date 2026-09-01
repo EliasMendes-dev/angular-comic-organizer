@@ -2,7 +2,7 @@ mod commands;
 mod models;
 mod services;
 
-use crate::commands::extract::process_cbr_files;
+use crate::commands::extract::{process_cbr_files, process_cbz_files};
 use crate::commands::library::{
     clear_all_temp_editions, delete_edition_from_temp, get_edition_order, save_edition_order,
 };
@@ -19,6 +19,7 @@ pub fn run() {
         .plugin(tauri_plugin_fs::init())
         .invoke_handler(tauri::generate_handler![
             process_cbr_files,
+            process_cbz_files,
             save_edition_order,
             get_edition_order,
             delete_edition_from_temp,
