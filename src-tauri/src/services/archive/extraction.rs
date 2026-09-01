@@ -9,10 +9,13 @@ use std::path::{Path, PathBuf};
 use std::process::Command;
 use zip::ZipArchive;
 
-pub fn process_cbr_files(paths: Vec<String>) -> Result<Vec<ComicEdition>, String> {
+pub fn process_cbr_files(
+    paths: Vec<String>,
+    bundled_unrar: Option<PathBuf>,
+) -> Result<Vec<ComicEdition>, String> {
     let temp_dir = get_temp_dir();
     fs::create_dir_all(&temp_dir).map_err(|e| format!("Failed to create temp dir: {e}"))?;
-    let unrar_binary = find_unrar_binary()?;
+    let unrar_binary = find_unrar_binary(bundled_unrar)?;
     for (archive_path, edition_dir) in build_extraction_tasks(&paths, &temp_dir) {
         if let Err(error) = extract_one_cbr(&archive_path, &edition_dir, &unrar_binary) {
             let _ = fs::remove_dir_all(&edition_dir);

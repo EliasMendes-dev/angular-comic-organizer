@@ -15,7 +15,7 @@ pub(super) fn get_export_dir(series_name: &str) -> Result<PathBuf, String> {
     Ok(PathBuf::from(home).join("Downloads").join(series_name))
 }
 
-pub(super) fn find_unrar_binary() -> Result<PathBuf, String> {
+pub(super) fn find_unrar_binary(resource_path: Option<PathBuf>) -> Result<PathBuf, String> {
     if let Some(path) = env::var_os("COMIC_ORGANIZER_UNRAR")
         .or_else(|| env::var_os("UNRAR_EXE"))
     {
@@ -23,6 +23,10 @@ pub(super) fn find_unrar_binary() -> Result<PathBuf, String> {
     }
 
     if let Some(path) = find_on_path(&["unrar", "unrar.exe", "UnRAR.exe"]) {
+        return Ok(path);
+    }
+
+    if let Some(path) = resource_path {
         return Ok(path);
     }
 
@@ -58,9 +62,14 @@ pub fn find_rar_binary() -> Result<PathBuf, String> {
 
     // 1. Procura nos locais de instalação padrão do Windows
     let common_paths = [
+        env::var_os("ProgramW6432").map(|root| PathBuf::from(root).join(r"WinRAR\Rar.exe")),
         env::var_os("ProgramFiles").map(|root| PathBuf::from(root).join(r"WinRAR\Rar.exe")),
         env::var_os("ProgramFiles(x86)")
             .map(|root| PathBuf::from(root).join(r"WinRAR\Rar.exe")),
+        env::var_os("LOCALAPPDATA")
+            .map(|root| PathBuf::from(root).join(r"Programs\WinRAR\Rar.exe")),
+        env::var_os("USERPROFILE")
+            .map(|root| PathBuf::from(root).join(r"AppData\Local\Programs\WinRAR\Rar.exe")),
     ];
 
     if let Some(path) = common_paths.into_iter().flatten().find(|path| path.is_file()) {

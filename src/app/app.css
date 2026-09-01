@@ -5,6 +5,20 @@
   gap: 20px;
 }
 
+.msginfo {
+  font-size: 0.8rem;
+  color: var(--verde-primario);
+  text-align: center;
+}
+
+.msginfo-label {
+  background-color: var(--verde-primario);
+  color: var(--fundo-primario);
+  border-radius: 4px;
+  padding: 4px 8px;
+}
+
+
 @media (min-width: 1001px) {
 :host {
   display: flex;
