@@ -1,8 +1,11 @@
 use super::environment::{find_rar_binary, get_export_dir, get_temp_dir};
 use crate::models::ComicEdition;
-use std::fs;
+use std::fs::{self, File};
+use std::io::{Read, Write};
 use std::path::Path;
 use std::process::Command;
+use zip::write::FileOptions;
+use zip::ZipWriter;
 
 pub fn export_renamed_cbrs(
     editions: Vec<ComicEdition>,
@@ -141,7 +144,7 @@ pub fn export_renamed_cbzs(
 
     let series_name = format!("{} ({})", title.trim(), year.trim());
     let output_dir = get_export_dir(&series_name)?;
-    
+
     let output_paths = editions
         .iter()
         .enumerate()
@@ -177,14 +180,14 @@ pub fn export_renamed_cbzs(
         }
         created_paths.push(archive_path.clone());
     }
-    
+
     Ok(created_paths
         .into_iter()
         .map(|path| path.to_string_lossy().into_owned())
         .collect())
 }
 
-// Diferente do CBR, o CBZ pode ler o arquivo original e ejetar direto no ZIP, 
+// Diferente do CBR, o CBZ pode ler o arquivo original e ejetar direto no ZIP,
 // sem precisar copiar para uma pasta de staging temporária. É muito mais rápido.
 fn create_renamed_cbz(
     edition: &ComicEdition,
@@ -193,7 +196,7 @@ fn create_renamed_cbz(
 ) -> Result<(), String> {
     let file = File::create(archive_path)
         .map_err(|e| format!("Failed to create CBZ file: {e}"))?;
-        
+
     let mut zip = ZipWriter::new(file);
     let options = FileOptions::default()
         .compression_method(zip::CompressionMethod::Deflated)
@@ -209,7 +212,7 @@ fn create_renamed_cbz(
             .and_then(|ext| ext.to_str())
             .unwrap_or("jpg")
             .to_lowercase();
-            
+
         // Nome renomeado que ficará dentro do CBZ
         let zip_file_name = format!("{edition_name} - {:03}.{extension}", page_index + 1);
 
@@ -218,15 +221,15 @@ fn create_renamed_cbz(
 
         let mut f = File::open(source)
             .map_err(|e| format!("Failed to open source image {}: {e}", source.display()))?;
-            
+
         let mut buffer = Vec::new();
         f.read_to_end(&mut buffer).map_err(|e| e.to_string())?;
-        
+
         zip.write_all(&buffer)
             .map_err(|e| format!("Failed to write to ZIP: {e}"))?;
     }
 
     zip.finish().map_err(|e| format!("Failed to finalize CBZ: {e}"))?;
-    
+
     Ok(())
 }

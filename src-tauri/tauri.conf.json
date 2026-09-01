@@ -34,7 +34,6 @@
       "icons/icon.ico"
     ],
     "resources": [
-      "resources/RAR.exe",
       "resources/UnRAR.exe"
     ],
     "android": {

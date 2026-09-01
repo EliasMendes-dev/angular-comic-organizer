@@ -1,6 +1,6 @@
 use std::env;
 use std::fs;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 pub(super) fn get_temp_dir() -> PathBuf {
     env::var_os("COMIC_ORGANIZER_TEMP_DIR")
@@ -47,36 +47,33 @@ pub(super) fn find_unrar_binary() -> Result<PathBuf, String> {
     )
 }
 
-pub(super) fn find_rar_binary() -> Result<PathBuf, String> {
-    if let Some(path) = env::var_os("COMIC_ORGANIZER_RAR") {
-        return Ok(PathBuf::from(path));
+pub fn find_rar_binary() -> Result<PathBuf, String> {
+    // 1. Procura nos locais de instalação padrão do Windows
+    let common_paths = vec![
+        r"C:\Program Files\WinRAR\Rar.exe",
+        r"C:\Program Files (x86)\WinRAR\Rar.exe",
+    ];
+
+    for path_str in common_paths {
+        let path = Path::new(path_str);
+        if path.exists() {
+            return Ok(path.to_path_buf());
+        }
     }
 
-    if let Some(path) = find_on_path(&["rar", "rar.exe", "Rar.exe", "WinRAR.exe"]) {
-        return Ok(path);
+    // 2. Procura nas variáveis de ambiente do sistema
+    if let Ok(path_var) = env::var("PATH") {
+        for dir in env::split_paths(&path_var) {
+            let rar_path = dir.join("Rar.exe");
+            if rar_path.exists() {
+                return Ok(rar_path);
+            }
+        }
     }
 
-    if let Some(path) = [
-        PathBuf::from(r"C:\Program Files\WinRAR\Rar.exe"),
-        PathBuf::from(r"C:\Program Files\WinRAR\WinRAR.exe"),
-    ]
-    .into_iter()
-    .find(|path| path.is_file())
-    {
-        return Ok(path);
-    }
-
-    // RAR incluído no próprio projeto
-    let bundled = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("resources")
-        .join("RAR.exe");
-
-    if bundled.is_file() {
-        return Ok(bundled);
-    }
-
+    // 3. Se não achar no PC do usuário, devolve um erro avisando
     Err(
-        "No RAR executable was found. Install WinRAR or set COMIC_ORGANIZER_RAR."
+        "WinRAR não encontrado no sistema. Para exportar em CBR, você precisa ter o WinRAR instalado na sua máquina. \n\nRecomendamos exportar no formato CBZ, que não exige programas externos e é muito mais rápido!"
             .to_string(),
     )
 }
