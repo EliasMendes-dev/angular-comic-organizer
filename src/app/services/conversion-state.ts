@@ -11,6 +11,14 @@ import { Injectable } from '@angular/core';
 import { ConversionType } from '../models/conversion-type';
 
 export type ExportCommandName = 'export_renamed_cbrs' | 'export_renamed_cbzs';
+export const EXPORT_PROGRESS_EVENT = 'export-progress';
+
+export interface ExportProgress {
+  current: number;
+  total: number;
+  progress: number;
+  message: string;
+}
 
 export function getExportCommandName(
   conversion: ConversionType | null,

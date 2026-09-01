@@ -14,6 +14,11 @@ export class RenameSettingsActions {
   @Input() showConvertButton = false;
   @Input() isConvertDisabled = true;
   @Input() convertButtonText = 'Converter';
+  @Input() isProcessing = false;
+  @Input() progress = 0;
+  @Input() progressText = '';
+  @Input() feedbackMessage = '';
+  @Input() feedbackType: 'success' | 'error' = 'success';
 
   @Output() onPreview = new EventEmitter<void>();
   @Output() onRename = new EventEmitter<void>();

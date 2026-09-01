@@ -12,3 +12,32 @@
     </button>
   }
 </div>
+@if (isProcessing) {
+  <div class="progress-panel" aria-live="polite">
+    <div class="progress-heading">
+      <span>Processando arquivos</span>
+      <strong>{{ progress }}%</strong>
+    </div>
+    <div
+      class="progress-container"
+      role="progressbar"
+      [attr.aria-valuenow]="progress"
+      aria-valuemin="0"
+      aria-valuemax="100"
+    >
+      <div class="progress-bar" [style.width.%]="progress"></div>
+    </div>
+    <div class="actiontext">{{ progressText }}</div>
+  </div>
+}
+
+@if (feedbackMessage) {
+  <div
+    class="feedback-message"
+    [class.feedback-error]="feedbackType === 'error'"
+    role="status"
+  >
+    <span class="feedback-dot" aria-hidden="true"></span>
+    <span>{{ feedbackMessage }}</span>
+  </div>
+}

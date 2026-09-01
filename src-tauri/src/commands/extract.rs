@@ -5,11 +5,15 @@ use crate::services::archive::{
 };
 
 #[tauri::command]
-pub fn process_cbr_files(paths: Vec<String>) -> Result<Vec<ComicEdition>, String> {
-    process_cbr_files_service(paths)
+pub async fn process_cbr_files(paths: Vec<String>) -> Result<Vec<ComicEdition>, String> {
+    tauri::async_runtime::spawn_blocking(move || process_cbr_files_service(paths))
+        .await
+        .map_err(|error| format!("CBR extraction task failed: {error}"))?
 }
 
 #[tauri::command]
-pub fn process_cbz_files(paths: Vec<String>) -> Result<Vec<ComicEdition>, String> {
-    process_cbz_files_service(paths)
+pub async fn process_cbz_files(paths: Vec<String>) -> Result<Vec<ComicEdition>, String> {
+    tauri::async_runtime::spawn_blocking(move || process_cbz_files_service(paths))
+        .await
+        .map_err(|error| format!("CBZ extraction task failed: {error}"))?
 }

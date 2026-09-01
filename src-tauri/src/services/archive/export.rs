@@ -5,10 +5,21 @@ use std::fs::{self, File};
 use std::io;
 use std::path::Path;
 use std::process::Command;
+use tauri::{AppHandle, Emitter};
 use zip::write::FileOptions;
 use zip::ZipWriter;
 
+#[derive(Clone, serde::Serialize)]
+#[serde(rename_all = "camelCase")]
+struct ExportProgress {
+    current: usize,
+    total: usize,
+    progress: u8,
+    message: String,
+}
+
 pub fn export_renamed_cbrs(
+    app: &AppHandle,
     editions: Vec<ComicEdition>,
     title: String,
     year: String,
@@ -48,6 +59,13 @@ pub fn export_renamed_cbrs(
         let edition_name = format!("{series_name} #{edition_number:03}");
         let archive_path = &output_paths[index];
         let staging_dir = staging_root.join(format!("{index}-{edition_number:03}"));
+        emit_export_progress(
+            app,
+            index + 1,
+            index,
+            editions.len(),
+            format!("Renomeando {} para {edition_name}.cbr", edition.title),
+        );
         if let Err(error) = create_renamed_cbr(
             edition,
             &edition_name,
@@ -61,6 +79,13 @@ pub fn export_renamed_cbrs(
             return Err(error);
         }
         created_paths.push(archive_path.clone());
+        emit_export_progress(
+            app,
+            index + 1,
+            index + 1,
+            editions.len(),
+            format!("Arquivo {edition_name}.cbr criado"),
+        );
     }
     Ok(created_paths
         .into_iter()
@@ -135,6 +160,7 @@ fn create_renamed_cbr(
 }
 
 pub fn export_renamed_cbzs(
+    app: &AppHandle,
     editions: Vec<ComicEdition>,
     title: String,
     year: String,
@@ -172,6 +198,13 @@ pub fn export_renamed_cbzs(
         let edition_number = starting_edition + index;
         let edition_name = format!("{series_name} #{edition_number:03}");
         let archive_path = &output_paths[index];
+        emit_export_progress(
+            app,
+            index + 1,
+            index,
+            editions.len(),
+            format!("Renomeando {} para {edition_name}.cbz", edition.title),
+        );
 
         if let Err(error) = create_renamed_cbz(edition, &edition_name, archive_path) {
             // Em caso de erro, apaga os arquivos que já tinham sido criados
@@ -181,12 +214,42 @@ pub fn export_renamed_cbzs(
             return Err(error);
         }
         created_paths.push(archive_path.clone());
+        emit_export_progress(
+            app,
+            index + 1,
+            index + 1,
+            editions.len(),
+            format!("Arquivo {edition_name}.cbz criado"),
+        );
     }
 
     Ok(created_paths
         .into_iter()
         .map(|path| path.to_string_lossy().into_owned())
         .collect())
+}
+
+fn emit_export_progress(
+    app: &AppHandle,
+    current: usize,
+    completed: usize,
+    total: usize,
+    message: String,
+) {
+    let progress = if total == 0 {
+        0
+    } else {
+        ((completed * 100) / total).min(100) as u8
+    };
+    let _ = app.emit(
+        "export-progress",
+        ExportProgress {
+            current: current.min(total),
+            total,
+            progress,
+            message,
+        },
+    );
 }
 
 // Diferente do CBR, o CBZ pode ler o arquivo original e ejetar direto no ZIP,

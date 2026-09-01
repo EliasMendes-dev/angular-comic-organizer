@@ -20,10 +20,15 @@
 
       <app-rename-settings-actions
         [isPreviewDisabled]="!canUsePreviewAndRename"
-        [isRenameDisabled]="!canUsePreviewAndRename || isRenaming"
+        [isRenameDisabled]="!canUsePreviewAndRename || isRenaming()"
         [showConvertButton]="showConvertButton"
-        [isConvertDisabled]="!canUsePreviewAndRename || isRenaming"
+        [isConvertDisabled]="!canUsePreviewAndRename || isRenaming()"
         [convertButtonText]="convertButtonText"
+        [isProcessing]="isRenaming()"
+        [progress]="progress()"
+        [progressText]="progressText()"
+        [feedbackMessage]="feedbackMessage()"
+        [feedbackType]="feedbackType()"
         (onPreview)="onPreviewClick()"
         (onRename)="onRename()"
         (onConvert)="onConvertClick()"

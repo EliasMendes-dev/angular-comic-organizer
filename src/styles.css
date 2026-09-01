@@ -102,6 +102,11 @@ body {
   flex-direction: column;
 }
 
+body.is-processing,
+body.is-processing * {
+  cursor: default !important;
+}
+
 body > app-root {
   flex: 1;
   display: flex;

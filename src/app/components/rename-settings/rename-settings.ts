@@ -1,7 +1,10 @@
-import { Component, effect } from '@angular/core';
+import { Component, effect, OnDestroy, signal } from '@angular/core';
+import { listen } from '@tauri-apps/api/event';
 import { FileManagerService } from '../../services/file-manager';
 import {
   ConversionStateService,
+  EXPORT_PROGRESS_EVENT,
+  ExportProgress,
   getExportCommandName,
   getRenameCommandName,
 } from '../../services/conversion-state';
@@ -24,7 +27,7 @@ import { invoke } from '@tauri-apps/api/core';
   templateUrl: './rename-settings.html',
   styleUrls: ['./rename-settings.css', './rename-settings-responsive.css'],
 })
-export class RenameSettings {
+export class RenameSettings implements OnDestroy {
   title = '';
   year = '';
   edition = '';
@@ -36,12 +39,27 @@ export class RenameSettings {
   editionError = '';
 
   hasTriedSubmit = false;
-  isRenaming = false;
+  readonly isRenaming = signal(false);
+  readonly progress = signal(0);
+  readonly progressText = signal('');
+  readonly feedbackMessage = signal('');
+  readonly feedbackType = signal<'success' | 'error'>('success');
+  private unlistenProgress?: () => void;
+  private feedbackTimer?: ReturnType<typeof setTimeout>;
 
   constructor(
     public fileManagerService: FileManagerService,
     private conversionStateService: ConversionStateService,
   ) {
+    void listen<ExportProgress>(EXPORT_PROGRESS_EVENT, ({ payload }) => {
+      this.progress.set(payload.progress);
+      this.progressText.set(`${payload.current}/${payload.total} ${payload.message}`);
+    })
+      .then((unlisten) => {
+        this.unlistenProgress = unlisten;
+      })
+      .catch((error) => console.error('Erro ao acompanhar o progresso:', error));
+
     effect(() => {
       this.fileManagerService.libraryState();
 
@@ -51,6 +69,12 @@ export class RenameSettings {
         this.showPreview = false;
       }
     });
+  }
+
+  ngOnDestroy(): void {
+    this.unlistenProgress?.();
+    this.clearFeedbackTimer();
+    document.body.classList.remove('is-processing');
   }
 
   get selectedEditionsCount(): number {
@@ -215,7 +239,7 @@ export class RenameSettings {
   private exportSelectedEditions(command: 'export_renamed_cbrs' | 'export_renamed_cbzs'): void {
     this.hasTriedSubmit = true;
 
-    if (!this.validateFields() || this.isRenaming) {
+    if (!this.validateFields() || this.isRenaming()) {
       return;
     }
 
@@ -225,7 +249,12 @@ export class RenameSettings {
   private runExport(command: 'export_renamed_cbrs' | 'export_renamed_cbzs'): void {
     const selectedEditions = this.getSelectedEditions();
 
-    this.isRenaming = true;
+    this.isRenaming.set(true);
+    this.progress.set(0);
+    this.progressText.set('Preparando arquivos...');
+    this.clearFeedbackTimer();
+    this.feedbackMessage.set('');
+    document.body.classList.add('is-processing');
     void invoke<string[]>(command, {
       editions: selectedEditions,
       title: this.title.trim(),
@@ -233,15 +262,33 @@ export class RenameSettings {
       startingEdition: this.getStartingEdition(),
     })
       .then((paths) => {
-        window.alert(`${paths.length} arquivo(s) criado(s) em Downloads.`);
+        this.showFeedback(`${paths.length} arquivo(s) criado(s) em Downloads.`, 'success');
       })
       .catch((error) => {
         console.error(`Erro ao exportar arquivos do comando ${command}:`, error);
-        window.alert(`Não foi possível criar os arquivos: ${error}`);
+        this.showFeedback(`Nao foi possivel criar os arquivos: ${error}`, 'error');
       })
       .finally(() => {
-        this.isRenaming = false;
+        this.isRenaming.set(false);
+        document.body.classList.remove('is-processing');
       });
+  }
+
+  private showFeedback(message: string, type: 'success' | 'error'): void {
+    this.feedbackMessage.set(message);
+    this.feedbackType.set(type);
+    this.clearFeedbackTimer();
+    this.feedbackTimer = setTimeout(() => {
+      this.feedbackMessage.set('');
+      this.feedbackTimer = undefined;
+    }, 3000);
+  }
+
+  private clearFeedbackTimer(): void {
+    if (this.feedbackTimer) {
+      clearTimeout(this.feedbackTimer);
+      this.feedbackTimer = undefined;
+    }
   }
 
   private getSelectedEditions(): ComicEdition[] {
