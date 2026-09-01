@@ -273,7 +273,7 @@ mod tests {
 
         let file = File::create(&archive_path).unwrap();
         let mut archive = ZipWriter::new(file);
-        let options = FileOptions::default();
+        let options: FileOptions<'_, ()> = FileOptions::default();
         archive.start_file("ComicInfo.xml", options).unwrap();
         archive.write_all(b"metadata").unwrap();
         archive.start_file("pages/page10.jpg", options).unwrap();
