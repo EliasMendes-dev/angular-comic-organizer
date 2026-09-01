@@ -1,338 +1,190 @@
-# 📚 Comic Organizer
+# Comic Organizer
 
-A powerful desktop utility for organizing and managing digital comic collections with batch processing, format conversion, and intelligent renaming—built with **Angular 22**, **Tauri**, and **Rust**.
+Aplicativo desktop para organizar, visualizar, renomear e converter arquivos de quadrinhos nos formatos CBZ e CBR.
 
----
+O projeto usa Angular no frontend e Tauri/Rust para executar as operações de arquivos localmente no computador.
 
-## 🎯 Overview
+## Funcionalidades
 
-**Comic Organizer** is a full-featured desktop application designed for comic book enthusiasts and collectors. It provides an intuitive interface for managing comic libraries, converting between CBZ and CBR formats, performing batch renaming operations, and organizing collections with standardized naming conventions.
+- Importação de múltiplos arquivos CBR ou CBZ.
+- Seleção de edições e páginas.
+- Ordenação natural de edições e páginas.
+- Visualização de páginas antes da exportação.
+- Renomeação em lote de arquivos e páginas.
+- Conversão CBR para CBZ e CBZ para CBR.
+- Barra de progresso durante renomeação e conversão.
+- Mensagens de sucesso e erro sem janelas modais do sistema.
+- Tema claro/escuro e layout responsivo.
+- Processamento local, sem envio de arquivos para serviços externos.
 
-### Key Highlights
-- 📱 **Modern UI** – Angular 22 with standalone components and responsive design
-- 🚀 **Desktop-Native Performance** – Tauri + Rust backend for fast, lightweight execution
-- 📦 **Format Support** – CBZ/CBR conversion with batch processing capabilities
-- 🏷️ **Smart Renaming** – Template-based batch renaming with intelligent file organization
-- 🎨 **Visual Preview** – Real-time preview of comic collections with page-level management
-- 💾 **Local-First** – All data stays on your machine; no cloud dependencies
+## Renomear e Converter
 
----
+O formato escolhido no botão `+` define o tipo dos arquivos de entrada:
 
-## ✨ Current Features
+| Opção | Entrada | Renomear | Converter |
+| --- | --- | --- | --- |
+| CBR para CBZ | CBR | Mantém CBR | Gera CBZ |
+| CBZ para CBR | CBZ | Mantém CBZ | Gera CBR |
 
-- ✅ Browse and organize comic collections with visual previews
-- ✅ Select and manage individual editions and pages
-- ✅ Smart sorting and selection for large comic libraries
-- ✅ Responsive interface with adaptive layouts (desktop/mobile)
-- ✅ Standalone Angular components with modern architecture
-- ✅ Drag & drop support via Angular CDK
-- ✅ Lucide icons for intuitive visual feedback
-- ✅ Tauri desktop integration with native file dialogs
+As duas operações também renomeiam o arquivo e as páginas internas usando o título, ano e número inicial informados.
 
----
+Os arquivos gerados são salvos em uma subpasta de `Downloads`, usando o nome da série.
 
-## 🗂️ Planned Features
+## Requisitos
 
-- 📦 CBZ file generation and packaging
-- 📦 CBR format compatibility and conversion
-- 🔄 Bidirectional format conversion (CBZ ↔ CBR)
-- 🖼️ Image import support (.jpg, .png, .webp)
-- 📚 Omnibus creation and custom collection building
-- 🏷️ Intelligent batch renaming with custom templates
-- 💾 Local configuration persistence
-- 🧠 AI-powered metadata detection
-- ⚡ Advanced batch processing with progress tracking
-- 🔍 Library search and filtering
-- 📊 Collection statistics and analytics
+Para executar o frontend e o backend durante o desenvolvimento:
 
----
+- Node.js e npm.
+- Rust com o toolchain `stable-x86_64-pc-windows-msvc`.
+- Microsoft Visual C++ Build Tools no Windows.
+- WebView2 no Windows.
+- Tauri CLI, instalado como dependência do projeto.
 
-## 🏗️ Architecture
+Para criar arquivos CBR, também é necessário ter o WinRAR instalado. O aplicativo procura `Rar.exe` nestes locais:
 
-### Frontend Layer (TypeScript / Angular 22)
-- **Framework:** Angular 22 with standalone components
-- **Routing:** Angular Router for navigation
-- **State Management:** Angular Signals for reactive state
-- **UI Components:**
-  - `FileExplorer` – Browse and select comics and pages
-  - `ComicPreview` – Visual collection preview and management
-  - `RenameSettings` – Configure batch renaming rules
-  - `MenuBar` & `FooterBar` – Application navigation and actions
-- **Dependencies:** Angular CDK, Angular Split, Lucide icons, RxJS
+- Variáveis `COMIC_ORGANIZER_RAR` ou `RAR_EXE`.
+- Diretórios presentes no `PATH`.
+- `ProgramW6432`, `ProgramFiles` e `ProgramFiles(x86)`.
+- Instalações por usuário em `AppData\Local\Programs\WinRAR`.
 
-### Backend Layer (Rust / Tauri)
-- **Desktop Runtime:** Tauri 2.x for cross-platform execution
-- **Core Logic:** Rust backend for high-performance file operations
-- **File Operations:**
-  - Directory traversal and comic library detection
-  - CBZ/CBR parsing and generation
-  - Batch file processing and renaming
-  - Image handling and compression
-- **Libraries:** serde, rayon (parallel processing), unrar, mime_guess
+O `UnRAR.exe` usado para abrir CBR é incluído nos recursos do aplicativo. Ele é diferente do `Rar.exe`: o UnRAR extrai arquivos, enquanto o Rar cria arquivos CBR.
 
-### IPC Communication
-- TypeScript frontend communicates with Rust backend via Tauri's command system
-- Async message passing for non-blocking operations
-- Native file dialogs for directory and file selection
+## Instalação
 
----
+```bash
+git clone https://github.com/EliasMendes-dev/angular-comic-organizer.git
+cd angular-comic-organizer
+npm install
+```
 
-## 💻 Tech Stack
+## Desenvolvimento
 
-| Layer | Technology | Version |
-|-------|-----------|---------|
-| **Frontend** | Angular | 22.0.6 |
-| **Language** | TypeScript | 6.0.3 |
-| **Desktop Framework** | Tauri | 2.11.5 |
-| **Backend** | Rust | 1.77.2+ |
-| **UI Components** | Angular CDK | 22.0.4 |
-| **Icons** | Lucide Angular | 1.23.0 |
-| **Testing** | Vitest | 4.1.10 |
-| **Formatting** | Prettier | 3.9.5 |
+Para executar apenas o frontend no navegador:
 
-### Backend Dependencies
-- `serde` / `serde_json` – Serialization framework
-- `tauri-plugin-dialog` – Native file dialogs
-- `tauri-plugin-log` – Structured logging
-- `unrar` – RAR file handling
-- `rayon` – Data parallelism
-- `mime_guess` – File type detection
-
----
-
-## 🚀 Getting Started
-
-### Prerequisites
-- **Node.js** 18+ with npm 11+
-- **Rust** 1.77.2+ (for backend development)
-- **Tauri CLI** (installed via npm)
-
-### Installation
-
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/EliasMendes-dev/angular-comic-organizer.git
-   cd angular-comic-organizer
-   ```
-
-2. **Install dependencies:**
-   ```bash
-   npm install
-   ```
-
-3. **Set up Tauri (if building desktop app):**
-   ```bash
-   npm install -D @tauri-apps/cli
-   ```
-
-### Development
-
-#### Run in browser (Angular dev server):
 ```bash
 npm start
 ```
-Accessible at `http://localhost:4200`
 
-#### Run as desktop app (Tauri):
-```bash
-npm run tauri dev
-```
-Or using the Tauri CLI directly:
+Para executar a aplicação desktop com Tauri:
+
 ```bash
 npx tauri dev
 ```
 
-### Build
+O comando `npx tauri dev` inicia o Angular pelo `beforeDevCommand` configurado em `src-tauri/tauri.conf.json`.
 
-#### Production Angular build:
-```bash
-npm run build
-```
+## Testes e validação
 
-#### Production desktop application:
-```bash
-npm run tauri build
-```
+Testes do frontend:
 
----
-
-## 📁 Project Structure
-
-```
-angular-comic-organizer/
-├── src/                          # Angular frontend source
-│   ├── main.ts                   # Application bootstrap
-│   ├── app/
-│   │   ├── app.ts               # Root component
-│   │   ├── app.routes.ts         # Route configuration
-│   │   ├── components/           # Reusable UI components
-│   │   │   ├── comic-preview/    # Collection preview
-│   │   │   ├── file-explorer/    # File browser
-│   │   │   ├── menu-bar/         # Navigation
-│   │   │   ├── footer-bar/       # Status & actions
-│   │   │   └── rename-settings/  # Rename configuration
-│   │   ├── pages/
-│   │   │   └── home/             # Main application page
-│   │   └── services/
-│   │       ├── file-manager.ts   # File operations service
-│   │       └── conversion-state.ts # State management
-│   └── styles/                   # Global styles
-├── src-tauri/                    # Tauri backend (Rust)
-│   ├── src/
-│   │   ├── main.rs              # Tauri main process
-│   │   ├── lib.rs               # Core library
-│   │   └── commands/            # IPC command handlers
-│   └── Cargo.toml               # Rust dependencies
-├── angular.json                  # Angular configuration
-├── package.json                  # Node dependencies
-└── tsconfig.json                 # TypeScript config
-```
-
----
-
-## 🔄 Workflow
-
-### Current Flow (Browser Mode)
-1. Launch application in Angular dev server
-2. Browse mock comic collection structure
-3. Select editions and pages for management
-4. Preview and test UI interactions
-5. Layout automatically adapts to screen size
-
-### Planned Flow (Desktop App)
-1. Launch native desktop application
-2. Use native file dialog to select local comic directory
-3. Application scans and parses CBZ/CBR files and images
-4. Metadata is extracted and displayed in organized interface
-5. User performs operations (rename, convert, organize)
-6. Backend processes files asynchronously with progress feedback
-7. Library updates in real-time as operations complete
-
----
-
-## 📊 Supported Formats
-
-### CBZ (Comic Book Zip)
-- **Format:** ZIP archive containing sequential images
-- **Usage:** Primary format for this project
-- **Example:** `Batman (2016) #001.cbz`
-
-### CBR (Comic Book RAR - Compatible Mode)
-- **Format:** ZIP archive with `.cbr` extension (not actual RAR compression)
-- **Usage:** Cross-compatible format for broader reader support
-- **Note:** Uses ZIP internally for simplicity and compatibility
-
-### Image Imports (Planned)
-- `.jpg` / `.jpeg` – JPEG images
-- `.png` – PNG images with transparency
-- `.webp` – Modern web image format
-
----
-
-## 🗺️ Development Roadmap
-
-### Phase 1: Desktop Foundation ✅ (In Progress)
-- [x] Tauri integration and setup
-- [x] Angular + Tauri communication
-- [ ] Native window management
-- [ ] File dialog integration
-
-### Phase 2: Core Features 🔄
-- [ ] Directory scanning and comic detection
-- [ ] CBZ file parsing and extraction
-- [ ] Image display and rendering
-- [ ] Basic batch renaming
-
-### Phase 3: Format Support
-- [ ] CBZ generation from image sequences
-- [ ] CBR compatibility mode
-- [ ] Format conversion (CBZ ↔ CBR)
-- [ ] Archive validation
-
-### Phase 4: Advanced Features
-- [ ] Omnibus/collection creation
-- [ ] Metadata extraction and management
-- [ ] Search and filtering system
-- [ ] Collection statistics dashboard
-
-### Phase 5: Optimization & Distribution
-- [ ] Performance optimization
-- [ ] Windows executable packaging
-- [ ] Linux support (experimental)
-- [ ] macOS support (experimental)
-- [ ] Auto-update mechanism
-
----
-
-## 🛠️ Development Guide
-
-### Running Tests
 ```bash
 npm test
 ```
 
-### Code Formatting
+Testes do backend:
+
 ```bash
-npm run format  # Format with Prettier
-npm run lint    # (if linter configured)
+cd src-tauri
+cargo test
 ```
 
-### Building for Production
+Validação de tipos do Angular:
+
 ```bash
-npm run build          # Build Angular
-npx tauri build        # Build desktop app
+npx tsc -p tsconfig.app.json --noEmit
 ```
 
-### Debugging
-- **Frontend:** Chrome DevTools via Angular dev server
-- **Backend:** Rust debug logging via `tauri-plugin-log`
-- **Tauri Windows:** Use Tauri's webview developer tools
+## Build do aplicativo
 
----
+O build do Tauri executa automaticamente o build de produção do Angular por meio de `beforeBuildCommand`.
 
-## 🤝 Contributing
+```bash
+npx tauri build
+```
 
-This project is developed primarily for personal use, but contributions are welcome! 
+Os instaladores e bundles são gerados em:
 
-Areas for contribution:
-- UI/UX improvements
-- Performance optimization
-- Format support expansion
-- Platform-specific fixes
-- Documentation
+```text
+src-tauri/target/release/bundle/
+```
 
----
+No Windows, os instaladores normalmente ficam nas pastas `nsis` e `msi`.
 
-## 📝 Notes
+Antes de distribuir o aplicativo, teste o instalador em uma máquina limpa. Verifique especialmente:
 
-- **Current Status:** UI-first development with simulated data
-- **Backend:** Real file operations will be handled by Tauri/Rust
-- **UI Isolation:** Frontend remains decoupled from backend implementation
-- **Data Security:** All files processed locally; no cloud services
-- **Desktop-Only:** Optimized for desktop; mobile support secondary
+- A abertura de CBR sem o WinRAR instalado.
+- A conversão de CBZ para CBR com o WinRAR instalado.
+- A mensagem exibida quando o `Rar.exe` não é encontrado.
+- A presença do `UnRAR.exe` no bundle instalado.
+- Arquivos com espaços, acentos e caracteres como `#` no nome.
 
----
+## Formatos suportados
 
-## 📄 License
+### CBZ
 
-Licensed under the **MIT License** – see LICENSE file for details.
+CBZ é um arquivo ZIP contendo imagens de páginas. A leitura e a criação são feitas diretamente pelo backend Rust, sem dependência externa.
 
----
+### CBR
 
-## 👨‍💻 Author
+CBR é um arquivo RAR. A leitura usa `UnRAR.exe`; a criação usa `Rar.exe`, fornecido pelo WinRAR instalado no computador do usuário.
 
-Developed by **José Elias**  
-GitHub: [@EliasMendes-dev](https://github.com/EliasMendes-dev)
+### Imagens
 
----
+As páginas reconhecidas atualmente são:
 
-## 🔗 Resources
+- `.jpg`
+- `.jpeg`
+- `.png`
+- `.webp`
 
-- [Angular Documentation](https://angular.io/docs)
-- [Tauri Documentation](https://tauri.app/docs/)
-- [Rust Book](https://doc.rust-lang.org/book/)
-- [CBZ Format Specification](https://en.wikipedia.org/wiki/Comic_book_archive)
+## Estrutura do projeto
 
-// TODO: Ajustar a localização dos executáveis RAR/UnRAR para funcionar corretamente
-// no aplicativo compilado (tauri build), usando o diretório de resources do Tauri.
-// Atualmente funciona no desenvolvimento através de src-tauri/resources.
+```text
+src/
+  app/
+    components/       Componentes da interface Angular
+    pages/             Páginas da aplicação
+    services/          Estado e comunicação com o Tauri
+  styles.css           Tokens e estilos globais
+
+src-tauri/
+  src/                 Backend Rust e comandos Tauri
+  resources/           Recursos incluídos no bundle, como UnRAR.exe
+  tauri.conf.json      Configuração do aplicativo e empacotamento
+  Cargo.toml           Dependências Rust
+```
+
+## Arquitetura resumida
+
+- Angular gerencia a interface, o estado e as prévias.
+- Tauri faz a ponte entre a interface e os comandos Rust.
+- Rust realiza extração, compactação, renomeação e limpeza de arquivos temporários.
+- CBZ usa a biblioteca ZIP integrada.
+- CBR usa `UnRAR.exe` para leitura e `Rar.exe` para criação.
+
+## Limitações atuais
+
+- A criação de CBR depende do WinRAR instalado no computador.
+- O processamento é local e não possui sincronização em nuvem.
+- Apenas JPG, JPEG, PNG e WebP são tratados como páginas.
+- O build para outras plataformas ainda não foi validado.
+
+## Contribuição
+
+Contribuições são bem-vindas, especialmente para:
+
+- Melhorias de interface e acessibilidade.
+- Suporte a novos formatos de imagem.
+- Melhorias de desempenho.
+- Testes de empacotamento em diferentes versões do Windows.
+- Suporte a Linux e macOS.
+
+## Licença
+
+O projeto é distribuído sob a licença MIT. A licença do `UnRAR.exe` incluído está disponível em [src-tauri/license.txt](src-tauri/license.txt).
+
+O WinRAR e o `Rar.exe` não são distribuídos pelo projeto. Consulte os termos de licença do WinRAR antes de redistribuí-los.
+
+## Autor
+
+Desenvolvido por [Elias Mendes](https://github.com/EliasMendes-dev).
