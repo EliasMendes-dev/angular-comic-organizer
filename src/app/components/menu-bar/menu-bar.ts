@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { MenuBarLogo } from './subcomponents/menu-bar-logo/menu-bar-logo';
 import { MenuBarSettings } from './subcomponents/menu-bar-settings/menu-bar-settings';
 
@@ -9,9 +9,4 @@ import { MenuBarSettings } from './subcomponents/menu-bar-settings/menu-bar-sett
   templateUrl: './menu-bar.html',
   styleUrls: ['./menu-bar.css', './menu-bar-responsive.css'],
 })
-export class MenuBar implements OnInit {
-
-  constructor() {}
-
-  ngOnInit(): void {}
-}
+export class MenuBar {}
