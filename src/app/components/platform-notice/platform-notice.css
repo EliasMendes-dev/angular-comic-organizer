@@ -1,0 +1,78 @@
+.notice-backdrop {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 1.25rem;
+  background: rgb(0 0 0 / 0.62);
+  z-index: 1000;
+}
+
+.notice-modal {
+  position: relative;
+  width: min(100%, 30rem);
+  padding: 2rem;
+  border: 1px solid var(--cor-borda);
+  border-radius: 12px;
+  background: var(--fundo-secundario);
+  color: var(--texto-primario);
+  box-shadow: 0 1.5rem 4rem rgb(0 0 0 / 0.35);
+}
+
+.notice-close {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  border: 0;
+  background: transparent;
+  color: var(--texto-secundario);
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.notice-eyebrow {
+  margin: 0 0 0.5rem;
+  color: var(--verde-primario);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.notice-modal h2 {
+  margin: 0 0 0.85rem;
+  font-size: 1.35rem;
+}
+
+.notice-modal p:not(.notice-eyebrow) {
+  margin: 0;
+  color: var(--texto-secundario);
+  line-height: 1.55;
+}
+
+.notice-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.notice-download,
+.notice-secondary {
+  padding: 0.7rem 1rem;
+  border: 1px solid var(--verde-primario);
+  border-radius: 6px;
+  font: inherit;
+  cursor: pointer;
+}
+
+.notice-download {
+  background: var(--verde-primario);
+  color: var(--fundo-primario);
+  text-decoration: none;
+}
+
+.notice-secondary {
+  background: transparent;
+  color: var(--texto-primario);
+}

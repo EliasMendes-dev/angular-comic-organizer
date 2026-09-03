@@ -1,0 +1,34 @@
+@if (noticeService.activeNotice() === 'cbr-export') {
+  <div class="notice-backdrop" (click)="close()">
+    <section
+      class="notice-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="cbr-notice-title"
+      (click)="$event.stopPropagation()"
+    >
+      <button class="notice-close" type="button" aria-label="Fechar" (click)="close()">
+        &times;
+      </button>
+
+      <p class="notice-eyebrow">Disponível no Desktop</p>
+      <h2 id="cbr-notice-title">A criação de arquivos CBR exige o WinRAR</h2>
+      <p>
+        Esta operação usa o WinRAR instalado no sistema. Baixe a versão Desktop
+        para criar ou manter arquivos no formato CBR.
+      </p>
+
+      <div class="notice-actions">
+        <a
+          class="notice-download"
+          href="https://github.com/EliasMendes-dev/angular-comic-organizer/releases"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Baixar versão Desktop
+        </a>
+        <button class="notice-secondary" type="button" (click)="close()">Entendi</button>
+      </div>
+    </section>
+  </div>
+}

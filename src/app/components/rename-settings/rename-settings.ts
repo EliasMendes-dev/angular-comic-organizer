@@ -26,7 +26,8 @@ import {
 } from './subcomponents/rename-settings-preview/rename-settings-preview';
 import { ComicPage } from '../../models/comic-page';
 import { ComicEdition } from '../../models/comic-edition';
-import { invoke } from '@tauri-apps/api/core';
+import { invoke, isTauri } from '@tauri-apps/api/core';
+import { PlatformNoticeService } from '../../services/platform-notice';
 
 @Component({
   selector: 'app-rename-settings',
@@ -58,15 +59,18 @@ export class RenameSettings implements OnDestroy {
   constructor(
     public fileManagerService: FileManagerService,
     private conversionStateService: ConversionStateService,
+    private platformNotice: PlatformNoticeService,
   ) {
-    void listen<ExportProgress>(EXPORT_PROGRESS_EVENT, ({ payload }) => {
-      this.progress.set(payload.progress);
-      this.progressText.set(`${payload.current}/${payload.total} ${payload.message}`);
-    })
-      .then((unlisten) => {
-        this.unlistenProgress = unlisten;
+    if (isTauri()) {
+      void listen<ExportProgress>(EXPORT_PROGRESS_EVENT, ({ payload }) => {
+        this.progress.set(payload.progress);
+        this.progressText.set(`${payload.current}/${payload.total} ${payload.message}`);
       })
-      .catch((error) => console.error('Erro ao acompanhar o progresso:', error));
+        .then((unlisten) => {
+          this.unlistenProgress = unlisten;
+        })
+        .catch((error) => console.error('Erro ao acompanhar o progresso:', error));
+    }
 
     effect(() => {
       this.fileManagerService.libraryState();
@@ -248,6 +252,11 @@ export class RenameSettings implements OnDestroy {
     this.hasTriedSubmit = true;
 
     if (!this.validateFields() || this.isRenaming()) {
+      return;
+    }
+
+    if (command === 'export_renamed_cbrs' && !isTauri()) {
+      this.platformNotice.showCbrExportNotice();
       return;
     }
 

@@ -10,10 +10,11 @@ import { Component, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { MenuBar} from './components/menu-bar/menu-bar';
 import { FooterBar } from './components/footer-bar/footer-bar';
+import { PlatformNotice } from './components/platform-notice/platform-notice';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, MenuBar, FooterBar],
+  imports: [RouterOutlet, MenuBar, FooterBar, PlatformNotice],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })

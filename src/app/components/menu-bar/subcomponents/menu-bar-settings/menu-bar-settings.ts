@@ -12,7 +12,8 @@ import { ConversionStateService } from '../../../../services/conversion-state';
 import { FileManagerService } from '../../../../services/file-manager';
 import { ConversionType } from '../../../../models/conversion-type';
 import { ComicEdition } from '../../../../models/comic-edition';
-import { invoke } from '@tauri-apps/api/core';
+import { invoke, isTauri } from '@tauri-apps/api/core';
+import { PlatformNoticeService } from '../../../../services/platform-notice';
 
 @Component({
   selector: 'app-menu-bar-settings',
@@ -27,6 +28,7 @@ export class MenuBarSettings implements OnInit {
   constructor(
     private conversionStateService: ConversionStateService,
     private fileManager: FileManagerService,
+    private platformNotice: PlatformNoticeService,
   ) {}
 
   async selectConversion(type: ConversionType): Promise<void> {
@@ -34,6 +36,12 @@ export class MenuBarSettings implements OnInit {
     const hasLoadedEditions = this.fileManager.fileEditions.length > 0;
 
     if (currentConversion && currentConversion !== type) {
+      return;
+    }
+
+    if (type === 'cbz-to-cbr' && !isTauri()) {
+      this.isActive = false;
+      this.platformNotice.showCbrExportNotice();
       return;
     }
 
