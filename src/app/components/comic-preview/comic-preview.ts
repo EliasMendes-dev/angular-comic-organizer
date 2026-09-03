@@ -22,15 +22,22 @@ import { TitleCasePipe } from '@angular/common';
   styleUrls: ['./comic-preview.css', './comic-preview-responsive.css'],
 })
 export class ComicPreview {
+  // URL da imagem atualmente carregada no preview.
   imageUrl = signal<string | null>(null);
+  // Controla se o modal de leitura esta aberto.
   isModalOpen = false;
+  // Zoom atual da imagem exibida.
   zoom = 1;
+  // Deslocamento aplicado quando a imagem esta ampliada.
   dragOffset = { x: 0, y: 0 };
+  // Numero de versao para ignorar carregamentos antigos.
   private loadVersion = 0;
+  // Indica se o usuario esta arrastando a imagem ampliada.
   isDragging = false;
   private dragStart = { x: 0, y: 0 };
   private dragOrigin = { x: 0, y: 0 };
 
+  // Limites de zoom usados pelo leitor.
   readonly minZoom = 0.5;
   readonly maxZoom = 3;
   readonly zoomStep = 0.25;
@@ -40,16 +47,19 @@ export class ComicPreview {
     private pageLoader: PageLoaderService,
     private fileManagerService: FileManagerService,
   ) {
+    // Reage automaticamente a mudancas da pagina selecionada no estado compartilhado.
     effect(() => {
       const page = this.comicPreviewStateService.selectedPage();
 
       if (!page) {
+        // Se nao ha pagina selecionada, limpamos tudo.
         this.loadVersion += 1;
         this.resetZoom();
         this.imageUrl.set(null);
         return;
       }
 
+      // Cada nova selecao ganha uma versao nova para evitar corrida de carregamento.
       const version = ++this.loadVersion;
       this.imageUrl.set(null);
       void this.loadImage(page.imagePath, version);
@@ -57,6 +67,7 @@ export class ComicPreview {
   }
 
   private async loadImage(path: string, version: number): Promise<void> {
+    // Carrega a imagem e ignora o resultado se uma selecao nova tiver ocorrido depois.
     const imageUrl = await this.pageLoader.load(path);
 
     if (version !== this.loadVersion) {
@@ -68,12 +79,14 @@ export class ComicPreview {
   }
 
   openModal(): void {
+    // Abre o leitor ampliado apenas quando existe uma pagina ativa.
     if (this.comicPreviewStateService.selectedPage()) {
       this.isModalOpen = true;
     }
   }
 
   closeModal(): void {
+    // Fecha o modal e cancela qualquer arraste em andamento.
     this.isModalOpen = false;
     this.stopDragging();
   }
@@ -85,6 +98,7 @@ export class ComicPreview {
 
   @HostListener('document:keydown', ['$event'])
   handleModalNavigation(event: KeyboardEvent): void {
+    // Navegacao por teclado so faz sentido quando o modal esta aberto.
     if (!this.isModalOpen) {
       return;
     }
@@ -100,6 +114,7 @@ export class ComicPreview {
 
   @HostListener('document:pointermove', ['$event'])
   handleDocumentPointerMove(event: PointerEvent): void {
+    // Atualiza o arraste da imagem enquanto o usuario move o ponteiro.
     this.dragImage(event);
   }
 
@@ -115,6 +130,7 @@ export class ComicPreview {
 
   @HostListener('window:resize')
   handleWindowResize(): void {
+    // Redimensionar a janela zera o arraste para evitar desalinhamento.
     if (!this.isModalOpen) {
       return;
     }
@@ -124,6 +140,7 @@ export class ComicPreview {
   }
 
   navigatePage(direction: 'next' | 'previous'): void {
+    // Troca a pagina exibida respeitando a ordem da edicao atual.
     if (!this.isModalOpen) {
       return;
     }
@@ -154,32 +171,39 @@ export class ComicPreview {
   }
 
   get zoomPercent(): number {
+    // Converte o zoom decimal em porcentagem para a interface.
     return Math.round(this.zoom * 100);
   }
 
   get imageTransform(): string {
+    // Monta o transform CSS com translacao e escala.
     return `translate(${this.dragOffset.x}px, ${this.dragOffset.y}px) scale(${this.zoom})`;
   }
 
   zoomIn(): void {
+    // Aumenta o zoom em passos pequenos.
     this.setZoom(this.zoom + this.zoomStep);
   }
 
   zoomOut(): void {
+    // Diminui o zoom em passos pequenos.
     this.setZoom(this.zoom - this.zoomStep);
   }
 
   resetZoom(): void {
+    // Restaura a imagem para o estado padrao.
     this.zoom = 1;
     this.dragOffset = { x: 0, y: 0 };
   }
 
   handleZoomWheel(event: WheelEvent): void {
+    // O scroll do mouse tambem pode controlar o zoom.
     event.preventDefault();
     this.setZoom(this.zoom + (event.deltaY < 0 ? this.zoomStep : -this.zoomStep));
   }
 
   startDragging(event: PointerEvent): void {
+    // Arrastar so faz sentido quando a imagem esta ampliada.
     if (this.zoom <= 1 || event.button !== 0) {
       return;
     }
@@ -191,6 +215,7 @@ export class ComicPreview {
   }
 
   dragImage(event: PointerEvent): void {
+    // Calcula o deslocamento relativo a posicao inicial do arraste.
     if (!this.isDragging) {
       return;
     }
@@ -202,13 +227,16 @@ export class ComicPreview {
   }
 
   stopDragging(): void {
+    // Finaliza o arraste atual.
     this.isDragging = false;
   }
 
   private setZoom(value: number): void {
+    // Mantem o zoom dentro dos limites definidos pelo componente.
     this.zoom = Math.min(this.maxZoom, Math.max(this.minZoom, value));
 
     if (this.zoom <= 1) {
+      // Quando volta ao tamanho normal, centralizamos novamente.
       this.dragOffset = { x: 0, y: 0 };
     }
   }

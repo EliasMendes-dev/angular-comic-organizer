@@ -11,6 +11,7 @@ import JSZip from 'jszip';
 import { createExtractorFromData } from 'node-unrar-js';
 import { ComicPage } from '../models/comic-page';
 
+// Ordena nomes misturando texto e numeros, para seguir a ordem natural das paginas.
 function naturalCompare(a: string, b: string): number {
   const regex = /(\d+)/g;
   const aTokens = Array.from(a.matchAll(regex), (m) => m[0]);
@@ -40,6 +41,7 @@ function naturalCompare(a: string, b: string): number {
   return a.localeCompare(b);
 }
 
+// Traduz extensao de imagem para o mime type correto do Blob.
 function getMimeType(fileName: string): string {
   const ext = fileName.split('.').pop()?.toLowerCase();
   switch (ext) {
@@ -65,6 +67,7 @@ function getMimeType(fileName: string): string {
   providedIn: 'root',
 })
 export class WebArchiveService {
+  // Mantem o binario do unrar.wasm carregado uma unica vez.
   private cachedWasmBinary: ArrayBuffer | null = null;
 
   private async getWasmBinary(): Promise<ArrayBuffer> {
@@ -82,6 +85,7 @@ export class WebArchiveService {
   }
 
   async extractPages(file: File): Promise<ComicPage[]> {
+    // Escolhe o tipo de extracao com base na extensao do arquivo enviado.
     const lowerName = file.name.toLowerCase();
     if (lowerName.endsWith('.cbr') || lowerName.endsWith('.rar')) {
       return this.extractCbr(file);
@@ -90,6 +94,7 @@ export class WebArchiveService {
   }
 
   private async extractCbr(file: File): Promise<ComicPage[]> {
+    // Usa o extractor de RAR para ler o conteudo bruto do CBR.
     const wasmBinary = await this.getWasmBinary();
     const data = await file.arrayBuffer();
     const extractor = await createExtractorFromData({ data, wasmBinary });
@@ -99,6 +104,7 @@ export class WebArchiveService {
 
     for (const item of extracted.files) {
       const name = item.fileHeader.name;
+      // Ignora pastas, arquivos ocultos e entradas que nao sao imagens.
       if (item.fileHeader.flags.directory) continue;
       if (name.startsWith('__MACOSX') || name.startsWith('.')) continue;
       if (!/\.(jpe?g|png|webp|gif|bmp|avif)$/i.test(name)) continue;
@@ -125,6 +131,7 @@ export class WebArchiveService {
   }
 
   private async extractCbz(file: File): Promise<ComicPage[]> {
+    // CBZ e apenas um ZIP, entao lemos os itens e filtramos as imagens.
     const data = await file.arrayBuffer();
     const zip = await JSZip.loadAsync(data);
     const entries: { fileName: string; entry: JSZip.JSZipObject }[] = [];
@@ -161,6 +168,7 @@ export class WebArchiveService {
     pages: { fileName: string; imagePath: string }[],
     onProgress?: (percent: number, message: string) => void,
   ): Promise<Blob> {
+    // Reempacota as paginas selecionadas em um novo arquivo CBZ.
     const zip = new JSZip();
 
     for (let index = 0; index < pages.length; index += 1) {
@@ -190,6 +198,7 @@ export class WebArchiveService {
     pages: { fileName: string; imagePath: string }[],
     onProgress?: (percent: number, message: string) => void,
   ): Promise<void> {
+    // Gera o CBZ e dispara o download no navegador.
     const zipBlob = await this.generateCbzBlob(pages, onProgress);
     const downloadUrl = URL.createObjectURL(zipBlob);
     const link = document.createElement('a');
@@ -206,6 +215,7 @@ export class WebArchiveService {
     editions: { fileName: string; pages: { fileName: string; imagePath: string }[] }[],
     onProgress?: (percent: number, message: string) => void,
   ): Promise<'folder' | 'zip' | 'cancelled'> {
+    // Tenta salvar em uma pasta real quando o navegador suporta o seletor de diretorio.
     const hasDirectoryPicker = typeof window !== 'undefined' && 'showDirectoryPicker' in window;
 
     if (hasDirectoryPicker) {
@@ -241,7 +251,7 @@ export class WebArchiveService {
       }
     }
 
-    // Fallback para ZIP contendo a pasta da série
+    // Fallback para ZIP contendo a pasta da serie.
     await this.exportAllAsZipBundle(seriesName, editions, onProgress);
     return 'zip';
   }
@@ -251,6 +261,7 @@ export class WebArchiveService {
     editions: { fileName: string; pages: { fileName: string; imagePath: string }[] }[],
     onProgress?: (percent: number, message: string) => void,
   ): Promise<void> {
+    // Empacota toda a serie dentro de um ZIP quando salvar em pasta nao esta disponivel.
     const masterZip = new JSZip();
     const folder = masterZip.folder(seriesName) ?? masterZip;
     const total = editions.length;

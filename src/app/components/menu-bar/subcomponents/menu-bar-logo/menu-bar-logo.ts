@@ -15,4 +15,5 @@ import { LucideBookOpen } from '@lucide/angular';
   templateUrl: './menu-bar-logo.html',
   styleUrl: './menu-bar-logo.css',
 })
+// Parte visual do logo exibido na barra superior.
 export class MenuBarLogo {}

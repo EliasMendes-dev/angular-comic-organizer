@@ -29,6 +29,7 @@ import {
   styleUrl: './file-explorer-header.css',
 })
 export class FileExplorerHeader {
+  // Indica se ha itens carregados e se a area esta em modo ativo.
   @Input() isActive = false;
   @Input() hasItems = false;
 
@@ -38,6 +39,7 @@ export class FileExplorerHeader {
   isHovering = false;
 
   handleChooseAll(): void {
+    // Evita disparar selecao geral quando a lista ainda esta vazia.
     if (!this.hasItems) {
       return;
     }
@@ -46,6 +48,7 @@ export class FileExplorerHeader {
   }
 
   handleDeleteAll(): void {
+    // Encaminha a acao de remover todas as edicoes.
     this.deleteAll.emit();
   }
 }

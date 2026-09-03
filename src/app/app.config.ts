@@ -11,6 +11,7 @@ import { provideRouter } from '@angular/router';
 
 import { routes } from './app.routes';
 
+// Configuracao global do Angular: listeners de erro e rotas da aplicacao.
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),

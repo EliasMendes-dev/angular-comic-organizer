@@ -6,6 +6,7 @@ O uso, modificação e distribuição são permitidos apenas para fins NÃO COME
 Para ler a licença completa, veja o arquivo LICENSE.txt no diretório raiz.
 */
 
+// Define os dois fluxos suportados pela ferramenta.
 export type ConversionType =
   | 'cbr-to-cbz'
   | 'cbz-to-cbr';

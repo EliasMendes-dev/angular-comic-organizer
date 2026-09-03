@@ -14,4 +14,5 @@ import { Component } from '@angular/core';
   templateUrl: './footer-bar.html',
   styleUrl: './footer-bar.css',
 })
+// Rodape visual da aplicacao.
 export class FooterBar {}

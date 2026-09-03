@@ -17,6 +17,7 @@ import { LucideEye, LucidePenLine } from '@lucide/angular';
   styleUrl: './rename-settings-actions.css',
 })
 export class RenameSettingsActions {
+  // Estado visual dos botoes e da barra de progresso vem do componente pai.
   @Input() isPreviewDisabled = true;
   @Input() isRenameDisabled = true;
   @Input() showConvertButton = false;
@@ -33,14 +34,17 @@ export class RenameSettingsActions {
   @Output() onConvert = new EventEmitter<void>();
 
   handlePreview(): void {
+    // Dispara a acao de gerar pre-visualizacao.
     this.onPreview.emit();
   }
 
   handleRename(): void {
+    // Dispara a acao de renomear os arquivos selecionados.
     this.onRename.emit();
   }
 
   handleConvert(): void {
+    // Dispara a acao de conversao/exportacao conforme o fluxo escolhido.
     this.onConvert.emit();
   }
 }

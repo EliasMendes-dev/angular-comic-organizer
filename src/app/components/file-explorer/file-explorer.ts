@@ -6,7 +6,7 @@ O uso, modificação e distribuição são permitidos apenas para fins NÃO COME
 Para ler a licença completa, veja o arquivo LICENSE.txt no diretório raiz.
 */
 
-import { Component, NgZone, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CdkDropList, CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { ConversionStateService } from '../../services/conversion-state';
 import { FileManagerService } from '../../services/file-manager';
@@ -14,7 +14,6 @@ import { FileExplorerHeader } from './subcomponents/file-explorer-header/file-ex
 import { FileExplorerEditionItem } from './subcomponents/file-explorer-edition-item/file-explorer-edition-item';
 import { ComicEdition } from '../../models/comic-edition';
 import { ComicPage } from '../../models/comic-page';
-import { ChangeDetectorRef } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { ComicPreviewStateService } from '../../services/comic-preview-state';
 import { PageLoaderService } from '../../services/page-loader';
@@ -27,8 +26,10 @@ import { PageLoaderService } from '../../services/page-loader';
   styleUrls: ['./file-explorer.css', './file-explorer-responsive.css'],
 })
 export class FileExplorer implements OnInit, OnDestroy {
+  // Controla o modo de selecao em massa e qual edicao esta aberta.
   isActive = false;
   openEditionId: number | null = null;
+  // Mantem a ultima pagina ativa de cada edicao para sincronizar com o preview.
   activePages = new Map<number, number>();
   private sub = new Subscription();
 
@@ -44,6 +45,7 @@ export class FileExplorer implements OnInit, OnDestroy {
   }
 
   drop(event: CdkDragDrop<any[]>): void {
+    // Atualiza a ordem visual e persiste a nova posicao no backend.
     const updated = [...this.fileManagerService.fileEditions];
     moveItemInArray(updated, event.previousIndex, event.currentIndex);
 
@@ -53,28 +55,33 @@ export class FileExplorer implements OnInit, OnDestroy {
   }
 
   toggleFileEdition(editionId: number): void {
+    // Fecha a mesma edicao quando o usuario clica nela novamente.
     if (this.openEditionId === editionId) {
       this.openEditionId = null;
       this.comicPreviewStateService.setOpenedEdition(null);
       this.activePages.delete(editionId);
       this.comicPreviewStateService.clearSelectedPage();
-      this.pageLoader.clearCache(); // Limpa a RAM aqui
+      // Libera as imagens em cache quando a edicao deixa de estar aberta.
+      this.pageLoader.clearCache();
       return;
     }
 
     if (this.openEditionId !== null) {
+      // Ao trocar de edicao, limpamos o cache da anterior para evitar memoria sobrando.
       this.pageLoader.clearCache();
     }
 
     this.openEditionId = editionId;
     this.comicPreviewStateService.setOpenedEdition(editionId);
 
+    // Ao abrir a edicao, tentamos selecionar sua primeira pagina.
     const edition = this.fileManagerService.fileEditions.find((item) => item.id === editionId);
 
     if (edition?.pages.length) {
       this.selectPage(editionId, edition.pages[0]);
     }
 
+    // Log simples para depuracao da selecao atual.
     this.printSelectedItems();
   }
 
@@ -87,23 +94,21 @@ export class FileExplorer implements OnInit, OnDestroy {
   }
 
   private selectPage(editionId: number, page: ComicPage): void {
+    // Guarda a pagina ativa de cada edicao para manter o preview sincronizado.
     this.activePages.set(editionId, page.id);
     this.comicPreviewStateService.setSelectedPage(page, editionId);
 
-    // Otimização: Pré-carrega a próxima página e a anterior em background
+    // Precarrega paginas vizinhas para deixar a navegacao mais rapida.
     const edition = this.fileManagerService.fileEditions.find((item) => item.id === editionId);
     if (edition && edition.pages.length > 0) {
       const currentIndex = edition.pages.findIndex((p) => p.id === page.id);
 
-      // Busca a próxima página
       if (currentIndex >= 0) {
         this.pageLoader.preloadAround(
           edition.pages.map((editionPage) => editionPage.imagePath),
           currentIndex,
         );
       }
-
-      // Busca a página anterior (útil se o usuário voltar)
     }
   }
 
@@ -112,6 +117,7 @@ export class FileExplorer implements OnInit, OnDestroy {
     direction: 'up' | 'down',
     currentPage?: ComicPage,
   ): void {
+    // Permite navegar entre paginas sem usar o mouse.
     const edition = this.fileManagerService.fileEditions.find((item) => item.id === editionId);
 
     if (!edition?.pages?.length) {
@@ -148,6 +154,7 @@ export class FileExplorer implements OnInit, OnDestroy {
   }
 
   toggleEditionSelection(editionId: number): void {
+    // Marca ou desmarca a edicao para operacoes em lote.
     this.fileManagerService.toggleEditionSelection(editionId);
   }
 
@@ -167,6 +174,7 @@ export class FileExplorer implements OnInit, OnDestroy {
   }
 
   getDisplayEdition(edition: ComicEdition): ComicEdition {
+    // Cria uma copia com a pagina selecionada marcada para a interface.
     return {
       ...edition,
       pages: edition.pages.map((page) => ({
@@ -177,10 +185,12 @@ export class FileExplorer implements OnInit, OnDestroy {
   }
 
   getPageSelectionHandler(editionId: number): (page: ComicPage) => boolean {
+    // Devolve uma funcao pronta para verificar se uma pagina esta selecionada.
     return (page: ComicPage) => this.isPageSelected(editionId, page);
   }
 
   toggleChooseAll(): void {
+    // Liga ou desliga a selecao em massa de todas as edicoes.
     if (this.fileManagerService.fileEditions.length < 2) {
       return;
     }
@@ -190,10 +200,12 @@ export class FileExplorer implements OnInit, OnDestroy {
     this.activePages.clear();
 
     if (!this.isActive) {
+      // Ao desligar o modo, limpamos a selecao para voltar ao comportamento normal.
       this.fileManagerService.clearEditionSelection();
       return;
     }
 
+    // No modo ativo, todas as edicoes ficam marcadas e a primeira pagina e sugerida.
     this.fileManagerService.selectAllEditions();
     this.fileManagerService.fileEditions.forEach((edition) => {
       if (edition.pages.length) {
@@ -207,6 +219,7 @@ export class FileExplorer implements OnInit, OnDestroy {
   }
 
   async deleteEdition(editionId: number): Promise<void> {
+    // Remove uma edicao, limpa referencias e reavalia o estado geral da tela.
     const edition = this.fileManagerService.fileEditions.find((item) => item.id === editionId);
 
     if (edition) {
@@ -232,17 +245,19 @@ export class FileExplorer implements OnInit, OnDestroy {
     if (this.fileManagerService.fileEditions.length === 0) {
       this.isActive = false;
 
+      // Sem edicoes carregadas, o fluxo de conversao volta ao estado inicial.
       this.conversionStateService.clearConversion();
       this.fileManagerService.clearSourcePaths();
 
       console.log('Conversao liberada novamente');
     }
 
-    // Limpa a RAM após deletar a edição
+    // Limpa o cache de imagens depois da remocao.
     this.pageLoader.clearCache();
   }
 
   async deleteAll(): Promise<void> {
+    // Remove tudo que foi carregado e devolve a tela ao estado limpo.
     await this.fileManagerService.clearAllTempEditions();
 
     this.fileManagerService.fileEditions = [];
@@ -259,11 +274,12 @@ export class FileExplorer implements OnInit, OnDestroy {
 
     this.conversionStateService.clearConversion();
 
-    // Limpa toda a RAM após deletar tudo
+    // Limpa o cache inteiro porque nao sobra nenhuma pagina em uso.
     this.pageLoader.clearCache();
   }
 
   printSelectedItems(): void {
+    // Log simples para enxergar quais edicoes estao marcadas.
     this.fileManagerService.fileEditions.forEach((edition) => {
       if (this.isEditionSelected(edition.id)) {
         console.log(`Titulo: ${edition.title}`);
@@ -272,6 +288,7 @@ export class FileExplorer implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    // Reage a mudancas no estado compartilhado da lista de arquivos.
     this.sub.add(
       this.fileManagerService.refreshChanges.subscribe(() => {
         this.cdr.markForCheck();
@@ -280,6 +297,7 @@ export class FileExplorer implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    // Cancela a assinatura para evitar vazamento de memoria.
     this.sub.unsubscribe();
   }
 }

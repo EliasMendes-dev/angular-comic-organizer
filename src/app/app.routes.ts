@@ -9,6 +9,7 @@ Para ler a licença completa, veja o arquivo LICENSE.txt no diretório raiz.
 import { Routes } from '@angular/router';
 import { Home } from './pages/home/home';
 
+// A aplicacao usa uma unica rota principal para a tela inicial.
 export const routes: Routes = [
   {
     path: '',

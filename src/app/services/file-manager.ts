@@ -15,6 +15,7 @@ import { ConversionType } from '../models/conversion-type';
 import { WebArchiveService } from './web-archive';
 import { Subject } from 'rxjs';
 
+// Compara nomes com numeros usando ordem natural: "10" vem depois de "2".
 function naturalCompare(a: string, b: string): number {
   const regex = /(\d+)/g;
   const aParts = a.matchAll(regex);
@@ -48,6 +49,7 @@ function naturalCompare(a: string, b: string): number {
   return a.localeCompare(b);
 }
 
+// Ajusta as edicoes vindas do backend para o formato esperado pela interface.
 export function mapBackendEditionsToExplorerModel(editions: ComicEdition[]): ComicEdition[] {
   return editions
     .map((edition) => ({
@@ -60,6 +62,7 @@ export function mapBackendEditionsToExplorerModel(editions: ComicEdition[]): Com
     .sort((left, right) => naturalCompare(left.title, right.title));
 }
 
+// Estado principal da biblioteca carregada na tela de exploracao.
 interface LibraryState {
   editions: ComicEdition[];
   activeEditionIds: ReadonlySet<number>;
@@ -69,13 +72,17 @@ interface LibraryState {
   providedIn: 'root',
 })
 export class FileManagerService {
+  // Armazena as edicoes carregadas e quais delas estao selecionadas.
   readonly libraryState = signal<LibraryState>({
     editions: [],
     activeEditionIds: new Set<number>(),
   });
+  // Evita reimportar os mesmos caminhos de origem duas vezes.
   selectedSourcePaths = new Map<string, string>();
+  // Mantem arquivos do navegador para o modo web, onde nao existe backend nativo.
   readonly webFiles = new Map<string, File>();
 
+  // Sinal discreto para avisar outros componentes que a lista mudou.
   private refresh$ = new Subject<void>();
 
   async saveOrder(editions: ComicEdition[]): Promise<void> {
@@ -90,6 +97,7 @@ export class FileManagerService {
 
   async deleteEditionFromBackend(editionTitle: string): Promise<void> {
     if (!isTauri()) {
+      // No modo web, limpamos as URLs de preview ao remover uma edicao.
       const edition = this.fileEditions.find((e) => e.title === editionTitle);
       if (edition) {
         edition.pages.forEach((p) => URL.revokeObjectURL(p.imagePath));
@@ -111,6 +119,7 @@ export class FileManagerService {
 
   async clearAllTempEditions(): Promise<void> {
     if (!isTauri()) {
+      // No modo web, liberamos tudo que foi criado em memoria.
       this.fileEditions.forEach((e) => {
         e.pages.forEach((p) => URL.revokeObjectURL(p.imagePath));
       });
@@ -131,22 +140,27 @@ export class FileManagerService {
   ) {}
 
   get refreshChanges() {
+    // Expoe o observable usado pelos componentes para reagir a recarregamentos.
     return this.refresh$.asObservable();
   }
 
   get fileEditions(): ComicEdition[] {
+    // Leitura direta da lista de edicoes carregadas.
     return this.libraryState().editions;
   }
 
   set fileEditions(editions: ComicEdition[]) {
+    // Atualiza somente a lista de edicoes, preservando o resto do estado.
     this.libraryState.update((state) => ({ ...state, editions }));
   }
 
   get activeEditionIds(): ReadonlySet<number> {
+    // Retorna os ids das edicoes que o usuario marcou para acao em lote.
     return this.libraryState().activeEditionIds;
   }
 
   toggleEditionSelection(editionId: number): void {
+    // Alterna a selecao de uma edicao na lista.
     this.libraryState.update((state) => {
       const activeEditionIds = new Set(state.activeEditionIds);
 
@@ -161,10 +175,12 @@ export class FileManagerService {
   }
 
   clearEditionSelection(): void {
+    // Remove todas as selecoes de uma vez.
     this.libraryState.update((state) => ({ ...state, activeEditionIds: new Set<number>() }));
   }
 
   removeEditionFromSelection(editionId: number): void {
+    // Remove apenas uma edicao da selecao atual.
     this.libraryState.update((state) => {
       const activeEditionIds = new Set(state.activeEditionIds);
       activeEditionIds.delete(editionId);
@@ -174,6 +190,7 @@ export class FileManagerService {
   }
 
   selectAllEditions(): void {
+    // Marca todas as edicoes carregadas para operar em lote.
     this.libraryState.update((state) => ({
       ...state,
       activeEditionIds: new Set(state.editions.map((edition) => edition.id)),
@@ -182,6 +199,7 @@ export class FileManagerService {
 
   loadEditionsFromBackend(editions: ComicEdition[]): void {
     this.ngZone.run(() => {
+      // Normaliza o retorno e junta com o que ja existe na tela.
       const newEditions = mapBackendEditionsToExplorerModel(editions);
       const existingTitles = new Set(this.fileEditions.map((edition) => edition.title));
 
@@ -190,17 +208,19 @@ export class FileManagerService {
       );
       this.clearEditionSelection();
 
-      // 🔥 trigger correto
+      // Dispara uma atualizacao para forcar a interface a renderizar o novo estado.
       this.refresh$.next();
     });
   }
 
   getNewSourcePaths(paths: string[]): string[] {
+    // Remove repeticoes e filtra o que ja foi importado anteriormente.
     const uniquePaths = Array.from(new Set(paths));
     return uniquePaths.filter((path) => !this.selectedSourcePaths.has(path));
   }
 
   addSourcePaths(paths: string[]): void {
+    // Registra cada caminho original junto com o titulo derivado do arquivo.
     paths.forEach((path) => {
       const title = this.getEditionTitleFromPath(path);
       this.selectedSourcePaths.set(path, title);
@@ -208,6 +228,7 @@ export class FileManagerService {
   }
 
   removeSourcePathsByTitle(title: string): void {
+    // Remove caminhos e arquivos web associados ao titulo informado.
     for (const [path, storedTitle] of Array.from(this.selectedSourcePaths.entries())) {
       if (storedTitle === title) {
         this.selectedSourcePaths.delete(path);
@@ -217,11 +238,13 @@ export class FileManagerService {
   }
 
   clearSourcePaths(): void {
+    // Limpa toda a memoria de caminhos de origem.
     this.selectedSourcePaths.clear();
     this.webFiles.clear();
   }
 
   private getEditionTitleFromPath(path: string): string {
+    // Usa o nome do arquivo sem extensao como titulo base da edicao.
     const fileName = path.split(/[/\\]/).pop() ?? '';
     return fileName.replace(/\.[^.]+$/, '');
   }
@@ -231,6 +254,7 @@ export class FileManagerService {
   }
 
   async createWebEditions(fileNames: string[]): Promise<ComicEdition[]> {
+    // No navegador, converte os arquivos selecionados em edicoes com paginas extraidas.
     const editions: ComicEdition[] = [];
 
     for (let index = 0; index < fileNames.length; index += 1) {
@@ -261,10 +285,12 @@ export class FileManagerService {
   }
 
   async selectFiles(conversion: ConversionType): Promise<string[]> {
+    // Filtra a extensao esperada conforme o fluxo escolhido.
     const extensions = conversion === 'cbr-to-cbz' ? ['cbr'] : ['cbz'];
 
     if (isTauri()) {
       try {
+        // No app desktop usamos o seletor nativo de arquivos.
         const files = await open({
           multiple: true,
           filters: [
@@ -288,6 +314,7 @@ export class FileManagerService {
   }
 
   private selectFilesFromBrowser(extensions: string[]): Promise<string[]> {
+    // No navegador, criamos um input escondido para abrir o seletor de arquivos.
     return new Promise((resolve) => {
       const input = document.createElement('input');
       input.type = 'file';

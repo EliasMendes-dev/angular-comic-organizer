@@ -17,4 +17,5 @@ import { MenuBarSettings } from './subcomponents/menu-bar-settings/menu-bar-sett
   templateUrl: './menu-bar.html',
   styleUrls: ['./menu-bar.css', './menu-bar-responsive.css'],
 })
+// Barra superior que junta logo e controles de selecao/tema.
 export class MenuBar {}

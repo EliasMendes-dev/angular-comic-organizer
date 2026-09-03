@@ -16,6 +16,7 @@ import { FormsModule } from '@angular/forms';
   styleUrl: './rename-settings-form.css',
 })
 export class RenameSettingsForm {
+  // Dados do formulario sao recebidos do componente pai.
   @Input() title: string = '';
   @Input() year: string = '';
   @Input() edition: string = '';
@@ -31,16 +32,19 @@ export class RenameSettingsForm {
   @Output() inputChanged = new EventEmitter<void>();
 
   onTitleChange(value: string): void {
+    // Notifica que o titulo foi alterado.
     this.titleChange.emit(value);
     this.inputChanged.emit();
   }
 
   onYearChange(value: string): void {
+    // Notifica que o ano foi alterado.
     this.yearChange.emit(value);
     this.inputChanged.emit();
   }
 
   onEditionChange(value: string): void {
+    // Notifica que o numero da edicao foi alterado.
     this.editionChange.emit(value);
     this.inputChanged.emit();
   }

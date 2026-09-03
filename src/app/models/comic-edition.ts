@@ -8,6 +8,7 @@ Para ler a licença completa, veja o arquivo LICENSE.txt no diretório raiz.
 
 import { ComicPage } from "./comic-page";
 
+// Agrupa as paginas e metadados de uma edicao carregada no app.
 export interface ComicEdition {
   id: number;
   title: string;

@@ -14,6 +14,7 @@ export interface PreviewPage {
   newNamePage: string;
 }
 
+// Estrutura usada para mostrar a pre-visualizacao do nome da edicao e das paginas.
 export interface PreviewEdition {
   oldNameEdition: string;
   newNameEdition: string;
@@ -27,6 +28,7 @@ export interface PreviewEdition {
   styleUrl: './rename-settings-preview.css',
 })
 export class RenameSettingsPreview {
+  // O componente pai decide quando a pre-visualizacao pode ser mostrada.
   @Input() showPreview: boolean = false;
   @Input() renamePreview: PreviewEdition[] = [];
   @Input() previewMessage: string = '';

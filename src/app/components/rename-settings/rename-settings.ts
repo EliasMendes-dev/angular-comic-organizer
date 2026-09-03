@@ -38,17 +38,22 @@ import { WebArchiveService } from '../../services/web-archive';
   styleUrls: ['./rename-settings.css', './rename-settings-responsive.css'],
 })
 export class RenameSettings implements OnDestroy {
+  // Campos principais do formulario de renomeacao.
   title = '';
   year = '';
   edition = '';
 
+  // Controla a visibilidade da pre-visualizacao.
   showPreview = false;
 
+  // Mensagens de erro associadas a cada campo.
   titleError = '';
   yearError = '';
   editionError = '';
 
+  // Marca se o usuario ja tentou submeter o formulario.
   hasTriedSubmit = false;
+  // Estado reativo usado pelo loading, progresso e feedback final.
   readonly isRenaming = signal(false);
   readonly progress = signal(0);
   readonly progressText = signal('');
@@ -64,6 +69,7 @@ export class RenameSettings implements OnDestroy {
     private webArchiveService: WebArchiveService,
   ) {
     if (isTauri()) {
+      // No desktop, escutamos o evento de progresso emitido pelo backend Rust.
       void listen<ExportProgress>(EXPORT_PROGRESS_EVENT, ({ payload }) => {
         this.progress.set(payload.progress);
         this.progressText.set(`${payload.current}/${payload.total} ${payload.message}`);
@@ -74,6 +80,7 @@ export class RenameSettings implements OnDestroy {
         .catch((error) => console.error('Erro ao acompanhar o progresso:', error));
     }
 
+    // Mantem o formulario alinhado com a selecao atual de edicoes.
     effect(() => {
       this.fileManagerService.libraryState();
 
@@ -86,16 +93,19 @@ export class RenameSettings implements OnDestroy {
   }
 
   ngOnDestroy(): void {
+    // Limpa listeners, timers e classes globais quando o componente sai da tela.
     this.unlistenProgress?.();
     this.clearFeedbackTimer();
     document.body.classList.remove('is-processing');
   }
 
   get selectedEditionsCount(): number {
+    // Quantidade de edicoes marcadas para a acao atual.
     return this.fileManagerService.activeEditionIds.size;
   }
 
   get renamePreview(): PreviewEdition[] {
+    // Gera a lista de nomes novos apenas quando a pre-visualizacao esta aberta.
     if (!this.showPreview) return [];
 
     const selectedEditions = this.getSelectedEditions();
@@ -122,6 +132,7 @@ export class RenameSettings implements OnDestroy {
   }
 
   get previewMessage(): string {
+    // Mensagem de apoio quando o usuario ainda nao pode ver a pre-visualizacao.
     if (!this.hasSelectedEditions()) {
       return 'Selecione ou envie uma edição para começar';
     }
@@ -138,10 +149,12 @@ export class RenameSettings implements OnDestroy {
   }
 
   get selectedConversion() {
+    // Fluxo de conversao escolhido no menu superior.
     return this.conversionStateService.getConversion();
   }
 
   get convertButtonText(): string {
+    // Ajusta o texto do botao conforme o fluxo selecionado.
     if (this.selectedConversion === 'cbr-to-cbz') {
       return 'Converter para CBZ';
     }
@@ -154,28 +167,34 @@ export class RenameSettings implements OnDestroy {
   }
 
   get showConvertButton(): boolean {
+    // O botao de conversao so aparece quando existe um fluxo ativo.
     return this.selectedConversion !== null;
   }
 
   hasSelectedEditions(): boolean {
+    // Conveniencia para checar se existe pelo menos uma edicao marcada.
     return this.selectedEditionsCount > 0;
   }
 
   hasMultipleSelectedEditions(): boolean {
+    // Usado quando a interface precisa lidar com mais de uma edicao.
     return this.selectedEditionsCount > 1;
   }
 
   get canUsePreviewAndRename(): boolean {
+    // Pre-visualizar e renomear dependem de haver edicoes selecionadas.
     return this.hasSelectedEditions();
   }
 
   validateRealtime(): void {
+    // Valida enquanto o usuario digita, mas apenas depois da primeira tentativa.
     if (!this.hasTriedSubmit) return;
 
     this.validateFields();
   }
 
   onInputChanged(): void {
+    // Qualquer alteracao nos campos invalida a pre-visualizacao anterior.
     if (this.showPreview) {
       this.showPreview = false;
     }
@@ -184,6 +203,7 @@ export class RenameSettings implements OnDestroy {
   }
 
   validateFields(): boolean {
+    // Limpa os erros antes de reavaliar o formulario.
     this.titleError = '';
     this.yearError = '';
     this.editionError = '';
@@ -225,6 +245,7 @@ export class RenameSettings implements OnDestroy {
   }
 
   clearInputs(): void {
+    // Reseta o formulario e elimina mensagens antigas.
     this.title = '';
     this.year = '';
     this.edition = '';
@@ -238,19 +259,23 @@ export class RenameSettings implements OnDestroy {
   }
 
   onPreviewClick(): void {
+    // Marca que o usuario tentou seguir adiante e gera a pre-visualizacao.
     this.hasTriedSubmit = true;
     this.showPreview = this.validateFields();
   }
 
   onRename(): void {
+    // Dispara a exportacao com nomes novos sem trocar o formato final.
     this.exportSelectedEditions(getRenameCommandName(this.selectedConversion));
   }
 
   onConvertClick(): void {
+    // Dispara a exportacao para o formato definido no menu superior.
     this.exportSelectedEditions(getExportCommandName(this.selectedConversion));
   }
 
   private exportSelectedEditions(command: 'export_renamed_cbrs' | 'export_renamed_cbzs'): void {
+    // Valida o formulario e impede concorrencia com outra exportacao em andamento.
     this.hasTriedSubmit = true;
 
     if (!this.validateFields() || this.isRenaming()) {
@@ -266,6 +291,7 @@ export class RenameSettings implements OnDestroy {
   }
 
   private runExport(command: 'export_renamed_cbrs' | 'export_renamed_cbzs'): void {
+    // Prepara o estado visual antes de iniciar a exportacao.
     const selectedEditions = this.getSelectedEditions();
 
     this.isRenaming.set(true);
@@ -276,10 +302,12 @@ export class RenameSettings implements OnDestroy {
     document.body.classList.add('is-processing');
 
     if (!isTauri()) {
+      // No navegador, a exportacao usa a implementacao em JavaScript.
       void this.runWebExport(selectedEditions);
       return;
     }
 
+    // No desktop, chamamos o comando Rust que gera os arquivos.
     void invoke<string[]>(command, {
       editions: selectedEditions,
       title: this.title.trim(),
@@ -300,6 +328,7 @@ export class RenameSettings implements OnDestroy {
   }
 
   private async runWebExport(selectedEditions: ComicEdition[]): Promise<void> {
+    // Monta nomes de edicoes e paginas antes de gerar o ZIP no navegador.
     const seriesName = this.getSeriesName();
     const startingEdition = this.getStartingEdition();
     const totalEditions = selectedEditions.length;
@@ -350,6 +379,7 @@ export class RenameSettings implements OnDestroy {
   }
 
   private showFeedback(message: string, type: 'success' | 'error'): void {
+    // Mostra uma mensagem temporaria de sucesso ou erro.
     this.feedbackMessage.set(message);
     this.feedbackType.set(type);
     this.clearFeedbackTimer();
@@ -360,6 +390,7 @@ export class RenameSettings implements OnDestroy {
   }
 
   private clearFeedbackTimer(): void {
+    // Evita timers duplicados quando uma nova mensagem aparece.
     if (this.feedbackTimer) {
       clearTimeout(this.feedbackTimer);
       this.feedbackTimer = undefined;
@@ -367,21 +398,25 @@ export class RenameSettings implements OnDestroy {
   }
 
   private getSelectedEditions(): ComicEdition[] {
+    // Filtra apenas as edicoes marcadas na lista principal.
     return this.fileManagerService.fileEditions.filter((edition) =>
       this.fileManagerService.activeEditionIds.has(edition.id),
     );
   }
 
   private getSeriesName(): string {
+    // Monta o nome final da serie com titulo e ano informados.
     return `${this.title || 'Sem titulo'} (${this.year || '0000'})`;
   }
 
   private getStartingEdition(): number {
+    // Define a primeira edicao da serie, com fallback seguro para 1.
     const parsed = Number.parseInt(this.edition || '1', 10);
     return Number.isNaN(parsed) ? 1 : parsed;
   }
 
   private getPageExtension(fileName: string): string {
+    // Mantem a extensao original da pagina ao gerar o novo nome.
     const extension = fileName.match(/\.([^.]+)$/)?.[1];
     return extension?.toLowerCase() || 'jpg';
   }

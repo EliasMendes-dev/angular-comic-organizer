@@ -19,5 +19,6 @@ import { PlatformNotice } from './components/platform-notice/platform-notice';
   styleUrl: './app.css'
 })
 export class App {
+  // Titulo base da aplicacao, usado como referencia geral do app.
   protected readonly title = signal('angular_comic_organizer');
 }

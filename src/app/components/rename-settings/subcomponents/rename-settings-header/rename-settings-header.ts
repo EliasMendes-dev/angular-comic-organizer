@@ -16,9 +16,11 @@ import { LucideSettings, LucideTrash2 } from '@lucide/angular';
   styleUrl: './rename-settings-header.css',
 })
 export class RenameSettingsHeader {
+  // Evento para pedir a limpeza dos campos e da pre-visualizacao.
   @Output() onClear = new EventEmitter<void>();
 
   handleClear(): void {
+    // Encaminha o clique do usuario para o componente pai.
     this.onClear.emit();
   }
 }

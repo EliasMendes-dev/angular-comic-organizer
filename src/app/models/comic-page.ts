@@ -6,6 +6,7 @@ O uso, modificação e distribuição são permitidos apenas para fins NÃO COME
 Para ler a licença completa, veja o arquivo LICENSE.txt no diretório raiz.
 */
 
+// Representa uma pagina individual de uma edicao de quadrinho.
 export interface ComicPage {
   id: number;
   fileName: string;

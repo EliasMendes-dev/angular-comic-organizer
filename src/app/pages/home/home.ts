@@ -20,10 +20,12 @@ import { RenameSettings } from '../../components/rename-settings/rename-settings
   styleUrls: ['./home.css', './home-responsive.css'],
 })
 export class Home {
+  // Controla se a tela deve usar o layout amplo de desktop ou a versao compacta.
   isDesktop = window.innerWidth > 1000;
 
   @HostListener('window:resize')
   onResize(): void {
+    // Recalcula o layout quando a largura da janela muda.
     this.isDesktop = window.innerWidth > 1000;
   }
 }
