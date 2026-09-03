@@ -28,6 +28,7 @@ import { ComicPage } from '../../models/comic-page';
 import { ComicEdition } from '../../models/comic-edition';
 import { invoke, isTauri } from '@tauri-apps/api/core';
 import { PlatformNoticeService } from '../../services/platform-notice';
+import { WebArchiveService } from '../../services/web-archive';
 
 @Component({
   selector: 'app-rename-settings',
@@ -60,6 +61,7 @@ export class RenameSettings implements OnDestroy {
     public fileManagerService: FileManagerService,
     private conversionStateService: ConversionStateService,
     private platformNotice: PlatformNoticeService,
+    private webArchiveService: WebArchiveService,
   ) {
     if (isTauri()) {
       void listen<ExportProgress>(EXPORT_PROGRESS_EVENT, ({ payload }) => {
@@ -272,6 +274,12 @@ export class RenameSettings implements OnDestroy {
     this.clearFeedbackTimer();
     this.feedbackMessage.set('');
     document.body.classList.add('is-processing');
+
+    if (!isTauri()) {
+      void this.runWebExport(selectedEditions);
+      return;
+    }
+
     void invoke<string[]>(command, {
       editions: selectedEditions,
       title: this.title.trim(),
@@ -289,6 +297,56 @@ export class RenameSettings implements OnDestroy {
         this.isRenaming.set(false);
         document.body.classList.remove('is-processing');
       });
+  }
+
+  private async runWebExport(selectedEditions: ComicEdition[]): Promise<void> {
+    const seriesName = this.getSeriesName();
+    const startingEdition = this.getStartingEdition();
+    const totalEditions = selectedEditions.length;
+
+    try {
+      const editionsToExport = selectedEditions.map((edition, i) => {
+        const currentEditionNum = String(startingEdition + i).padStart(3, '0');
+        const editionName = `${seriesName} #${currentEditionNum}`;
+
+        const pages = edition.pages.map((page, pageIndex) => {
+          const currentPageNum = String(pageIndex + 1).padStart(3, '0');
+          const ext = this.getPageExtension(page.fileName);
+          return {
+            fileName: `${editionName} - ${currentPageNum}.${ext}`,
+            imagePath: page.imagePath,
+          };
+        });
+
+        return {
+          fileName: editionName,
+          pages,
+        };
+      });
+
+      const result = await this.webArchiveService.exportEditionsToWebFolder(
+        seriesName,
+        editionsToExport,
+        (percent, message) => {
+          this.progress.set(percent);
+          this.progressText.set(message);
+        },
+      );
+
+      if (result === 'cancelled') {
+        this.showFeedback('Operação cancelada pelo usuário.', 'error');
+      } else if (result === 'folder') {
+        this.showFeedback(`${totalEditions} arquivo(s) salvos na pasta '${seriesName}'.`, 'success');
+      } else {
+        this.showFeedback(`Pasta compactada '${seriesName}.zip' baixada com sucesso.`, 'success');
+      }
+    } catch (error) {
+      console.error('Erro ao exportar arquivos na Web:', error);
+      this.showFeedback(`Não foi possível gerar os arquivos: ${error}`, 'error');
+    } finally {
+      this.isRenaming.set(false);
+      document.body.classList.remove('is-processing');
+    }
   }
 
   private showFeedback(message: string, type: 'success' | 'error'): void {

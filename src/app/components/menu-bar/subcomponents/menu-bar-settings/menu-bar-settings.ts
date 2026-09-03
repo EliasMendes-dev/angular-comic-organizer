@@ -59,22 +59,26 @@ export class MenuBarSettings implements OnInit {
       return;
     }
 
-    console.log('📦 Paths recebidos do Tauri:');
+    console.log('📦 Arquivos selecionados:');
     newPaths.forEach((p) => console.log(p));
-
-    console.log('📤 Enviando paths para o backend...');
 
     let editions: ComicEdition[];
 
-    try {
-      const command = type === 'cbr-to-cbz' ? 'process_cbr_files' : 'process_cbz_files';
-      editions = await invoke<ComicEdition[]>(command, {
-        paths: newPaths,
-      });
-    } catch (error) {
-      console.error('Erro ao processar arquivos no backend:', error);
-      this.resetConversionIfNeeded(currentConversion, hasLoadedEditions);
-      return;
+    if (isTauri()) {
+      console.log('📤 Enviando paths para o backend Tauri...');
+      try {
+        const command = type === 'cbr-to-cbz' ? 'process_cbr_files' : 'process_cbz_files';
+        editions = await invoke<ComicEdition[]>(command, {
+          paths: newPaths,
+        });
+      } catch (error) {
+        console.error('Erro ao processar arquivos no backend:', error);
+        this.resetConversionIfNeeded(currentConversion, hasLoadedEditions);
+        return;
+      }
+    } else {
+      console.log('🌐 Criando edições e extraindo páginas no ambiente Web...');
+      editions = await this.fileManager.createWebEditions(newPaths);
     }
 
     if (!editions?.length) {
@@ -89,7 +93,7 @@ export class MenuBarSettings implements OnInit {
     this.fileManager.addSourcePaths(newPaths);
     this.fileManager.loadEditionsFromBackend(editions);
 
-    console.log('✅ Backend respondeu');
+    console.log('✅ Edições carregadas com sucesso');
   }
 
   get selectedConversion(): ConversionType | null {

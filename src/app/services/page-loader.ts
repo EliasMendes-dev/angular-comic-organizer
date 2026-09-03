@@ -7,7 +7,7 @@ Para ler a licença completa, veja o arquivo LICENSE.txt no diretório raiz.
 */
 
 import { Injectable } from '@angular/core';
-import { invoke } from '@tauri-apps/api/core';
+import { invoke, isTauri } from '@tauri-apps/api/core';
 
 interface PageData {
   bytes: number[];
@@ -82,6 +82,10 @@ export class PageLoaderService {
   }
 
   private async loadAndCache(path: string, generation: number): Promise<string> {
+    if (path.startsWith('blob:') || path.startsWith('data:') || !isTauri()) {
+      return path;
+    }
+
     const page = await invoke<PageData>('load_page', { path });
     const blob = new Blob([new Uint8Array(page.bytes)], { type: page.mime });
     const url = URL.createObjectURL(blob);

@@ -8,9 +8,11 @@ Para ler a licença completa, veja o arquivo LICENSE.txt no diretório raiz.
 
 import { Injectable, NgZone, signal } from '@angular/core';
 import { open } from '@tauri-apps/plugin-dialog';
-import { invoke } from '@tauri-apps/api/core';
+import { invoke, isTauri } from '@tauri-apps/api/core';
 import { ComicEdition } from '../models/comic-edition';
+import { ComicPage } from '../models/comic-page';
 import { ConversionType } from '../models/conversion-type';
+import { WebArchiveService } from './web-archive';
 import { Subject } from 'rxjs';
 
 function naturalCompare(a: string, b: string): number {
@@ -72,10 +74,13 @@ export class FileManagerService {
     activeEditionIds: new Set<number>(),
   });
   selectedSourcePaths = new Map<string, string>();
+  readonly webFiles = new Map<string, File>();
 
   private refresh$ = new Subject<void>();
 
   async saveOrder(editions: ComicEdition[]): Promise<void> {
+    if (!isTauri()) return;
+
     try {
       await invoke('save_edition_order', { editions });
     } catch (error) {
@@ -84,6 +89,19 @@ export class FileManagerService {
   }
 
   async deleteEditionFromBackend(editionTitle: string): Promise<void> {
+    if (!isTauri()) {
+      const edition = this.fileEditions.find((e) => e.title === editionTitle);
+      if (edition) {
+        edition.pages.forEach((p) => URL.revokeObjectURL(p.imagePath));
+      }
+      for (const [key, file] of Array.from(this.webFiles.entries())) {
+        if (this.getEditionTitleFromPath(file.name) === editionTitle) {
+          this.webFiles.delete(key);
+        }
+      }
+      return;
+    }
+
     try {
       await invoke('delete_edition_from_temp', { editionTitle });
     } catch (error) {
@@ -92,6 +110,14 @@ export class FileManagerService {
   }
 
   async clearAllTempEditions(): Promise<void> {
+    if (!isTauri()) {
+      this.fileEditions.forEach((e) => {
+        e.pages.forEach((p) => URL.revokeObjectURL(p.imagePath));
+      });
+      this.webFiles.clear();
+      return;
+    }
+
     try {
       await invoke('clear_all_temp_editions');
     } catch (error) {
@@ -99,7 +125,10 @@ export class FileManagerService {
     }
   }
 
-  constructor(private ngZone: NgZone) {}
+  constructor(
+    private ngZone: NgZone,
+    private webArchiveService: WebArchiveService,
+  ) {}
 
   get refreshChanges() {
     return this.refresh$.asObservable();
@@ -182,12 +211,14 @@ export class FileManagerService {
     for (const [path, storedTitle] of Array.from(this.selectedSourcePaths.entries())) {
       if (storedTitle === title) {
         this.selectedSourcePaths.delete(path);
+        this.webFiles.delete(path);
       }
     }
   }
 
   clearSourcePaths(): void {
     this.selectedSourcePaths.clear();
+    this.webFiles.clear();
   }
 
   private getEditionTitleFromPath(path: string): string {
@@ -195,26 +226,94 @@ export class FileManagerService {
     return fileName.replace(/\.[^.]+$/, '');
   }
 
+  getWebFile(fileName: string): File | undefined {
+    return this.webFiles.get(fileName);
+  }
+
+  async createWebEditions(fileNames: string[]): Promise<ComicEdition[]> {
+    const editions: ComicEdition[] = [];
+
+    for (let index = 0; index < fileNames.length; index += 1) {
+      const name = fileNames[index];
+      const file = this.webFiles.get(name);
+      const title = this.getEditionTitleFromPath(name);
+      let pages: ComicPage[] = [];
+
+      if (file) {
+        try {
+          pages = await this.webArchiveService.extractPages(file);
+        } catch (error) {
+          console.error(`Erro ao extrair páginas de ${name}:`, error);
+        }
+      }
+
+      editions.push({
+        id: Date.now() + index,
+        title,
+        pages,
+        originalFile: file,
+        selected: false,
+        expanded: false,
+      });
+    }
+
+    return editions;
+  }
+
   async selectFiles(conversion: ConversionType): Promise<string[]> {
     const extensions = conversion === 'cbr-to-cbz' ? ['cbr'] : ['cbz'];
 
-    try {
-      const files = await open({
-        multiple: true,
-        filters: [
-          {
-            name: 'Comic Books',
-            extensions,
-          },
-        ],
-      });
+    if (isTauri()) {
+      try {
+        const files = await open({
+          multiple: true,
+          filters: [
+            {
+              name: 'Comic Books',
+              extensions,
+            },
+          ],
+        });
 
-      if (!files) return [];
+        if (!files) return [];
 
-      return Array.isArray(files) ? files : [files];
-    } catch (err) {
-      console.error('Erro ao selecionar arquivos:', err);
-      return [];
+        return Array.isArray(files) ? files : [files];
+      } catch (err) {
+        console.error('Erro ao selecionar arquivos no Tauri:', err);
+        return [];
+      }
     }
+
+    return this.selectFilesFromBrowser(extensions);
+  }
+
+  private selectFilesFromBrowser(extensions: string[]): Promise<string[]> {
+    return new Promise((resolve) => {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.multiple = true;
+      input.accept = extensions.map((ext) => `.${ext}`).join(',');
+
+      input.onchange = () => {
+        const fileList = input.files;
+        if (!fileList || fileList.length === 0) {
+          resolve([]);
+          return;
+        }
+
+        const files = Array.from(fileList);
+        for (const file of files) {
+          this.webFiles.set(file.name, file);
+        }
+
+        resolve(files.map((file) => file.name));
+      };
+
+      input.oncancel = () => {
+        resolve([]);
+      };
+
+      input.click();
+    });
   }
 }
