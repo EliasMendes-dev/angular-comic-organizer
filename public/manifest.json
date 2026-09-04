@@ -1,0 +1,29 @@
+{
+  "background_color": "#0b0d10",
+  "dir": "ltr",
+  "display": "standalone",
+  "name": "Comic Organizer",
+  "orientation": "any",
+  "scope": "/",
+  "short_name": "Comic Org.",
+  "start_url": "/",
+  "theme_color": "#498661",
+  "icons": [
+    {
+      "src": "/icons/icon_comic_organizer.png",
+      "type": "image/png",
+      "sizes": "1254x1254",
+      "purpose": "any maskable"
+    }
+  ],
+  "id": "comic-organizer",
+  "description": "Organize, leia e renomeie seus arquivos de quadrinhos nos formatos CBZ e CBR.",
+  "lang": "pt-BR",
+  "iarc_rating_id": "General Audience",
+  "categories": [
+    "books",
+    "entertainment",
+    "productivity",
+    "reference"
+  ]
+}

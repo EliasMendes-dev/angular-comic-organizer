@@ -11,22 +11,33 @@
         &times;
       </button>
 
-      <p class="notice-eyebrow">Disponível no Desktop</p>
-      <h2 id="cbr-notice-title">A criação de arquivos CBR exige o WinRAR</h2>
-      <p>
-        Esta operação usa o WinRAR instalado no sistema. Baixe a versão Desktop
-        para criar ou manter arquivos no formato CBR.
-      </p>
+      @if (noticeService.isMobile) {
+        <p class="notice-eyebrow">Disponível no navegador</p>
+        <h2 id="cbr-notice-title">A criação de CBR não está disponível no celular</h2>
+        <p>
+          No celular, você pode abrir e organizar seus arquivos. Para criar ou converter
+          arquivos para o formato CBR, use o Comic Organizer no computador.
+        </p>
+      } @else {
+        <p class="notice-eyebrow">Disponível no Desktop</p>
+        <h2 id="cbr-notice-title">A criação de arquivos CBR exige o WinRAR</h2>
+        <p>
+          Esta operação usa o WinRAR instalado no sistema. Baixe a versão Desktop
+          para criar ou manter arquivos no formato CBR.
+        </p>
+      }
 
       <div class="notice-actions">
-        <a
-          class="notice-download"
-          href="https://github.com/EliasMendes-dev/angular-comic-organizer/releases"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Baixar versão Desktop
-        </a>
+        @if (!noticeService.isMobile) {
+          <a
+            class="notice-download"
+            href="https://github.com/EliasMendes-dev/angular-comic-organizer/releases"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Baixar versão Desktop
+          </a>
+        }
         <button class="notice-secondary" type="button" (click)="close()">Entendi</button>
       </div>
     </section>
