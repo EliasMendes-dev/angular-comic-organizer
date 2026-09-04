@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "app.vercel.angular_comic_organizer.twa",
+      "sha256_cert_fingerprints": [
+        "A3:B9:A3:69:D4:D7:B3:9E:81:52:21:DD:75:55:FD:2D:A8:B2:9D:44:67:A8:B0:74:28:A4:85:A9:24:CA:8D:47"
+      ]
+    }
+  }
+]
