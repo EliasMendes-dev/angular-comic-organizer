@@ -7,7 +7,7 @@ Para ler a licença completa, veja o arquivo LICENSE.txt no diretório raiz.
 */
 
 import { Component, OnInit } from '@angular/core';
-import { LucidePlus, LucideChevronDown, LucideMoon, LucideSun } from '@lucide/angular';
+import { LucidePlus, LucideChevronDown} from '@lucide/angular';
 import { ConversionStateService } from '../../../../services/conversion-state';
 import { FileManagerService } from '../../../../services/file-manager';
 import { ConversionType } from '../../../../models/conversion-type';
@@ -17,14 +17,13 @@ import { PlatformNoticeService } from '../../../../services/platform-notice';
 
 @Component({
   selector: 'app-menu-bar-settings',
-  imports: [LucidePlus, LucideChevronDown, LucideMoon, LucideSun],
+  imports: [LucidePlus, LucideChevronDown],
   templateUrl: './menu-bar-settings.html',
   styleUrl: './menu-bar-settings.css',
 })
 export class MenuBarSettings implements OnInit {
   // Controla se o menu de conversao esta aberto e qual tema esta ativo.
   isActive = false;
-  isDarkMode: boolean = true;
 
   constructor(
     private conversionStateService: ConversionStateService,
@@ -113,16 +112,8 @@ export class MenuBarSettings implements OnInit {
     return this.conversionStateService.getConversion();
   }
 
-  ngOnInit(): void {
-    // Mantém o tema padrão escuro ao abrir a aplicação.
-    document.body.classList.add('dark-mode');
-  }
+  ngOnInit(): void {}
 
-  changeTheme(): void {
-    // Alterna entre tema claro e escuro no corpo da página.
-    document.body.classList.toggle('dark-mode');
-    this.isDarkMode = !this.isDarkMode;
-  }
 
   private resetConversionIfNeeded(
     currentConversion: ConversionType | null,

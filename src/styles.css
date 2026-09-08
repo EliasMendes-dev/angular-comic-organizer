@@ -3,42 +3,8 @@
 ======================================== */
 :root {
   /* Surface */
-  --fundo-primario: #f5f7f6;
-  --fundo-secundario: #edf1ef;
-
-  --fundo-hover: #e3e9e5;
-  --fundo-input: #fbfcfb;
-
-  /* Borders */
-  --cor-borda: #d3dbd6;
-
-  /* Text */
-  --texto-primario: #223028;
-  --texto-secundario: #5e6b63;
-
-  /* Semantic colors */
-  --verde-primario: #498661;
-  --verde-hover: #4b9168;
-
-  --vermelho-primario: #b84e4e;
-  --vermelho-hover: #9e3f3f;
-
-  /* Extras */
-  --borda-input: #cfd8d3;
-
-  /* Font families and Padding - no .dark-mode needed*/
-  --familia-fonte-padrao: 'Geist', 'Geist Fallback';
-  --familia-fonte-mono-padrao: 'Geist Mono', 'Geist Mono Fallback';
-
-  --padding-padrao: 0.5rem 0.4rem;
-  --padding-padrao-responsivo: 0.5rem 1.5rem;
-}
-
-.dark-mode {
-  /* Surface */
   --fundo-primario: #0b0d10;
   --fundo-secundario: #0f1216;
-
   --fundo-hover: #131920;
   --fundo-input: #10151a;
 
@@ -52,12 +18,18 @@
   /* Semantic colors */
   --verde-primario: #2dd48a;
   --verde-hover: #19784d;
-
   --vermelho-primario: #520800;
   --vermelho-hover: #e05757;
 
   /* Extras */
   --borda-input: #25303a;
+
+  /* Font families and Padding */
+  --familia-fonte-padrao: 'Geist', 'Geist Fallback';
+  --familia-fonte-mono-padrao: 'Geist Mono', 'Geist Mono Fallback';
+
+  --padding-padrao: 0.5rem 0.4rem;
+  --padding-padrao-responsivo: 0.5rem 1.5rem;
 }
 
 /* ========================================
