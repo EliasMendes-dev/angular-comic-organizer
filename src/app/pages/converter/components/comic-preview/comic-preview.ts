@@ -36,6 +36,13 @@ export class ComicPreview {
   isDragging = false;
   private dragStart = { x: 0, y: 0 };
   private dragOrigin = { x: 0, y: 0 };
+  private touchPoints = new Map<number, { x: number; y: number }>();
+  private pinchStartDistance = 0;
+  private pinchStartZoom = 1;
+  private touchStart = { x: 0, y: 0 };
+  private touchMoved = false;
+  private lastTapAt = 0;
+  private lastTapPoint = { x: 0, y: 0 };
 
   // Limites de zoom usados pelo leitor.
   readonly minZoom = 0.5;
@@ -114,17 +121,31 @@ export class ComicPreview {
 
   @HostListener('document:pointermove', ['$event'])
   handleDocumentPointerMove(event: PointerEvent): void {
-    // Atualiza o arraste da imagem enquanto o usuario move o ponteiro.
+    if (event.pointerType === 'touch') {
+      this.handleTouchMove(event);
+      return;
+    }
+
     this.dragImage(event);
   }
 
-  @HostListener('document:pointerup')
-  handleDocumentPointerUp(): void {
+  @HostListener('document:pointerup', ['$event'])
+  handleDocumentPointerUp(event: PointerEvent): void {
+    if (event.pointerType === 'touch') {
+      this.handleTouchEnd(event);
+      return;
+    }
+
     this.stopDragging();
   }
 
-  @HostListener('document:pointercancel')
-  handleDocumentPointerCancel(): void {
+  @HostListener('document:pointercancel', ['$event'])
+  handleDocumentPointerCancel(event: PointerEvent): void {
+    if (event.pointerType === 'touch') {
+      this.touchPoints.delete(event.pointerId);
+      this.touchMoved = true;
+    }
+
     this.stopDragging();
   }
 
@@ -203,7 +224,11 @@ export class ComicPreview {
   }
 
   startDragging(event: PointerEvent): void {
-    // Arrastar so faz sentido quando a imagem esta ampliada.
+    if (event.pointerType === 'touch') {
+      this.startTouchGesture(event);
+      return;
+    }
+
     if (this.zoom <= 1 || event.button !== 0) {
       return;
     }
@@ -229,6 +254,105 @@ export class ComicPreview {
   stopDragging(): void {
     // Finaliza o arraste atual.
     this.isDragging = false;
+  }
+
+  private startTouchGesture(event: PointerEvent): void {
+    event.preventDefault();
+    this.touchPoints.set(event.pointerId, { x: event.clientX, y: event.clientY });
+
+    if (this.touchPoints.size === 1) {
+      this.touchStart = { x: event.clientX, y: event.clientY };
+      this.touchMoved = false;
+
+      if (this.zoom > 1) {
+        this.isDragging = true;
+        this.dragStart = { x: event.clientX, y: event.clientY };
+        this.dragOrigin = { ...this.dragOffset };
+      }
+      return;
+    }
+
+    if (this.touchPoints.size === 2) {
+      this.stopDragging();
+      this.pinchStartDistance = this.getTouchDistance();
+      this.pinchStartZoom = this.zoom;
+    }
+  }
+
+  private handleTouchMove(event: PointerEvent): void {
+    const point = this.touchPoints.get(event.pointerId);
+    if (!point) return;
+
+    point.x = event.clientX;
+    point.y = event.clientY;
+    this.touchMoved = true;
+
+    if (this.touchPoints.size >= 2) {
+      event.preventDefault();
+      const distance = this.getTouchDistance();
+
+      if (this.pinchStartDistance > 0) {
+        this.setZoom(this.pinchStartZoom * (distance / this.pinchStartDistance));
+      }
+      return;
+    }
+
+    if (this.isDragging) {
+      event.preventDefault();
+      this.dragOffset = {
+        x: this.dragOrigin.x + event.clientX - this.dragStart.x,
+        y: this.dragOrigin.y + event.clientY - this.dragStart.y,
+      };
+    }
+  }
+
+  private handleTouchEnd(event: PointerEvent): void {
+    const point = this.touchPoints.get(event.pointerId);
+    this.touchPoints.delete(event.pointerId);
+
+    if (point && this.touchPoints.size === 0) {
+      const deltaX = event.clientX - this.touchStart.x;
+      const deltaY = event.clientY - this.touchStart.y;
+      const now = Date.now();
+      const tapDistance = Math.hypot(
+        event.clientX - this.lastTapPoint.x,
+        event.clientY - this.lastTapPoint.y,
+      );
+      const isDoubleTap = now - this.lastTapAt < 300 && tapDistance < 32 && !this.touchMoved;
+
+      if (isDoubleTap) {
+        this.setZoom(this.zoom > 1 ? 1 : 2);
+        this.lastTapAt = 0;
+        this.touchMoved = false;
+      } else if (
+        this.zoom <= 1 &&
+        Math.abs(deltaX) > 60 &&
+        Math.abs(deltaX) > Math.abs(deltaY) * 1.25
+      ) {
+        this.navigatePage(deltaX < 0 ? 'next' : 'previous');
+        this.lastTapAt = 0;
+      } else if (!this.touchMoved) {
+        this.lastTapAt = now;
+        this.lastTapPoint = { x: event.clientX, y: event.clientY };
+      }
+    }
+
+    if (this.touchPoints.size === 1 && this.zoom > 1) {
+      const remainingPoint = this.touchPoints.values().next().value as { x: number; y: number };
+      this.dragStart = { ...remainingPoint };
+      this.dragOrigin = { ...this.dragOffset };
+      this.isDragging = true;
+    } else if (this.touchPoints.size === 0) {
+      this.stopDragging();
+      this.pinchStartDistance = 0;
+    }
+  }
+
+  private getTouchDistance(): number {
+    const points = Array.from(this.touchPoints.values());
+    if (points.length < 2) return 0;
+
+    return Math.hypot(points[0].x - points[1].x, points[0].y - points[1].y);
   }
 
   private setZoom(value: number): void {
