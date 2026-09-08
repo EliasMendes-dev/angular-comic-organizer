@@ -1,0 +1,69 @@
+<section class="library-page">
+  <header class="library-header">
+    <div>
+      <p class="eyebrow">Your shelf</p>
+      <h2>Library</h2>
+      <p class="library-subtitle">Um lugar para acompanhar tudo o que você quer ler.</p>
+    </div>
+    <div class="library-actions">
+      <label class="button button-primary">
+        <span>Adicionar pasta</span>
+        <input type="file" webkitdirectory directory multiple accept=".cbz,.cbr" (change)="onFolderSelected($event)" />
+      </label>
+      <button class="button button-secondary" type="button" disabled title="Integração com Google Drive em breve">Google Drive</button>
+    </div>
+  </header>
+
+  <div class="library-toolbar">
+    <label class="search-field">
+      <span class="sr-only">Buscar na biblioteca</span>
+      <input type="search" placeholder="Buscar por título" [value]="search()" (input)="onSearch($event)" />
+    </label>
+    <label>
+      <span class="sr-only">Filtrar por formato</span>
+      <select [value]="format()" (change)="setFormat($event)">
+        <option value="all">Todos os formatos</option>
+        <option value="cbz">CBZ</option>
+        <option value="cbr">CBR</option>
+      </select>
+    </label>
+    <label>
+      <span class="sr-only">Filtrar por status</span>
+      <select [value]="status()" (change)="setStatus($event)">
+        <option value="all">Todos os status</option>
+        <option value="to-read">Ainda para ler</option>
+        <option value="reading">Em leitura</option>
+        <option value="read">Finalizados</option>
+      </select>
+    </label>
+  </div>
+
+  @if (editions().length) {
+    <div class="edition-grid">
+      @for (edition of editions(); track trackEdition($index, edition)) {
+        <article class="edition-card">
+          <div class="cover-placeholder" aria-hidden="true">{{ edition.title.charAt(0).toUpperCase() }}</div>
+          <div class="edition-details">
+            <span class="format-tag">{{ edition.originalFile?.name?.split('.')?.pop()?.toUpperCase() ?? 'COMIC' }}</span>
+            <h3>{{ edition.title }}</h3>
+            <p>{{ edition.pages.length }} páginas</p>
+            <button type="button" class="card-action">Abrir edição</button>
+          </div>
+        </article>
+      }
+    </div>
+  } @else {
+    <div class="empty-library">
+      <div class="empty-mark" aria-hidden="true">+</div>
+      <h3>Sua biblioteca começa aqui</h3>
+      <p>Escolha uma pasta local com seus arquivos CBZ ou CBR para começar a montar sua estante.</p>
+      <div class="empty-links">
+        <label class="button button-primary">
+          Adicionar pasta
+          <input type="file" webkitdirectory directory multiple accept=".cbz,.cbr" (change)="onFolderSelected($event)" />
+        </label>
+        <a routerLink="/converter">Abrir conversor</a>
+      </div>
+    </div>
+  }
+</section>

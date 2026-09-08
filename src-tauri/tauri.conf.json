@@ -15,6 +15,7 @@
         "title": "Comic Organizer",
         "width": 800,
         "height": 600,
+        "minWidth": 482,
         "resizable": true,
         "fullscreen": false
       }

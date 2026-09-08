@@ -7,15 +7,15 @@ Para ler a licença completa, veja o arquivo LICENSE.txt no diretório raiz.
 */
 
 import { Component } from '@angular/core';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 import { MenuBarLogo } from './subcomponents/menu-bar-logo/menu-bar-logo';
-import { MenuBarSettings } from './subcomponents/menu-bar-settings/menu-bar-settings';
 
 @Component({
   selector: 'app-menu-bar',
   standalone: true,
-  imports: [MenuBarLogo, MenuBarSettings],
+  imports: [MenuBarLogo, RouterLink, RouterLinkActive],
   templateUrl: './menu-bar.html',
   styleUrls: ['./menu-bar.css', './menu-bar-responsive.css'],
 })
-// Barra superior que junta logo e controles de selecao/tema.
+// Barra superior global com a identidade e a navegacao principal.
 export class MenuBar {}

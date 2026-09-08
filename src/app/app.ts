@@ -6,7 +6,7 @@ O uso, modificação e distribuição são permitidos apenas para fins NÃO COME
 Para ler a licença completa, veja o arquivo LICENSE.txt no diretório raiz.
 */
 
-import { Component, signal } from '@angular/core';
+import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { MenuBar} from './components/menu-bar/menu-bar';
 import { FooterBar } from './components/footer-bar/footer-bar';
@@ -19,6 +19,4 @@ import { PlatformNotice } from './components/platform-notice/platform-notice';
   styleUrl: './app.css'
 })
 export class App {
-  // Titulo base da aplicacao, usado como referencia geral do app.
-  protected readonly title = signal('angular_comic_organizer');
 }

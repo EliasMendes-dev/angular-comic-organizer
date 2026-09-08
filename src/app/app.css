@@ -1,23 +1,15 @@
 .app-container {
-  display: grid;
-  grid-template-rows: auto 1fr auto;
+  display: flex;
+  flex-direction: column;
   min-height: 100vh;
   gap: 20px;
 }
 
-.msginfo {
-  font-size: 0.8rem;
-  color: var(--verde-primario);
-  text-align: center;
+main {
+  flex: 1 0 auto;
+  min-width: 0;
+  padding-inline: var(--page-gutter);
 }
-
-.msginfo-label {
-  background-color: var(--verde-primario);
-  color: var(--fundo-primario);
-  border-radius: 4px;
-  padding: 4px 8px;
-}
-
 
 @media (min-width: 1001px) {
 :host {
@@ -27,13 +19,11 @@
 }
 
 .app-container {
-  display: grid;
-  grid-template-rows: auto 1fr auto;
+  display: flex;
+  flex-direction: column;
   min-height: 100vh;
   gap: 20px;
 }
 
-main {
-  min-height: 0;
-}
+main { min-height: 0; }
 }

@@ -30,6 +30,7 @@
 
   --padding-padrao: 0.5rem 0.4rem;
   --padding-padrao-responsivo: 0.5rem 1.5rem;
+  --page-gutter: clamp(0.75rem, 2vw, 1.5rem);
 }
 
 /* ========================================

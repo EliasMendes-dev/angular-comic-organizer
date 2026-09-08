@@ -1,0 +1,27 @@
+<p class="msginfo">
+  <span class="msginfo-label">Atenção</span>
+  <span>
+    Para converter ou renomear para <strong>CBR</strong>, o WinRAR precisa estar instalado.
+    Operações com <strong>CBZ</strong> não exigem o WinRAR.
+  </span>
+</p>
+
+<div class="container-main">
+    @if (isDesktop) {
+      <as-split direction="horizontal" unit="percent" [gutterSize]="5" [restrictMove]="true" [useTransition]="true">
+        <as-split-area [size]="25" [minSize]="20">
+          <app-file-explorer />
+        </as-split-area>
+        <as-split-area [size]="50" [minSize]="35">
+          <app-comic-preview />
+        </as-split-area>
+        <as-split-area [size]="25" [minSize]="25">
+          <app-rename-settings />
+        </as-split-area>
+      </as-split>
+    } @else {
+      <app-file-explorer></app-file-explorer>
+      <app-comic-preview></app-comic-preview>
+      <app-rename-settings></app-rename-settings>
+    }
+</div>

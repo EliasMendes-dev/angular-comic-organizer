@@ -1,6 +1,25 @@
 @media (min-width: 600px) {
   .container-header {
-    padding: var(--padding-padrao-responsivo);
+    padding: 0.5rem var(--page-gutter);
+  }
+}
+
+@media (max-width: 700px) {
+  .container-header {
+    flex-wrap: wrap;
+    row-gap: 0.5rem;
+  }
+
+  .container-header-logo {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .primary-nav {
+    flex-basis: 100%;
+    justify-content: flex-start;
+    order: 3;
+    padding-bottom: 0.15rem;
   }
 }
 

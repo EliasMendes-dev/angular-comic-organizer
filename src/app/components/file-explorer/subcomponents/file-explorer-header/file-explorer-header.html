@@ -5,6 +5,36 @@
   </div>
 
   <div class="actions-file-explorer">
+    <div class="format-selector-container">
+      <button
+        class="format-selector action-button"
+        aria-label="Escolher tipo de conversão"
+        (click)="isFormatMenuActive = !isFormatMenuActive"
+      >
+        <svg lucidePlus></svg>
+        <svg lucideChevronDown></svg>
+      </button>
+
+      <div class="format-options" [class.active]="isFormatMenuActive">
+        <button
+          class="format-option"
+          [class.inactive]="selectedConversion && selectedConversion !== 'cbr-to-cbz'"
+          [disabled]="selectedConversion && selectedConversion !== 'cbr-to-cbz'"
+          (click)="selectConversion('cbr-to-cbz')"
+        >
+          CBR para CBZ
+        </button>
+        <button
+          class="format-option"
+          [class.inactive]="selectedConversion && selectedConversion !== 'cbz-to-cbr'"
+          [disabled]="selectedConversion && selectedConversion !== 'cbz-to-cbr'"
+          (click)="selectConversion('cbz-to-cbr')"
+        >
+          CBZ para CBR
+        </button>
+      </div>
+    </div>
+
     <button
       class="action-button chooseall"
       [class.active]="isActive"

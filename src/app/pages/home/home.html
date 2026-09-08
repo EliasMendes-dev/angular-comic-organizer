@@ -1,22 +1,39 @@
-<div class="container-main">
-  @if (isDesktop) {
-    <as-split direction="horizontal" unit="percent" [gutterSize]="5" [restrictMove]="true" [useTransition]="true" >
-      <as-split-area [size]="25" [minSize]="20">
-        <app-file-explorer />
-      </as-split-area>
-
-      <as-split-area [size]="50" [minSize]="35">
-        <app-comic-preview />
-      </as-split-area>
-
-      <as-split-area [size]="25" [minSize]="25">
-        <app-rename-settings />
-      </as-split-area>
-    </as-split>
-
-  } @else {
-    <app-file-explorer></app-file-explorer>
-    <app-comic-preview></app-comic-preview>
-    <app-rename-settings></app-rename-settings>
-  }
-</div>
+<section class="home-page">
+  <div class="home-intro">
+    <div>
+      <p class="eyebrow">Comic Organizer</p>
+      <h2>Sua estante, do seu jeito.</h2>
+      <p class="home-lead">Reúna seus quadrinhos, acompanhe o que está lendo e encontre a próxima história sem sair do ritmo.</p>
+    </div>
+    <div class="home-actions">
+      <a routerLink="/library" class="primary-action">Abrir biblioteca</a>
+      <a routerLink="/converter" class="secondary-action">Converter arquivos</a>
+    </div>
+  </div>
+  <div class="stats-grid" aria-label="Resumo da biblioteca">
+    <article><span>Na biblioteca</span><strong>{{ editions().length }}</strong><small>edições carregadas</small></article>
+    <article><span>Páginas</span><strong>{{ totalPages() }}</strong><small>prontas para ler</small></article>
+    <article><span>Em leitura</span><strong>0</strong><small>nenhuma por enquanto</small></article>
+    <article><span>Favoritos</span><strong>0</strong><small>marque suas preferidas</small></article>
+  </div>
+  <div class="home-lower-grid">
+    <section class="home-panel">
+      <div class="panel-heading"><div><p class="eyebrow">Continue daqui</p><h3>Leitura recente</h3></div><a routerLink="/library">Ver tudo</a></div>
+      @if (editions().length) {
+        <div class="recent-list">
+          @for (edition of editions().slice(0, 4); track edition.id) {
+            <div class="recent-item"><span class="recent-mark">{{ edition.title.charAt(0).toUpperCase() }}</span><div><strong>{{ edition.title }}</strong><small>{{ edition.pages.length }} páginas</small></div><span class="status-dot"></span></div>
+          }
+        </div>
+      } @else {
+        <div class="panel-empty"><strong>Nada por aqui ainda.</strong><span>Adicione uma pasta local para montar sua biblioteca.</span><a routerLink="/library">Adicionar quadrinhos</a></div>
+      }
+    </section>
+    <aside class="home-panel accent-panel">
+      <p class="eyebrow">Próximo passo</p>
+      <h3>Traga sua coleção para dentro.</h3>
+      <p>Comece com uma pasta local. O suporte a fontes como Google Drive entra na próxima etapa da biblioteca.</p>
+      <a routerLink="/library">Configurar biblioteca <span aria-hidden="true">→</span></a>
+    </aside>
+  </div>
+</section>

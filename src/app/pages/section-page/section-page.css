@@ -1,0 +1,39 @@
+.section-page {
+  display: grid;
+  place-items: center;
+  min-height: 60vh;
+  padding: 2rem 0;
+}
+
+.section-copy {
+  max-width: 520px;
+  text-align: center;
+}
+
+.eyebrow {
+  color: var(--verde-primario);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+h2 {
+  margin: 0.5rem 0;
+  font-size: clamp(2rem, 5vw, 3.5rem);
+}
+
+.section-copy > p:not(.eyebrow) {
+  color: var(--texto-secundario);
+  line-height: 1.6;
+}
+
+.section-copy a {
+  display: inline-block;
+  margin-top: 1.5rem;
+  padding: 0.7rem 1rem;
+  border: 1px solid var(--verde-primario);
+  border-radius: 6px;
+  color: var(--verde-primario);
+  text-decoration: none;
+}
