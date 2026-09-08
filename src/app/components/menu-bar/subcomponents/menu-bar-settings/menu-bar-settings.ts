@@ -13,7 +13,6 @@ import { FileManagerService } from '../../../../services/file-manager';
 import { ConversionType } from '../../../../models/conversion-type';
 import { ComicEdition } from '../../../../models/comic-edition';
 import { invoke, isTauri } from '@tauri-apps/api/core';
-import { PlatformNoticeService } from '../../../../services/platform-notice';
 
 @Component({
   selector: 'app-menu-bar-settings',
@@ -28,7 +27,6 @@ export class MenuBarSettings implements OnInit {
   constructor(
     private conversionStateService: ConversionStateService,
     private fileManager: FileManagerService,
-    private platformNotice: PlatformNoticeService,
   ) {}
 
   async selectConversion(type: ConversionType): Promise<void> {
@@ -39,13 +37,6 @@ export class MenuBarSettings implements OnInit {
 
     if (currentConversion && currentConversion !== type) {
       // Se o usuario ja escolheu um fluxo, nao permitimos trocar para outro.
-      return;
-    }
-
-    if (type === 'cbz-to-cbr' && !isTauri()) {
-      // Exportar para CBR depende do app desktop, entao avisamos no navegador.
-      this.isActive = false;
-      this.platformNotice.showCbrExportNotice();
       return;
     }
 
