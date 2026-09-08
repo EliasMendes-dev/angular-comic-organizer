@@ -6,8 +6,10 @@ O uso, modificação e distribuição são permitidos apenas para fins NÃO COME
 Para ler a licença completa, veja o arquivo LICENSE.txt no diretório raiz.
 */
 
-import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';
+import { ApplicationConfig, isDevMode, provideBrowserGlobalErrorListeners } from '@angular/core';
 import { provideRouter } from '@angular/router';
+import { provideServiceWorker } from '@angular/service-worker';
+import { isTauri } from '@tauri-apps/api/core';
 
 import { routes } from '@app/app.routes';
 
@@ -16,5 +18,9 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
+    provideServiceWorker('ngsw.json', {
+      enabled: !isDevMode() && !isTauri(),
+      registrationStrategy: 'registerWhenStable:30000',
+    }),
   ]
 };
