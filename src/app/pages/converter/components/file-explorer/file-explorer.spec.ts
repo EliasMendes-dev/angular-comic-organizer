@@ -7,9 +7,9 @@ Para ler a licença completa, veja o arquivo LICENSE.txt no diretório raiz.
 */
 
 import { describe, expect, it } from 'vitest';
-import { FileExplorer } from './file-explorer';
-import { ComicPage } from '../../models/comic-page';
-import { ComicPreviewStateService } from '../../services/comic-preview-state';
+import { FileExplorer } from '@app/pages/converter/components/file-explorer/file-explorer';
+import { ComicPage } from '@app/models/comic-page';
+import { ComicPreviewStateService } from '@app/services/comic-preview-state';
 
 describe('FileExplorer page selection', () => {
   const createComponent = () =>

@@ -7,7 +7,7 @@ Para ler a licença completa, veja o arquivo LICENSE.txt no diretório raiz.
 */
 
 import { Injectable, signal } from '@angular/core';
-import { ComicPage } from '../models/comic-page';
+import { ComicPage } from '@app/models/comic-page';
 
 @Injectable({
   providedIn: 'root',

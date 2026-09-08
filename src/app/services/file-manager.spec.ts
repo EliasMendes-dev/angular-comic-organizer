@@ -7,8 +7,8 @@ Para ler a licença completa, veja o arquivo LICENSE.txt no diretório raiz.
 */
 
 import { describe, expect, it } from 'vitest';
-import { getExportCommandName, getRenameCommandName } from './conversion-state';
-import { mapBackendEditionsToExplorerModel } from './file-manager';
+import { getExportCommandName, getRenameCommandName } from '@app/services/conversion-state';
+import { mapBackendEditionsToExplorerModel } from '@app/services/file-manager';
 
 describe('mapBackendEditionsToExplorerModel', () => {
   it('maps backend editions into explorer-ready items with page selection state', () => {

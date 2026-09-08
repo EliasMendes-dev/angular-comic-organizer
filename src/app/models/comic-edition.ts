@@ -6,7 +6,7 @@ O uso, modificação e distribuição são permitidos apenas para fins NÃO COME
 Para ler a licença completa, veja o arquivo LICENSE.txt no diretório raiz.
 */
 
-import { ComicPage } from "./comic-page";
+import { ComicPage } from '@app/models/comic-page';
 
 // Agrupa as paginas e metadados de uma edicao carregada no app.
 export interface ComicEdition {

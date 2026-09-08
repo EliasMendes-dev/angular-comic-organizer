@@ -8,27 +8,27 @@ Para ler a licença completa, veja o arquivo LICENSE.txt no diretório raiz.
 
 import { Component, effect, OnDestroy, signal } from '@angular/core';
 import { listen } from '@tauri-apps/api/event';
-import { FileManagerService } from '../../services/file-manager';
+import { FileManagerService } from '@app/services/file-manager';
 import {
   ConversionStateService,
   EXPORT_PROGRESS_EVENT,
   ExportProgress,
   getExportCommandName,
   getRenameCommandName,
-} from '../../services/conversion-state';
-import { RenameSettingsHeader } from './subcomponents/rename-settings-header/rename-settings-header';
-import { RenameSettingsForm } from './subcomponents/rename-settings-form/rename-settings-form';
-import { RenameSettingsActions } from './subcomponents/rename-settings-actions/rename-settings-actions';
+} from '@app/services/conversion-state';
+import { RenameSettingsHeader } from '@app/pages/converter/components/rename-settings/subcomponents/rename-settings-header/rename-settings-header';
+import { RenameSettingsForm } from '@app/pages/converter/components/rename-settings/subcomponents/rename-settings-form/rename-settings-form';
+import { RenameSettingsActions } from '@app/pages/converter/components/rename-settings/subcomponents/rename-settings-actions/rename-settings-actions';
 import {
   RenameSettingsPreview,
   PreviewEdition,
   PreviewPage,
-} from './subcomponents/rename-settings-preview/rename-settings-preview';
-import { ComicPage } from '../../models/comic-page';
-import { ComicEdition } from '../../models/comic-edition';
+} from '@app/pages/converter/components/rename-settings/subcomponents/rename-settings-preview/rename-settings-preview';
+import { ComicPage } from '@app/models/comic-page';
+import { ComicEdition } from '@app/models/comic-edition';
 import { invoke, isTauri } from '@tauri-apps/api/core';
-import { PlatformNoticeService } from '../../services/platform-notice';
-import { WebArchiveService } from '../../services/web-archive';
+import { PlatformNoticeService } from '@app/services/platform-notice';
+import { WebArchiveService } from '@app/services/web-archive';
 
 @Component({
   selector: 'app-rename-settings',

@@ -9,10 +9,10 @@ Para ler a licença completa, veja o arquivo LICENSE.txt no diretório raiz.
 import { Injectable, NgZone, signal } from '@angular/core';
 import { open } from '@tauri-apps/plugin-dialog';
 import { invoke, isTauri } from '@tauri-apps/api/core';
-import { ComicEdition } from '../models/comic-edition';
-import { ComicPage } from '../models/comic-page';
-import { ConversionType } from '../models/conversion-type';
-import { WebArchiveService } from './web-archive';
+import { ComicEdition } from '@app/models/comic-edition';
+import { ComicPage } from '@app/models/comic-page';
+import { ConversionType } from '@app/models/conversion-type';
+import { WebArchiveService } from '@app/services/web-archive';
 import { Subject } from 'rxjs';
 
 // Compara nomes com numeros usando ordem natural: "10" vem depois de "2".

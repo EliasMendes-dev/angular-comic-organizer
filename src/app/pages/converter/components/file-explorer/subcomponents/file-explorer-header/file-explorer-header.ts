@@ -17,10 +17,10 @@ import {
   LucideSquareX,
 } from '@lucide/angular';
 import { invoke, isTauri } from '@tauri-apps/api/core';
-import { ConversionStateService } from '../../../../services/conversion-state';
-import { FileManagerService } from '../../../../services/file-manager';
-import { ConversionType } from '../../../../models/conversion-type';
-import { ComicEdition } from '../../../../models/comic-edition';
+import { ConversionStateService } from '@app/services/conversion-state';
+import { FileManagerService } from '@app/services/file-manager';
+import { ConversionType } from '@app/models/conversion-type';
+import { ComicEdition } from '@app/models/comic-edition';
 
 @Component({
   selector: 'app-file-explorer-header',

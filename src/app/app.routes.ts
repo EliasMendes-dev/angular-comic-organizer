@@ -7,10 +7,10 @@ Para ler a licença completa, veja o arquivo LICENSE.txt no diretório raiz.
 */
 
 import { Routes } from '@angular/router';
-import { Home } from './pages/home/home';
-import { Library } from './pages/library/library';
-import { Converter } from './pages/converter/converter';
-import { SectionPage } from './pages/section-page/section-page';
+import { Home } from '@app/pages/home/home';
+import { Library } from '@app/pages/library/library';
+import { Converter } from '@app/pages/converter/converter';
+import { SectionPage } from '@app/pages/section-page/section-page';
 
 export const routes: Routes = [
   {

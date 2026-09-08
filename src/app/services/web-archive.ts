@@ -9,7 +9,7 @@ Para ler a licença completa, veja o arquivo LICENSE.txt no diretório raiz.
 import { Injectable } from '@angular/core';
 import JSZip from 'jszip';
 import { createExtractorFromData } from 'node-unrar-js';
-import { ComicPage } from '../models/comic-page';
+import { ComicPage } from '@app/models/comic-page';
 
 // Ordena nomes misturando texto e numeros, para seguir a ordem natural das paginas.
 function naturalCompare(a: string, b: string): number {

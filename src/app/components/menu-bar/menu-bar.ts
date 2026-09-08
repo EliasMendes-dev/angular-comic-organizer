@@ -8,7 +8,7 @@ Para ler a licença completa, veja o arquivo LICENSE.txt no diretório raiz.
 
 import { Component } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
-import { MenuBarLogo } from './subcomponents/menu-bar-logo/menu-bar-logo';
+import { MenuBarLogo } from '@app/components/menu-bar/subcomponents/menu-bar-logo/menu-bar-logo';
 
 @Component({
   selector: 'app-menu-bar',

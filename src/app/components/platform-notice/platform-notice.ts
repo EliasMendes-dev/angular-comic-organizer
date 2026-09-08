@@ -3,7 +3,7 @@ Required Notice: Copyright (C) 2026 Jose Elias Herminio Mendes - Projeto Comic O
 */
 
 import { Component } from '@angular/core';
-import { PlatformNoticeService } from '../../services/platform-notice';
+import { PlatformNoticeService } from '@app/services/platform-notice';
 
 @Component({
   selector: 'app-platform-notice',

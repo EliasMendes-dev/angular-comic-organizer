@@ -8,9 +8,9 @@ Para ler a licença completa, veja o arquivo LICENSE.txt no diretório raiz.
 
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { MenuBar} from './components/menu-bar/menu-bar';
-import { FooterBar } from './components/footer-bar/footer-bar';
-import { PlatformNotice } from './components/platform-notice/platform-notice';
+import { MenuBar} from '@app/components/menu-bar/menu-bar';
+import { FooterBar } from '@app/components/footer-bar/footer-bar';
+import { PlatformNotice } from '@app/components/platform-notice/platform-notice';
 
 @Component({
   selector: 'app-root',

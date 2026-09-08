@@ -8,7 +8,7 @@ Para ler a licença completa, veja o arquivo LICENSE.txt no diretório raiz.
 
 import { Component, computed, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { FileManagerService } from '../../services/file-manager';
+import { FileManagerService } from '@app/services/file-manager';
 
 @Component({
   selector: 'app-home',

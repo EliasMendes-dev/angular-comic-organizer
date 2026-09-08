@@ -1,5 +1,16 @@
-.msginfo { margin: 0.75rem auto 0; color: var(--verde-primario); font-size: 0.8rem; text-align: center; }
-.msginfo-label { margin-right: 0.35rem; padding: 4px 8px; border-radius: 4px; background: var(--verde-primario); color: var(--fundo-primario); }
+.msginfo {
+  margin: 0.75rem auto 0;
+  color: var(--verde-primario);
+  font-size: 0.8rem;
+  text-align: center;
+}
+.msginfo-label {
+  margin-right: 0.35rem;
+  padding: 4px 8px;
+  border-radius: 4px;
+  background: var(--verde-primario);
+  color: var(--fundo-primario);
+}
 
 .container-main {
   display: grid;
@@ -26,7 +37,7 @@ as-split-area {
 }
 
 .as-split-gutter::before {
-  content: "";
+  content: '';
   position: absolute;
   top: 0;
   bottom: 0;
@@ -52,6 +63,7 @@ as-split:has(.as-split-gutter:hover) {
     grid-template-rows: auto;
     gap: 20px;
     width: 100%;
-    min-height: calc(100vh - 180px);
+    height: calc(100vh - 180px);
+    min-height: 0;
   }
 }

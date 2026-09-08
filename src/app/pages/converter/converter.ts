@@ -8,9 +8,9 @@ Para ler a licença completa, veja o arquivo LICENSE.txt no diretório raiz.
 
 import { Component, HostListener } from '@angular/core';
 import { SplitAreaComponent, SplitComponent } from 'angular-split';
-import { ComicPreview } from '../../components/comic-preview/comic-preview';
-import { FileExplorer } from '../../components/file-explorer/file-explorer';
-import { RenameSettings } from '../../components/rename-settings/rename-settings';
+import { ComicPreview } from '@app/pages/converter/components/comic-preview/comic-preview';
+import { FileExplorer } from '@app/pages/converter/components/file-explorer/file-explorer';
+import { RenameSettings } from '@app/pages/converter/components/rename-settings/rename-settings';
 
 @Component({
   selector: 'app-converter',

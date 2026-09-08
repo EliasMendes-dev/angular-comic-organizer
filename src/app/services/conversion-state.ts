@@ -8,7 +8,7 @@ compartilhar estado entre componentes
 */
 
 import { Injectable } from '@angular/core';
-import { ConversionType } from '../models/conversion-type';
+import { ConversionType } from '@app/models/conversion-type';
 
 export type ExportCommandName = 'export_renamed_cbrs' | 'export_renamed_cbzs';
 export const EXPORT_PROGRESS_EVENT = 'export-progress';

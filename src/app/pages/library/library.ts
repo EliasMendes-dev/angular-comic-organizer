@@ -1,7 +1,7 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { ComicEdition } from '../../models/comic-edition';
-import { FileManagerService } from '../../services/file-manager';
+import { ComicEdition } from '@app/models/comic-edition';
+import { FileManagerService } from '@app/services/file-manager';
 
 @Component({
   selector: 'app-library',

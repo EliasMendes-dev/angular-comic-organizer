@@ -8,10 +8,10 @@ Para ler a licença completa, veja o arquivo LICENSE.txt no diretório raiz.
 
 import { Component, effect, HostListener, signal } from '@angular/core';
 import { LucideEye, LucideImage, LucideX } from '@lucide/angular';
-import { ComicPreviewStateService } from '../../services/comic-preview-state';
-import { PageLoaderService } from '../../services/page-loader';
-import { FileManagerService } from '../../services/file-manager';
-import { ComicPage } from '../../models/comic-page';
+import { ComicPreviewStateService } from '@app/services/comic-preview-state';
+import { PageLoaderService } from '@app/services/page-loader';
+import { FileManagerService } from '@app/services/file-manager';
+import { ComicPage } from '@app/models/comic-page';
 import { TitleCasePipe } from '@angular/common';
 
 @Component({

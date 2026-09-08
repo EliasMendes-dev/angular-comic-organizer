@@ -9,7 +9,7 @@ Para ler a licença completa, veja o arquivo LICENSE.txt no diretório raiz.
 import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';
 import { provideRouter } from '@angular/router';
 
-import { routes } from './app.routes';
+import { routes } from '@app/app.routes';
 
 // Configuracao global do Angular: listeners de erro e rotas da aplicacao.
 export const appConfig: ApplicationConfig = {

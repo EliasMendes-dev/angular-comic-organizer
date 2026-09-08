@@ -26,8 +26,8 @@ import {
   LucideGrip,
 } from '@lucide/angular';
 import { CdkDrag, CdkDragHandle, CdkDragPreview } from '@angular/cdk/drag-drop';
-import { ComicEdition } from '../../../../models/comic-edition';
-import { ComicPage } from '../../../../models/comic-page';
+import { ComicEdition } from '@app/models/comic-edition';
+import { ComicPage } from '@app/models/comic-page';
 
 @Component({
   selector: 'app-file-explorer-edition-item',

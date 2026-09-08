@@ -8,15 +8,15 @@ Para ler a licença completa, veja o arquivo LICENSE.txt no diretório raiz.
 
 import { Component, OnDestroy, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CdkDropList, CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
-import { ConversionStateService } from '../../services/conversion-state';
-import { FileManagerService } from '../../services/file-manager';
-import { FileExplorerHeader } from './subcomponents/file-explorer-header/file-explorer-header';
-import { FileExplorerEditionItem } from './subcomponents/file-explorer-edition-item/file-explorer-edition-item';
-import { ComicEdition } from '../../models/comic-edition';
-import { ComicPage } from '../../models/comic-page';
+import { ConversionStateService } from '@app/services/conversion-state';
+import { FileManagerService } from '@app/services/file-manager';
+import { FileExplorerHeader } from '@app/pages/converter/components/file-explorer/subcomponents/file-explorer-header/file-explorer-header';
+import { FileExplorerEditionItem } from '@app/pages/converter/components/file-explorer/subcomponents/file-explorer-edition-item/file-explorer-edition-item';
+import { ComicEdition } from '@app/models/comic-edition';
+import { ComicPage } from '@app/models/comic-page';
 import { Subscription } from 'rxjs';
-import { ComicPreviewStateService } from '../../services/comic-preview-state';
-import { PageLoaderService } from '../../services/page-loader';
+import { ComicPreviewStateService } from '@app/services/comic-preview-state';
+import { PageLoaderService } from '@app/services/page-loader';
 
 @Component({
   selector: 'app-file-explorer',
