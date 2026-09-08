@@ -1,15 +1,1 @@
-@media (min-width: 600px) {
-  .container-main {
-    padding: var(--padding-padrao-responsivo);
-  }
-}
-
-@media (min-width: 1001px) {
-  .container-main {
-    display: grid;
-    grid-template-rows: auto;
-    gap: 20px;
-    width: 100%;
-    min-height: 100%;
-  }
-}
+@media (max-width:1100px){.comic-grid{grid-template-columns:repeat(4,minmax(0,1fr))}.sidebar{width:205px;flex-basis:205px}.page-content{padding-inline:28px}.topbar{padding-inline:28px}}@media (max-width:720px){.sidebar{position:fixed;z-index:10;inset:0 auto 0 0;width:255px;transform:translateX(-100%);transition:transform .2s ease;background:#0b0d10;box-shadow:18px 0 30px #0008}.sidebar.is-open{transform:translateX(0)}.mobile-menu{display:grid}.topbar{height:62px;padding:0 16px;gap:10px}.search-wrap{max-width:none}.search-wrap kbd{display:none}.top-actions .icon-button{display:none}.add-button{padding:9px;width:36px;height:36px}.add-button span{display:none}.page-content{padding:27px 16px 45px}.welcome-row{margin-bottom:28px;align-items:flex-start}.welcome-row h1{font-size:24px}.mobile-add{display:grid}.reading-card{gap:14px;padding:11px}.reading-card>img{width:88px;height:121px}.reading-info{padding-right:0}.reading-info h3{font-size:18px}.reading-info>.muted{display:none}.reading-info .primary-button{padding:9px 11px;margin-top:15px}.section-heading{align-items:center}.text-button{font-size:11px}.filter-bar{margin-inline:-16px;padding-inline:16px;overflow:hidden;align-items:flex-start;flex-direction:column;gap:4px}.tabs{width:100%}.format-tabs{border:0;border-top:1px solid var(--line);padding:0;width:100%}.tabs button,.format-tabs button{padding:9px 10px}.comic-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:20px 12px}.library-section{margin-top:39px}.collections-section{margin-top:42px}.collection-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.collection-card{padding:9px;gap:8px}.collection-covers{width:34px;height:31px}.collection-covers img{width:22px;height:31px}.collection-card h3{font-size:11px}.collection-card p{font-size:9px}.collection-arrow{display:none}.add-menu{right:-8px}.eyebrow{font-size:9px}}@media (max-width:390px){.reading-card>img{width:76px;height:108px}.reading-info h3{font-size:16px}.reading-info .primary-button{font-size:11px}.reading-info .primary-button svg{display:none}}

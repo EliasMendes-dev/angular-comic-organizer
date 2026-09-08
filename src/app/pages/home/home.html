@@ -1,22 +1,36 @@
-<div class="container-main">
-  @if (isDesktop) {
-    <as-split direction="horizontal" unit="percent" [gutterSize]="5" [restrictMove]="true" [useTransition]="true" >
-      <as-split-area [size]="25" [minSize]="20">
-        <app-file-explorer />
-      </as-split-area>
+<div class="app-shell">
+  <aside class="sidebar" [class.is-open]="menuOpen">
+    <div class="brand"><div class="brand-mark"><svg lucideBookOpen></svg></div><span>Comic Organizer</span></div>
+    <nav class="nav-list" aria-label="Navegação principal">
+      <a class="nav-item active" href="#"><svg lucideHome></svg><span>Início</span></a>
+      <a class="nav-item" href="#library"><svg lucideLibrary></svg><span>Biblioteca</span><span class="nav-count">86</span></a>
+      <a class="nav-item" href="#favorites"><svg lucideHeart></svg><span>Favoritos</span></a>
+      <a class="nav-item" href="#progress"><svg lucideBookOpen></svg><span>Em andamento</span></a>
+      <a class="nav-item" href="#collections"><svg lucideFolderPlus></svg><span>Coleções</span></a>
+    </nav>
+    <div class="sidebar-bottom"><a class="nav-item" href="#converter"><svg lucideSparkles></svg><span>Conversor</span></a><a class="nav-item" href="#settings"><svg lucideSettings></svg><span>Configurações</span></a></div>
+  </aside>
 
-      <as-split-area [size]="50" [minSize]="35">
-        <app-comic-preview />
-      </as-split-area>
+  <main class="main-content">
+    <header class="topbar">
+      <button class="mobile-menu icon-button" type="button" aria-label="Abrir menu" (click)="menuOpen = !menuOpen"><svg lucideMenu></svg></button>
+      <div class="search-wrap"><svg lucideSearch></svg><input type="search" placeholder="Buscar na biblioteca..." [(ngModel)]="searchTerm" aria-label="Buscar quadrinhos" /><kbd>⌘ K</kbd></div>
+      <div class="top-actions"><button class="icon-button" aria-label="Alternar tema"><svg lucideMoon></svg></button><button class="icon-button" aria-label="Configurações"><svg lucideSettings></svg></button><div class="add-wrap"><button class="add-button" type="button" (click)="importMenuOpen = !importMenuOpen"><svg lucidePlus></svg><span>Adicionar</span></button>@if (importMenuOpen) {<div class="add-menu"><button><svg lucideUpload></svg>Importar quadrinhos</button><button><svg lucideFolderPlus></svg>Adicionar pasta</button><button><svg lucideSparkles></svg>Converter arquivos</button></div>}</div></div>
+    </header>
 
-      <as-split-area [size]="25" [minSize]="25">
-        <app-rename-settings />
-      </as-split-area>
-    </as-split>
+    <div class="page-content">
+      <section class="welcome-row"><div><p class="eyebrow">QUARTA-FEIRA, 18 DE SETEMBRO</p><h1>Bom dia, Elias.</h1><p class="muted">Continue sua leitura ou explore a sua coleção.</p></div><button class="mobile-add icon-button" aria-label="Adicionar quadrinho"><svg lucidePlus></svg></button></section>
 
-  } @else {
-    <app-file-explorer></app-file-explorer>
-    <app-comic-preview></app-comic-preview>
-    <app-rename-settings></app-rename-settings>
-  }
+      <section class="continue-section" id="progress"><div class="section-heading"><div><p class="eyebrow accent">SEU PROGRESSO</p><h2>Continue lendo</h2></div><button class="text-button">Ver histórico <svg lucideChevronRight></svg></button></div>
+        <article class="reading-card"><img src="https://images.unsplash.com/photo-1608889825103-eb5ed706fc64?auto=format&fit=crop&w=500&q=85" alt="Capa de Batman" /><div class="reading-info"><span class="format-label">CBZ · BATMAN</span><h3>Batman <span>#42</span></h3><p class="muted">A cidade está em silêncio. Algo está prestes a acontecer.</p><div class="progress-meta"><span>Página 18 de 27</span><strong>67%</strong></div><div class="progress-track"><span style="width: 67%"></span></div><button class="primary-button">Continuar leitura <svg lucideChevronRight></svg></button></div><button class="more-button" aria-label="Mais opções"><svg lucideMoreHorizontal></svg></button></article>
+      </section>
+
+      <section class="library-section" id="library"><div class="section-heading library-heading"><div><p class="eyebrow accent">SUA COLEÇÃO</p><h2>Minha biblioteca</h2></div><button class="filter-button"><svg lucideListFilter></svg>Filtros <svg lucideChevronDown></svg></button></div>
+        <div class="filter-bar"><div class="tabs">@for (filter of ['Todos', 'Favoritos', 'Em andamento', 'Não lido', 'Lido']; track filter) {<button [class.active]="activeFilter === filter" (click)="setFilter(filter)">{{ filter }}</button>}</div><div class="format-tabs">@for (format of ['Todos', 'CBZ', 'CBR']; track format) {<button [class.active]="activeFormat === format" (click)="setFormat(format)">{{ format }}</button>}</div></div>
+        <div class="comic-grid">@for (comic of filteredComics; track comic.title) {<article class="comic-card"><div class="cover-wrap"><img [src]="comic.cover" [alt]="'Capa de ' + comic.title" /><button class="favorite-button" [class.is-favorite]="comic.favorite" (click)="toggleFavorite(comic)" [attr.aria-label]="comic.favorite ? 'Remover dos favoritos' : 'Adicionar aos favoritos'"><svg lucideHeart></svg></button>@if (comic.progress) {<div class="card-progress"><span [style.width.%]="comic.progress"></span></div>}</div><div class="card-info"><div class="card-title"><div><h3>{{ comic.title }}</h3><p>{{ comic.issue }}</p></div><span class="format-badge">{{ comic.format }}</span></div><div class="status-row"><span class="status-dot" [class.reading]="comic.status === 'Lendo'"></span>{{ comic.status }} @if (comic.page) {<span class="page-label">{{ comic.page }}</span>}</div></div></article>} @empty {<div class="empty-state"><svg lucideBookOpen></svg><h3>Nenhum quadrinho encontrado</h3><p>Tente ajustar seus filtros ou importe novos quadrinhos.</p><button class="primary-button"><svg lucideUpload></svg>Importar quadrinhos</button></div>}</div>
+      </section>
+
+      <section class="collections-section" id="collections"><div class="section-heading"><div><p class="eyebrow accent">ORGANIZE POR TEMA</p><h2>Coleções</h2></div><button class="text-button">Ver todas <svg lucideChevronRight></svg></button></div><div class="collection-grid">@for (collection of collections; track collection.name) {<article class="collection-card"><div class="collection-covers">@for (cover of collection.covers; track cover) {<img [src]="cover" alt="" />}</div><div><h3>{{ collection.name }}</h3><p>{{ collection.count }} quadrinhos</p></div><svg class="collection-arrow" lucideChevronRight></svg></article>}</div></section>
+    </div>
+  </main>
 </div>
