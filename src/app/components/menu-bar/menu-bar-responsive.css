@@ -8,18 +8,26 @@
   .container-header {
     flex-wrap: wrap;
     row-gap: 0.5rem;
+    justify-content: center; /* Adicionado para centralizar os itens verticalmente */
   }
 
   .container-header-logo {
     flex: 1;
     min-width: 0;
+    text-align: center; /* Garante que o logo fique centralizado */
   }
 
   .primary-nav {
     flex-basis: 100%;
-    justify-content: flex-start;
+    justify-content: center; /* Alterado para centralizar os links */
     order: 3;
     padding-bottom: 0.15rem;
+    display: flex; /* Garante que os links usem flexbox */
+    gap: 0.5rem; /* Adicionado para espaçamento entre os links */
+  }
+
+  .primary-nav a {
+    padding: 0.55rem 0.35rem;
   }
 }
 
