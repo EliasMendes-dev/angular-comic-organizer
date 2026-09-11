@@ -1,0 +1,141 @@
+Prioridade alta
+ Criar um leitor dedicado para abrir HQs a partir da Biblioteca/Home, sem depender da tela do Converter.
+ Garantir que abrir uma HQ registre automaticamente o progresso.
+ Salvar páginas lidas por edição usando identidade estável: caminho/nome, extensão e tamanho.
+ Testar o status:
+ Para ler antes da primeira abertura.
+ Em progresso após ler uma página.
+ Lido após finalizar todas.
+ Permitir continuar exatamente na última página acessada.
+ Corrigir o comportamento quando o arquivo é substituído por outro com o mesmo nome, mas tamanho diferente.
+ Preservar favoritos, status e coleções quando o arquivo for removido.
+ Mostrar claramente a tag Apagada nas coleções.
+ Ao restaurar o mesmo arquivo, reativar automaticamente o item e remover a tag Apagada.
+
+
+Pastas locais
+ Confirmar leitura recursiva de subpastas:
+Absolute/Absolute Batman/*.cbz.
+ Permitir adicionar várias pastas sem duplicar arquivos.
+ Impedir colisões entre arquivos com o mesmo nome em pastas diferentes.
+ Exibir estado de carregamento durante a varredura.
+ Mostrar quantidade de arquivos encontrados.
+ Mostrar erros individuais de arquivos inválidos ou corrompidos.
+ Permitir cancelar uma importação grande.
+ Remover corretamente todos os arquivos de uma fonte em Settings.
+ Evitar que uma pasta removida continue ocupando memória.
+ No Tauri, salvar o caminho real da pasta e sincronizar novamente ao abrir o app.
+ No navegador, explicar que a pasta precisa ser selecionada novamente após fechar o app.
+
+
+Google Drive
+ Implementar login OAuth do Google.
+ Solicitar apenas permissão de leitura.
+ Permitir escolher uma pasta do Drive.
+ Fazer varredura recursiva das subpastas.
+ Filtrar apenas .cbz e .cbr.
+ Paginar resultados para não carregar tudo de uma vez.
+ Atualizar arquivos novos sem duplicar os antigos.
+ Lidar com token expirado ou acesso revogado.
+ Permitir desconectar a conta.
+ Mostrar erro quando a pasta do Drive não estiver mais disponível.
+ Definir se os arquivos serão baixados temporariamente ou abertos sob demanda.
+
+
+Biblioteca
+ Unificar Home e Library para usarem os mesmos dados reais.
+ Remover dependência definitiva dos mockados.
+ Fazer os filtros de formato CBZ/CBR funcionarem.
+ Fazer busca por título, nome da série e pasta.
+ Adicionar ordenação por:
+ Nome.
+ Mais recente.
+ Progresso.
+ Última leitura.
+ Implementar visualização normal, compacta e lista também na Library.
+ Salvar a preferência de visualização do usuário.
+ Exibir progresso visual nos cards.
+ Exibir quantidade de páginas lidas e total.
+ Criar estado vazio específico para cada filtro.
+ Criar confirmação antes de remover uma fonte inteira.
+
+
+Collections
+ Permitir adicionar e remover HQs de uma coleção de forma clara.
+ Permitir editar o nome da coleção.
+ Exibir capas reais das HQs.
+ Mostrar corretamente HQs apagadas.
+ Permitir abrir uma HQ diretamente pela coleção.
+ Permitir remover uma HQ da coleção sem apagar da biblioteca.
+ Definir comportamento ao excluir uma coleção.
+ Salvar modo normal/compacto/lista.
+ Testar coleções grandes no mobile.
+
+
+Capa e armazenamento
+ Salvar uma miniatura real da primeira página.
+ Evitar depender de blob: URLs, pois elas expiram ao fechar o app.
+ Criar cache de capas redimensionadas para economizar espaço.
+ Definir limite de armazenamento local.
+ Migrar dados antigos salvos no localStorage.
+ Considerar IndexedDB para capas e metadados maiores.
+ Criar backup/exportação das preferências da biblioteca.
+
+
+Performance
+ Processar arquivos em lotes.
+ Não extrair todas as páginas imediatamente em bibliotecas grandes.
+ Carregar capas sob demanda.
+ Usar virtualização na lista quando houver centenas de HQs.
+ Limitar cache de páginas e capas.
+ Liberar ObjectURL ao remover arquivos.
+ Evitar bloquear a interface durante importação.
+ Mostrar progresso da importação: 23 de 150 arquivos.
+
+ 
+Erros e casos extremos
+ Arquivo corrompido.
+ CBR sem suporte ou com extensão incorreta.
+ ZIP renomeado para CBZ.
+ Arquivo sem páginas.
+ Pasta sem permissão.
+ Arquivo sendo usado por outro programa.
+ Dois arquivos com mesmo nome, tamanho e extensão em pastas diferentes.
+ Arquivo alterado mantendo o mesmo nome.
+ Falta de espaço em disco.
+ localStorage cheio.
+ Imagem de página que não carrega.
+ Perda de conexão com Google Drive.
+ Fechamento do app durante uma importação.
+
+
+Testes
+ Testar importação de uma pasta com subpastas.
+ Testar múltiplas pastas.
+ Testar arquivos duplicados.
+ Testar remoção de fonte.
+ Testar restauração de HQ apagada.
+ Testar progresso após fechar e abrir o app.
+ Testar leitura até a última página.
+ Testar Home, Library e Collections com muitos itens.
+ Testar mobile.
+ Testar menu sticky.
+ Testar teclado e acessibilidade.
+ Corrigir a configuração atual do Vitest/Angular TestBed.
+ Adicionar testes unitários para identidade de arquivo e status automático.
+ Adicionar testes de integração para importação recursiva.
+Experiência do usuário
+ Mostrar claramente de onde cada HQ veio.
+ Exibir nome da pasta ou fonte no card.
+ Usar mensagens em português de forma consistente.
+ Adicionar confirmação antes de ações destrutivas.
+ Informar quando uma ação está em andamento.
+ Informar quando o Google Drive ainda não está conectado.
+ Garantir foco correto no leitor.
+ Adicionar atalhos de teclado para próxima/anterior página.
+ Adicionar botão “Continuar lendo”.
+ Permitir retomar a leitura pela Home.
+ Garantir contraste e navegação por teclado em todos os controles.
+
+A maior decisão arquitetural pendente é trocar parte do localStorage por IndexedDB e criar um leitor dedicado. Isso resolve persistência de capas, progresso e desempenho quando a biblioteca crescer.
+

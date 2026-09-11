@@ -18,9 +18,9 @@ export const routes: Routes = [
     component: Home,
   },
   { path: 'library', component: Library },
-  { path: 'favorites', component: SectionPage, data: { title: 'Favorites', eyebrow: 'Sua seleção', description: 'Acesse rapidamente as edições que você marcou como favoritas.' } },
-  { path: 'collections', component: SectionPage, data: { title: 'Collections', eyebrow: 'Organização', description: 'Crie coleções para organizar suas leituras por tema, arco ou autor.' } },
-  { path: 'settings', component: SectionPage, data: { title: 'Settings', eyebrow: 'Preferências', description: 'As preferências da biblioteca e das fontes aparecerão aqui.' } },
+  { path: 'favorites', component: SectionPage, data: { sectionType: 'favorites', title: 'Favorites', eyebrow: 'Sua seleção', description: 'Acesse rapidamente as edições que você marcou como favoritas.' } },
+  { path: 'collections', component: SectionPage, data: { sectionType: 'collections', title: 'Collections', eyebrow: 'Organização', description: 'Crie coleções para organizar suas leituras por tema, arco ou autor.' } },
+  { path: 'settings', component: SectionPage, data: { sectionType: 'settings', title: 'Settings', eyebrow: 'Preferências', description: 'Gerencie as pastas que alimentam sua biblioteca.' } },
   {
     path: 'converter',
     component: Converter,

@@ -243,6 +243,26 @@ export class FileManagerService {
     this.webFiles.clear();
   }
 
+  removeWebSource(fileNames: string[]): void {
+    const sourceFiles = new Set(fileNames);
+    this.webFiles.forEach((file, key) => {
+      if (sourceFiles.has(key) || sourceFiles.has(file.name)) {
+        this.webFiles.delete(key);
+      }
+    });
+
+    const remainingEditions = this.fileEditions.filter((edition) => {
+      const sourcePath = edition.sourcePath ?? edition.originalFile?.name;
+      if (!sourcePath || !sourceFiles.has(sourcePath)) return true;
+      edition.pages.forEach((page) => {
+        if (page.imagePath.startsWith('blob:')) URL.revokeObjectURL(page.imagePath);
+      });
+      return false;
+    });
+    this.fileEditions = remainingEditions;
+    this.clearEditionSelection();
+  }
+
   private getEditionTitleFromPath(path: string): string {
     // Usa o nome do arquivo sem extensao como titulo base da edicao.
     const fileName = path.split(/[/\\]/).pop() ?? '';
@@ -276,6 +296,7 @@ export class FileManagerService {
         title,
         pages,
         originalFile: file,
+        sourcePath: name,
         selected: false,
         expanded: false,
       });

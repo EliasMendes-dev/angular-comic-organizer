@@ -1,8 +1,102 @@
 <section class="section-page">
-  <div class="section-copy">
+  @if (isFavorites) {
+    <div class="section-content">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">{{ eyebrow }}</p>
+          <h2>{{ title }}</h2>
+          <p>{{ description }}</p>
+        </div>
+        <a routerLink="/library">Abrir biblioteca</a>
+      </div>
+      @if (favoriteEditions().length) {
+        <div class="section-list">
+          @for (edition of favoriteEditions(); track trackEdition($index, edition)) {
+            <article class="section-item">
+              <strong>{{ edition.title }}</strong>
+              <span>{{ edition.pages.length }} páginas</span>
+            </article>
+          }
+        </div>
+      } @else {
+        <p class="section-empty">Você ainda não marcou nenhuma edição como favorita.</p>
+      }
+    </div>
+  } @else if (isCollections) {
+    <div class="section-content">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">{{ eyebrow }}</p>
+          <h2>{{ title }}</h2>
+          <p>{{ description }}</p>
+        </div>
+        <a routerLink="/library">Abrir biblioteca</a>
+      </div>
+      <div class="section-view-switch" role="group" aria-label="Modo de visualização das coleções"><button type="button" [class.active]="viewMode() === 'normal'" (click)="setViewMode('normal')">Normal</button><button type="button" [class.active]="viewMode() === 'compact'" (click)="setViewMode('compact')">Compacto</button><button type="button" [class.active]="viewMode() === 'list'" (click)="setViewMode('list')">Lista</button></div>
+      <form class="collection-form" (submit)="$event.preventDefault(); createCollection()">
+        <label>
+          <span class="sr-only">Nome da coleção</span>
+          <input type="text" placeholder="Nome da nova coleção" [value]="collectionName()" (input)="onCollectionName($event)" />
+        </label>
+        <button type="submit">Criar coleção</button>
+      </form>
+      @if (libraryMetadata.collections().length) {
+        <div class="collections-list" [class.compact-view]="viewMode() === 'compact'" [class.list-view]="viewMode() === 'list'">
+          @for (collection of collectionsWithItems(); track collection.id) {
+            <article class="collection-item">
+              <div>
+                <strong>{{ collection.name }}</strong>
+                <span>{{ collection.items.length }} edições</span>
+              </div>
+              <button type="button" (click)="deleteCollection(collection.id)">Excluir</button>
+              <div class="collection-editions">
+                @for (item of collection.items; track item.key) {
+                  <div class="collection-edition">
+                    @if (item.metadata; as metadata) {
+                      @if (metadata.cover) { <img [src]="metadata.cover" [alt]="'Capa de ' + (metadata.title ?? 'HQ')" /> }
+                      <span>{{ metadata.title ?? 'Edição sem título' }}</span>
+                    } @else {
+                      <span>Edição sem título</span>
+                    }
+                    @if (!item.present) { <small>Apagada</small> }
+                  </div>
+                }
+              </div>
+            </article>
+          }
+        </div>
+      } @else {
+        <p class="section-empty">Crie sua primeira coleção para organizar as edições.</p>
+      }
+    </div>
+  } @else if (isSettings) {
+    <div class="section-content settings-content">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">{{ eyebrow }}</p>
+          <h2>{{ title }}</h2>
+          <p>{{ description }}</p>
+        </div>
+      </div>
+      <section class="sources-panel">
+        <div class="sources-heading"><div><h3>Pastas conectadas</h3><p>As subpastas são varridas automaticamente em busca de CBR e CBZ.</p></div><button type="button" disabled>Conectar Google Drive</button></div>
+        @if (librarySources.sources().length) {
+          <div class="sources-list">
+            @for (source of librarySources.sources(); track source.id) {
+              <article class="source-item"><div><strong>{{ source.name }}</strong><span>{{ source.fileNames.length }} arquivos encontrados · {{ source.type === 'local' ? 'Pasta local' : 'Google Drive' }}</span></div><button type="button" (click)="removeSource(source.id)">Remover</button></article>
+            }
+          </div>
+        } @else {
+          <p class="section-empty">Nenhuma pasta local conectada ainda.</p>
+        }
+      </section>
+    </div>
+  } @else {
+    <div class="section-copy">
     <p class="eyebrow">{{ eyebrow }}</p>
     <h2>{{ title }}</h2>
     <p>{{ description }}</p>
     <a routerLink="/library">Abrir biblioteca</a>
-  </div>
+    </div>
+  }
 </section>

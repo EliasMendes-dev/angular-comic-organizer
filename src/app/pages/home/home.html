@@ -1,39 +1,45 @@
 <section class="home-page">
-  <div class="home-intro">
+  <section class="home-hero">
     <div>
-      <p class="eyebrow">Comic Organizer</p>
-      <h2>Sua estante, do seu jeito.</h2>
-      <p class="home-lead">Reúna seus quadrinhos, acompanhe o que está lendo e encontre a próxima história sem sair do ritmo.</p>
+      <p class="eyebrow">Sua biblioteca pessoal</p>
+      <h2>Leia. Organize.<br /><em>Continue.</em></h2>
+      <p class="home-lead">Todos os seus quadrinhos em um só lugar.</p>
     </div>
-    <div class="home-actions">
-      <a routerLink="/library" class="primary-action">Abrir biblioteca</a>
-      <a routerLink="/converter" class="secondary-action">Converter arquivos</a>
+    <div class="add-menu-wrap">
+      <button class="add-button" type="button" popovertarget="add-menu"><svg lucidePlus [size]="17"></svg> Adicionar <span aria-hidden="true">⌄</span></button>
+      <div id="add-menu" class="add-menu" popover>
+        <strong>Adicionar ao Comic Organizer</strong>
+        <label class="add-menu-item"><svg lucideFolderOpen [size]="16"></svg> Conectar pasta local<input type="file" webkitdirectory directory multiple accept=".cbz,.cbr" (change)="onLocalFolderSelected($event)" /></label>
+        <button class="add-menu-item" type="button" disabled><svg lucideCloud [size]="16"></svg> Conectar Google Drive <small>em breve</small></button>
+      </div>
     </div>
-  </div>
-  <div class="stats-grid" aria-label="Resumo da biblioteca">
-    <article><span>Na biblioteca</span><strong>{{ editions().length }}</strong><small>edições carregadas</small></article>
-    <article><span>Páginas</span><strong>{{ totalPages() }}</strong><small>prontas para ler</small></article>
-    <article><span>Em leitura</span><strong>0</strong><small>nenhuma por enquanto</small></article>
-    <article><span>Favoritos</span><strong>0</strong><small>marque suas preferidas</small></article>
-  </div>
-  <div class="home-lower-grid">
-    <section class="home-panel">
-      <div class="panel-heading"><div><p class="eyebrow">Continue daqui</p><h3>Leitura recente</h3></div><a routerLink="/library">Ver tudo</a></div>
-      @if (editions().length) {
-        <div class="recent-list">
-          @for (edition of editions().slice(0, 4); track edition.id) {
-            <div class="recent-item"><span class="recent-mark">{{ edition.title.charAt(0).toUpperCase() }}</span><div><strong>{{ edition.title }}</strong><small>{{ edition.pages.length }} páginas</small></div><span class="status-dot"></span></div>
-          }
-        </div>
-      } @else {
-        <div class="panel-empty"><strong>Nada por aqui ainda.</strong><span>Adicione uma pasta local para montar sua biblioteca.</span><a routerLink="/library">Adicionar quadrinhos</a></div>
+  </section>
+
+  <section class="continue-panel">
+    <div class="continue-cover"><img src="/cassdadosmockados/2.jpg" alt="Capa de Batman: City of Shadows" /><span>42%</span></div>
+    <div class="continue-copy"><p class="eyebrow">Continue lendo</p><h3>Batman: City of Shadows</h3><p>Issue #14 · Página 38 de 90 · 42% concluído</p><div class="progress-track"><span></span></div></div>
+    <button class="continue-button" type="button"><svg lucideBookOpen [size]="16"></svg> Continuar lendo</button>
+  </section>
+
+  <section class="library-section">
+    <div class="section-title-row"><div><h3>Minha Biblioteca</h3><span>{{ visibleMockEditions().length }} de {{ mockEditions.length }} títulos</span></div><label class="home-search"><svg lucideSearch [size]="16"></svg><input type="search" placeholder="Buscar na biblioteca..." aria-label="Buscar na biblioteca" [value]="search()" (input)="onSearch($event)" /></label></div>
+    <div class="filter-row" role="tablist" aria-label="Filtrar biblioteca">
+      <button type="button" [class.active]="filter() === 'all'" (click)="setFilter('all')">Todos</button>
+      <button type="button" [class.active]="filter() === 'favorites'" (click)="setFilter('favorites')"><svg lucideHeart [size]="13"></svg> Favoritos <span>{{ favoriteCount() }}</span></button>
+      <button type="button" [class.active]="filter() === 'reading'" (click)="setFilter('reading')">Em progresso <span>{{ readingCount() }}</span></button>
+      <button type="button" [class.active]="filter() === 'to-read'" (click)="setFilter('to-read')">Para ler</button>
+      <button type="button" [class.active]="filter() === 'read'" (click)="setFilter('read')">Lidos</button>
+    </div>
+    <div class="library-controls"><div class="format-tabs" aria-label="Filtrar formato"><button class="active" type="button">Todos</button><button type="button">CBZ</button><button type="button">CBR</button></div><div class="view-switch" role="group" aria-label="Modo de visualização"><button type="button" [class.active]="viewMode() === 'normal'" (click)="setViewMode('normal')">Normal</button><button type="button" [class.active]="viewMode() === 'compact'" (click)="setViewMode('compact')">Compacto</button><button type="button" [class.active]="viewMode() === 'list'" (click)="setViewMode('list')">Lista</button></div></div>
+    <div class="comic-grid" [class.compact-view]="viewMode() === 'compact'" [class.list-view]="viewMode() === 'list'">
+      @for (edition of visibleMockEditions(); track edition.id) {
+        <article class="comic-card">
+          <div class="cover-wrap"><img [src]="edition.cover" [alt]="'Capa de ' + edition.title" /><span class="format-badge">{{ edition.format }}</span><button class="heart-button" type="button" [class.active]="libraryMetadata.isFavorite(edition)" [attr.aria-label]="libraryMetadata.isFavorite(edition) ? 'Remover dos favoritos' : 'Adicionar aos favoritos'" (click)="toggleFavorite(edition)"><svg lucideHeart [size]="16" [attr.fill]="libraryMetadata.isFavorite(edition) ? 'currentColor' : 'none'"></svg></button></div>
+          <div class="comic-info"><div><h4>{{ edition.title }}</h4><p>{{ libraryMetadata.getMetadata(edition).status === 'reading' ? 'Em progresso' : libraryMetadata.getMetadata(edition).status === 'read' ? 'Lido' : 'Para ler' }} · {{ libraryMetadata.getReadingProgress(edition) }}%</p></div></div>
+        </article>
       }
-    </section>
-    <aside class="home-panel accent-panel">
-      <p class="eyebrow">Próximo passo</p>
-      <h3>Traga sua coleção para dentro.</h3>
-      <p>Comece com uma pasta local. O suporte a fontes como Google Drive entra na próxima etapa da biblioteca.</p>
-      <a routerLink="/library">Configurar biblioteca <span aria-hidden="true">→</span></a>
-    </aside>
-  </div>
+    </div>
+  </section>
+
+  <section class="collections-section"><div class="section-title-row"><div><h3>Coleções</h3><span>Organize por tema, personagem ou fase</span></div><a routerLink="/collections">Ver todas as coleções</a></div><div class="collection-strip"><a routerLink="/collections"><img src="/cassdadosmockados/1.jpg" alt="Coleção Gotham" /><strong>Gotham</strong><span>3 quadrinhos</span></a><a routerLink="/collections"><img src="/cassdadosmockados/5.jpg" alt="Coleção Cassandra Cain" /><strong>Cassandra Cain</strong><span>2 quadrinhos</span></a><a routerLink="/collections"><img src="/cassdadosmockados/4.jpg" alt="Coleção Batman" /><strong>Batman</strong><span>4 quadrinhos</span></a></div></section>
 </section>

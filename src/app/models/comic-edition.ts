@@ -18,6 +18,7 @@ export interface ComicEdition {
   expanded?: boolean;
 
   originalFile?: File;
+  sourcePath?: string;
 
   converted?: boolean;
 

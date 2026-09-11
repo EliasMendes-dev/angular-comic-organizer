@@ -44,9 +44,27 @@
         <article class="edition-card">
           <div class="cover-placeholder" aria-hidden="true">{{ edition.title.charAt(0).toUpperCase() }}</div>
           <div class="edition-details">
-            <span class="format-tag">{{ edition.originalFile?.name?.split('.')?.pop()?.toUpperCase() ?? 'COMIC' }}</span>
+            <div class="edition-card-topline">
+              <span class="format-tag">{{ edition.originalFile?.name?.split('.')?.pop()?.toUpperCase() ?? 'COMIC' }}</span>
+              <button
+                type="button"
+                class="favorite-button"
+                [class.is-favorite]="libraryMetadata.isFavorite(edition)"
+                [attr.aria-label]="libraryMetadata.isFavorite(edition) ? 'Remover dos favoritos' : 'Adicionar aos favoritos'"
+                (click)="toggleFavorite(edition)"
+              >
+                {{ libraryMetadata.isFavorite(edition) ? '♥' : '♡' }}
+              </button>
+            </div>
             <h3>{{ edition.title }}</h3>
             <p>{{ edition.pages.length }} páginas</p>
+            <span class="reading-progress">{{ libraryMetadata.getMetadata(edition).status === 'reading' ? 'Em progresso' : libraryMetadata.getMetadata(edition).status === 'read' ? 'Concluído' : 'Para ler' }} · {{ libraryMetadata.getReadingProgress(edition) }}%</span>
+            <select class="card-select" aria-label="Adicionar a uma coleção" (change)="toggleCollection(edition, $event)">
+              <option value="">Coleção...</option>
+              @for (collection of libraryMetadata.collections(); track collection.id) {
+                <option [value]="collection.id">{{ collection.name }}</option>
+              }
+            </select>
             <button type="button" class="card-action">Abrir edição</button>
           </div>
         </article>

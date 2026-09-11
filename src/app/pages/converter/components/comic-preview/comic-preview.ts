@@ -11,6 +11,7 @@ import { LucideEye, LucideImage, LucideX } from '@lucide/angular';
 import { ComicPreviewStateService } from '@app/services/comic-preview-state';
 import { PageLoaderService } from '@app/services/page-loader';
 import { FileManagerService } from '@app/services/file-manager';
+import { LibraryMetadataService } from '@app/services/library-metadata';
 import { ComicPage } from '@app/models/comic-page';
 import { TitleCasePipe } from '@angular/common';
 
@@ -53,6 +54,7 @@ export class ComicPreview {
     public comicPreviewStateService: ComicPreviewStateService,
     private pageLoader: PageLoaderService,
     private fileManagerService: FileManagerService,
+    private libraryMetadata: LibraryMetadataService,
   ) {
     // Reage automaticamente a mudancas da pagina selecionada no estado compartilhado.
     effect(() => {
@@ -64,6 +66,13 @@ export class ComicPreview {
         this.resetZoom();
         this.imageUrl.set(null);
         return;
+      }
+
+      const editionId = this.comicPreviewStateService.selectedEditionId();
+      const edition = this.fileManagerService.fileEditions.find((item) => item.id === editionId);
+      const pageIndex = edition?.pages.findIndex((editionPage) => editionPage.id === page.id) ?? -1;
+      if (edition && pageIndex >= 0) {
+        this.libraryMetadata.recordPageViewed(edition, page.id, pageIndex);
       }
 
       // Cada nova selecao ganha uma versao nova para evitar corrida de carregamento.

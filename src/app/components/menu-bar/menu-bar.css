@@ -10,6 +10,11 @@
   font-family: var(--familia-fonte-padrao);
 
   border-bottom: 1px solid var(--cor-borda);
+
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--fundo-primario);
 }
 
 .menu-toggle,
@@ -35,8 +40,8 @@
   font-size: 0.86rem;
   text-decoration: none;
   white-space: nowrap;
-  position: relative; 
-  transition: color 0.3s ease; 
+  position: relative;
+  transition: color 0.3s ease;
 }
 
 .primary-nav a::after {
@@ -46,13 +51,13 @@
   left: 0;
   width: 0;
   height: 2px;
-  background-color: var(--verde-primario); 
-  transition: width 0.3s ease; 
+  background-color: var(--verde-primario);
+  transition: width 0.3s ease;
 }
 
 .primary-nav a:hover::after,
 .primary-nav a.active::after {
-  width: 100%; 
+  width: 100%;
 }
 
 .primary-nav a:hover,

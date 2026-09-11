@@ -129,6 +129,40 @@ select {
   padding: 1rem;
 }
 
+.edition-card-topline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.favorite-button {
+  padding: 0.15rem 0.3rem;
+  border: 0;
+  background: transparent;
+  color: var(--texto-secundario);
+  cursor: pointer;
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+.favorite-button.is-favorite,
+.favorite-button:hover,
+.favorite-button:focus-visible {
+  color: var(--verde-primario);
+}
+
+.card-select {
+  width: 100%;
+  min-height: 32px;
+  padding: 0.35rem;
+  border: 1px solid var(--borda-input);
+  border-radius: 5px;
+  background: var(--fundo-input);
+  color: var(--texto-secundario);
+  font-size: 0.78rem;
+}
+
 .edition-details h3 {
   font-size: 1.05rem;
   overflow-wrap: anywhere;
