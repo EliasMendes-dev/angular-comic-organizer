@@ -6,16 +6,27 @@ O uso, modificação e distribuição são permitidos apenas para fins NÃO COME
 Para ler a licença completa, veja o arquivo LICENSE.txt no diretório raiz.
 */
 
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
+import { LucideMenu, LucideX } from '@lucide/angular';
 import { MenuBarLogo } from '@app/components/menu-bar/subcomponents/menu-bar-logo/menu-bar-logo';
 
 @Component({
   selector: 'app-menu-bar',
   standalone: true,
-  imports: [MenuBarLogo, RouterLink, RouterLinkActive],
+  imports: [LucideMenu, LucideX, MenuBarLogo, RouterLink, RouterLinkActive],
   templateUrl: './menu-bar.html',
   styleUrls: ['./menu-bar.css', './menu-bar-responsive.css'],
 })
 // Barra superior global com a identidade e a navegacao principal.
-export class MenuBar {}
+export class MenuBar {
+  protected readonly isMenuOpen = signal(false);
+
+  protected toggleMenu(): void {
+    this.isMenuOpen.update((isOpen) => !isOpen);
+  }
+
+  protected closeMenu(): void {
+    this.isMenuOpen.set(false);
+  }
+}

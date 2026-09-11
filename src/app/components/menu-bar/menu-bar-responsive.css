@@ -6,8 +6,8 @@
 
 @media (max-width: 700px) {
   .container-header {
-    flex-wrap: wrap;
-    row-gap: 0.5rem;
+    position: relative;
+    z-index: 20;
   }
 
   .container-header-logo {
@@ -15,11 +15,104 @@
     min-width: 0;
   }
 
+  .menu-toggle {
+    display: grid;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    color: var(--verde-primario);
+    background: transparent;
+    border: 1px solid var(--verde-hover);
+    border-radius: 8px;
+    cursor: pointer;
+  }
+
+  .menu-toggle:hover,
+  .menu-toggle:focus-visible {
+    background: var(--fundo-hover);
+    outline: 2px solid var(--verde-primario);
+    outline-offset: 2px;
+  }
+
+  .menu-toggle.is-open {
+    visibility: hidden;
+  }
+
   .primary-nav {
-    flex-basis: 100%;
+    position: fixed;
+    inset: 0 0 0 auto;
+    z-index: 15;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
     justify-content: flex-start;
-    order: 3;
-    padding-bottom: 0.15rem;
+    gap: 0.25rem;
+    width: min(17rem, 86vw);
+    padding: 1rem;
+    background: var(--fundo-secundario);
+    border-left: 1px solid var(--cor-borda);
+    box-shadow: -1rem 0 2rem rgb(0 0 0 / 22%);
+    transform: translateX(100%);
+    transition: transform 180ms ease;
+    pointer-events: none;
+  }
+
+  .menu-close {
+    display: grid;
+    place-items: center;
+    align-self: flex-end;
+    width: 2.5rem;
+    height: 2.5rem;
+    margin-bottom: 1rem;
+    color: var(--verde-primario);
+    background: transparent;
+    border: 1px solid var(--verde-hover);
+    border-radius: 8px;
+    cursor: pointer;
+  }
+
+  .menu-close:hover,
+  .menu-close:focus-visible {
+    background: var(--fundo-hover);
+    outline: 2px solid var(--verde-primario);
+    outline-offset: 2px;
+  }
+
+  .primary-nav.is-open {
+    transform: translateX(0);
+    pointer-events: auto;
+  }
+
+  .primary-nav a {
+    padding: 0.7rem 0.75rem;
+    font-size: 0.95rem;
+  }
+
+  .menu-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 10;
+    display: block;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    background: rgb(0 0 0 / 68%);
+    border: 0;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 180ms ease;
+  }
+
+  .menu-backdrop.is-visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .primary-nav,
+  .menu-backdrop {
+    transition: none;
   }
 }
 
